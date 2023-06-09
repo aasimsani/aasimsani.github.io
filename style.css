@@ -300,3 +300,8 @@ h5 {
   aspect-ratio: 16 / 9;
   width: 80%;
 }
+
+#linkedin-iframe {
+  width: 100%;
+  min-height: 750px;
+}
