@@ -1,6 +1,6 @@
 $(function(){
 	$(".typed").typed({
-		strings: ["Data Scientist", "Founder", "Developer", "Cyclist"],
+		strings: ["Product Leader", "Data Scientist", "Founder", "Developer", "Cyclist"],
 		typeSpeed: 50,
 		startDelay: 1000,
 		backDelay: 2000,
