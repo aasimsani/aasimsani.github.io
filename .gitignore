@@ -1,1 +1,12 @@
 .DS_Store
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+
+# IDE / agent scratch
+.claude/
+.serena/
+.playwright-mcp/

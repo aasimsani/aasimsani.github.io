@@ -1,0 +1,50 @@
+---
+import "../styles/global.css";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = site.title, description = site.description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title}</title>
+    <link rel="icon" type="image/x-icon" href="/icons/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="canonical" href={site.url} />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={site.ogTitle} />
+    <meta property="og:url" content={site.url} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={site.ogImage} />
+    <meta property="og:site_name" content={site.ogSiteName} />
+
+    <meta name="twitter:creator" content={site.twitterCreator} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={site.ogTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta property="twitter:image" content={site.ogImage} />
+
+    <meta name="description" content={description} />
+
+    <meta property="profile:first_name" content={site.firstName} />
+    <meta property="profile:last_name" content={site.lastName} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Inter:wght@300..600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

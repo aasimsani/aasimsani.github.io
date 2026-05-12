@@ -1,0 +1,53 @@
+---
+import { bio } from "../data/bio";
+import { icons } from "./icons";
+const { intro } = bio;
+---
+
+<section class="intro content container-fluid">
+  <div class="wrap">
+    <div class="head">
+      <span class="heading-icon" set:html={icons.whoami}></span>
+      <h3><span class="codeText">{intro.label}</span></h3>
+    </div>
+    {intro.paragraphs.map((p) => <p set:html={p}></p>)}
+  </div>
+</section>
+
+<style>
+  .intro {
+    padding: 5rem 1.5rem;
+    background: var(--color-cream);
+  }
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .heading-icon {
+    display: inline-flex;
+    color: var(--color-sage-dim);
+  }
+  .head :global(svg) {
+    width: 32px;
+    height: 32px;
+  }
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .codeText {
+    font-family: var(--font-mono);
+    color: var(--color-sage-dim);
+    font-size: 1rem;
+  }
+  p {
+    font-size: 1.15rem;
+    color: var(--color-ink);
+  }
+</style>

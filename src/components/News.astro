@@ -1,0 +1,179 @@
+---
+import { podcasts, articles } from "../data/news";
+import { icons } from "./icons";
+import SectionHeader from "./SectionHeader.astro";
+---
+
+<script>
+  function markFailed(img: HTMLImageElement) {
+    img.classList.add("failed");
+    img.closest(".news-card")?.classList.add("no-image");
+  }
+  document.querySelectorAll<HTMLImageElement>(".news-card img").forEach((img) => {
+    if (img.complete && img.naturalWidth === 0) markFailed(img);
+    img.addEventListener("error", () => markFailed(img));
+  });
+</script>
+
+<section class="news section-anchor" id="news">
+  <div class="container">
+    <SectionHeader title="News and media" />
+    <div class="subhead">
+      <span set:html={icons.headphones}></span>
+      <h3>Podcasts</h3>
+    </div>
+    <div class="grid">
+      {podcasts.map((c) => (
+        <a class="card content-black news-card" href={c.link} target="_blank" rel="noopener">
+          <div class="card-image">
+            <img src={c.image} alt={c.title} loading="lazy" decoding="async" />
+          </div>
+          <div class="card-body">
+            <h6 class="card-title">{c.title}</h6>
+            <p class="card-text text-truncate">{c.body}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <div class="subhead">
+      <span set:html={icons.newspaper}></span>
+      <h3>Articles</h3>
+    </div>
+    <div class="grid">
+      {articles.map((c) => (
+        <a class="card content-black news-card" href={c.link} target="_blank" rel="noopener">
+          <div class="card-image">
+            <img src={c.image} alt={c.title} loading="lazy" decoding="async" />
+          </div>
+          <div class="card-body">
+            <h6 class="card-title">{c.title}</h6>
+            <p class="card-text text-truncate">{c.body}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .news {
+    padding: 5rem 1.5rem;
+    background: var(--color-cream-soft);
+  }
+  /* Force broken image to fall through to the gradient placeholder */
+  .card-image img {
+    background: transparent;
+    font-size: 0;
+  }
+  .card-image img.failed {
+    display: none;
+  }
+  .news-card.no-image .card-image {
+    aspect-ratio: 21 / 5;
+  }
+  .news-card.no-image .card-image::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0.75rem;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 1px;
+    background: color-mix(in srgb, var(--color-terracotta) 60%, transparent);
+    z-index: 2;
+  }
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .subhead {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 3rem 0 1.5rem;
+  }
+  .subhead :global(svg) {
+    width: 24px;
+    height: 24px;
+    color: var(--color-sage-dim);
+  }
+  .subhead h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    display: block;
+    background: var(--color-cream-soft);
+    border: 1px solid var(--color-fog);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--color-ink);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px -16px rgba(0, 0, 0, 0.6);
+    border-color: color-mix(in srgb, var(--color-terracotta) 60%, var(--color-fog));
+    text-decoration: none;
+  }
+  .card-image {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #0f0c09;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-fog);
+  }
+  .card-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 25% 35%, color-mix(in srgb, var(--color-terracotta) 25%, transparent), transparent 55%),
+      radial-gradient(circle at 75% 65%, color-mix(in srgb, var(--color-sage) 18%, transparent), transparent 55%);
+    z-index: 0;
+  }
+  .card-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    color: transparent;
+  }
+  .card-image img:not([src]),
+  .card-image img[src=""] {
+    display: none;
+  }
+  .card-body {
+    padding: 1rem 1.25rem 1.25rem;
+    position: relative;
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+  }
+  .card-text {
+    font-size: 0.95rem;
+    margin: 0;
+    color: var(--color-ink-soft);
+    line-height: 1.5;
+  }
+  .text-truncate {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

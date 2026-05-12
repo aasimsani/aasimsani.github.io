@@ -1,0 +1,46 @@
+---
+import { nav } from "../data/nav";
+---
+
+<section class="nav-section d-flex justify-content-center">
+  <div class="nav justify-content-evenly">
+    {nav.map((n) => <a class="nav-link" href={n.href}>{n.label}</a>)}
+  </div>
+</section>
+
+<style>
+  .nav-section {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--color-cream) 86%, transparent);
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    border-top: 1px solid var(--color-fog);
+    border-bottom: 1px solid var(--color-fog);
+    padding: 0.75rem 1rem;
+  }
+  .nav {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--color-stone);
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: color 0.15s ease, background 0.15s ease;
+    white-space: nowrap;
+  }
+  .nav-link:hover {
+    color: var(--color-terracotta);
+    background: color-mix(in srgb, var(--color-terracotta) 12%, transparent);
+    text-decoration: none;
+  }
+</style>

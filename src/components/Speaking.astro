@@ -1,0 +1,73 @@
+---
+import { speaking } from "../data/speaking";
+import SectionHeader from "./SectionHeader.astro";
+---
+
+<section class="publicspeaking section-anchor" id="publicspeaking">
+  <div class="container">
+    <SectionHeader title="Public Speaking" glyph="microphone" />
+    <div class="grid">
+      {speaking.map((t, i) => (
+        <article class="talk">
+          <h3>{t.title}</h3>
+          {t.subtitle && <h3>{t.subtitle}</h3>}
+          <h5>{t.tagline}</h5>
+          <div class="embed">
+            <iframe
+              class="iframe-border"
+              id={t.embed.kind === "linkedin" ? "linkedin-iframe" : undefined}
+              src={t.embed.src}
+              title="Embedded video"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            />
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .publicspeaking {
+    padding: 5rem 1.5rem;
+    background: var(--color-cream-soft);
+  }
+  .container {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 3rem 2rem;
+  }
+  .talk h3 {
+    font-size: 1.35rem;
+    margin: 0;
+    font-weight: 500;
+  }
+  .talk h5 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-ink-soft);
+    margin: 0.5rem 0 1rem;
+    font-size: 1.05rem;
+  }
+  .embed {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid var(--color-fog);
+  }
+  .embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+</style>

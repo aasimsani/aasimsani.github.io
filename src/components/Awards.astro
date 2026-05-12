@@ -1,0 +1,53 @@
+---
+import { awards } from "../data/awards";
+import SectionHeader from "./SectionHeader.astro";
+---
+
+<section class="awardsandinvolvements section-anchor" id="awards">
+  <div class="container">
+    <SectionHeader title="Awards and Involvements" glyph="trophy" />
+    <div class="grid">
+      {awards.map((a) => (
+        <article class="card">
+          <a class="logo-mark" data-mat={a.mat} href={a.link} target="_blank" rel="noopener">
+            <img src={a.logo} alt={a.title} />
+          </a>
+          <h3>{a.title}</h3>
+          <p>{a.description}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .awardsandinvolvements {
+    padding: 5rem 1.5rem;
+    background: var(--color-cream-soft);
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2.5rem 2rem;
+  }
+  .card {
+    text-align: center;
+  }
+  .logo-mark {
+    margin: 0 auto 1rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+  }
+  p {
+    font-size: 1rem;
+    color: var(--color-ink-soft);
+    margin: 0;
+  }
+</style>

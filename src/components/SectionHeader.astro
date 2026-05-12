@@ -1,0 +1,44 @@
+---
+import { icons } from "./icons";
+
+interface Props {
+  title: string;
+  glyph?: keyof typeof icons;
+  id?: string;
+}
+
+const { title, glyph, id } = Astro.props;
+---
+
+<div class="heading" id={id}>
+  <h2 class="heading-text">{title}</h2>
+  {glyph && (
+    <span class="heading-icon" set:html={icons[glyph]}></span>
+  )}
+</div>
+
+<style>
+  .heading {
+    text-align: center;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .heading-text {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .heading-icon {
+    display: inline-flex;
+    color: var(--color-sage-dim);
+  }
+  .heading-icon :global(svg) {
+    width: 32px;
+    height: 32px;
+  }
+</style>

@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+@theme {
+  /* Warm-dark Warm Garden — "embers" */
+  --color-cream: #181410;          /* main bg (very dark warm brown) */
+  --color-cream-soft: #221c16;     /* elevated surface */
+  --color-ink: #f1e6d3;            /* primary text — warm cream */
+  --color-ink-soft: #c7baa3;       /* secondary text */
+  --color-terracotta: #e08a6b;     /* brighter terracotta on dark */
+  --color-terracotta-dim: #c46a4d;
+  --color-sage: #a4c193;           /* brighter sage on dark */
+  --color-sage-dim: #7a9b6e;
+  --color-fog: #3a302a;            /* hairlines */
+  --color-stone: #8a7d6c;          /* muted */
+  --color-paper: #f5ecdb;          /* parchment for logo mats */
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", "Menlo", monospace;
+}
+
+html {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  font-size: 17.5px;
+}
+
+@media (min-width: 1024px) {
+  html { font-size: 18px; }
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-feature-settings: "ss01";
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+
+p { margin-bottom: 1rem; }
+
+a {
+  color: var(--color-terracotta);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--color-terracotta) 40%, transparent);
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-terracotta-dim);
+  text-decoration-color: var(--color-terracotta);
+}
+
+::selection {
+  background: var(--color-terracotta);
+  color: var(--color-cream);
+}
+
+.codeText, code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--color-sage);
+}
+
+.hairline {
+  border: 0;
+  border-top: 1px solid var(--color-fog);
+  margin: 3rem 0;
+}
+
+.scroll-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--color-stone);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.section-anchor {
+  scroll-margin-top: 4rem;
+}
+
+.logo-mark {
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  /* Default: bleed — logo fills the circle edge-to-edge */
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.6);
+}
+
+.logo-mark > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+}
+
+a.logo-mark {
+  text-decoration: none;
+}
+
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Per-logo overrides — add mat: "paper" | "dark" | "white" in data to opt in. */
+.logo-mark[data-mat="paper"],
+.logo-mark[data-mat="dark"],
+.logo-mark[data-mat="white"] {
+  padding: 10px;
+}
+.logo-mark[data-mat="paper"] img,
+.logo-mark[data-mat="dark"] img,
+.logo-mark[data-mat="white"] img {
+  object-fit: contain;
+}
+
+.logo-mark[data-mat="paper"] {
+  background: var(--color-paper);
+  border: 1px solid color-mix(in srgb, var(--color-paper) 70%, black);
+}
+
+.logo-mark[data-mat="dark"] {
+  background: #0f0c09;
+  border: 1px solid #2a2520;
+}
+
+.logo-mark[data-mat="white"] {
+  background: #ffffff;
+  border: 1px solid #e0d8c8;
+}
+
+/* "bleed" is now the default — keep the value as a no-op alias for clarity in data. */
+
+.news-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}

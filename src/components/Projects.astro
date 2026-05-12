@@ -1,0 +1,112 @@
+---
+import { projects } from "../data/projects";
+import { icons } from "./icons";
+import SectionHeader from "./SectionHeader.astro";
+---
+
+<section class="projects section-anchor" id="projects">
+  <div class="container">
+    <SectionHeader title="Projects" glyph="code" />
+    <div class="grid">
+      {projects.map((p) => (
+        <article class="proj">
+          <div class="logo-mark">
+            {p.logo && (
+              p.link ? (
+                <a href={p.link}><img src={p.logo} alt={p.title} /></a>
+              ) : (
+                <img src={p.logo} alt={p.title} />
+              )
+            )}
+            {p.logoFallback === "terminal" && (
+              p.link ? (
+                <a href={p.link} set:html={icons.terminal}></a>
+              ) : (
+                <span set:html={icons.terminal}></span>
+              )
+            )}
+          </div>
+          <h3>{p.title}</h3>
+          {p.github && (
+            <a
+              class="github-button"
+              href={`https://github.com/${p.github}`}
+              data-color-scheme="no-preference: dark; light: dark_dimmed; dark: dark_dimmed;"
+              data-icon="octicon-star"
+              data-size="large"
+              data-show-count="true"
+              aria-label={`Star ${p.github} on GitHub`}
+            >
+              Star
+            </a>
+          )}
+          {p.linkLabel && (
+            <h5 class="links">
+              {p.link && <a href={p.link}>{p.linkLabel}</a>}
+              {p.githubExtra && (
+                <>
+                  {" · "}
+                  <a href={p.githubExtra.href}>{p.githubExtra.label}</a>
+                </>
+              )}
+            </h5>
+          )}
+          {p.extraHeadline && <h4>{p.extraHeadline}</h4>}
+          {p.paragraphs.map((para) => <p set:html={para}></p>)}
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+<style>
+  .projects {
+    padding: 5rem 1.5rem;
+    background: var(--color-cream);
+  }
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3.5rem 2.5rem;
+  }
+  .proj {
+    text-align: left;
+  }
+  .logo-mark {
+    margin-bottom: 1rem;
+    color: var(--color-ink);
+  }
+  .logo-mark :global(svg) {
+    width: 32px;
+    height: 32px;
+  }
+  h3 {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+  }
+  h4 {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--color-ink);
+    margin: 0.25rem 0;
+  }
+  h5.links {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 400;
+    margin: 0.5rem 0 1rem;
+    color: var(--color-stone);
+  }
+  p {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+  }
+</style>

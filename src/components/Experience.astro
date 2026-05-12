@@ -1,0 +1,105 @@
+---
+import { experience } from "../data/experience";
+import { stageGlyph } from "./icons";
+import SectionHeader from "./SectionHeader.astro";
+---
+
+<section class="experience section-anchor" id="experience">
+  <div class="container">
+    <SectionHeader title="Experience" glyph="briefcase" />
+    <div class="entries">
+      {experience.map((e) => (
+        <article class="entry">
+          <div class="logo-mark" data-mat={e.mat}>
+            {e.link ? (
+              <a href={e.link}><img src={e.logo} alt={e.company} /></a>
+            ) : (
+              <img src={e.logo} alt={e.company} />
+            )}
+          </div>
+          <div class="body">
+            <div class="row-1">
+              <h3>
+                <span class="stage" aria-hidden="true">{stageGlyph[e.stage]}</span>
+                {e.link ? <a href={e.link}>{e.company}</a> : e.company}
+              </h3>
+              <h5 class="dates">{e.dates}</h5>
+            </div>
+            <h4>{e.role}</h4>
+            {e.tagline && <h5 class="tagline">{e.tagline}</h5>}
+            {e.subTagline && <h5 class="tagline">{e.subTagline}</h5>}
+            {e.paragraphs.map((p) => <p set:html={p}></p>)}
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .experience {
+    padding: 5rem 1.5rem;
+    background: var(--color-cream);
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+  .entry {
+    display: grid;
+    grid-template-columns: 108px 1fr;
+    gap: 1.75rem;
+    align-items: start;
+  }
+  @media (max-width: 600px) {
+    .entry { grid-template-columns: 1fr; }
+  }
+  .body { min-width: 0; }
+  .row-1 {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  h3 {
+    margin: 0;
+    font-size: 1.7rem;
+    font-weight: 500;
+  }
+  h3 a { color: var(--color-ink); text-decoration: none; }
+  h3 a:hover { color: var(--color-terracotta); }
+  .stage { font-size: 1.2rem; margin-right: 0.4rem; }
+  .dates {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-stone);
+    margin: 0;
+    font-weight: 400;
+  }
+  h4 {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 1.05rem;
+    color: var(--color-ink);
+    margin: 0.25rem 0 0.5rem;
+  }
+  .tagline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.05rem;
+    color: var(--color-ink-soft);
+    margin: 0 0 0.25rem;
+  }
+  p {
+    font-size: 1.05rem;
+    margin: 0.75rem 0;
+  }
+</style>

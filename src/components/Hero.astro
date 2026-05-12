@@ -1,0 +1,263 @@
+---
+import { bio } from "../data/bio";
+import { icons } from "./icons";
+const { hero, social } = bio;
+const iconKey: Record<string, string> = {
+  linkedin: "linkedin",
+  github: "github",
+  envelope: "envelope",
+  twitter: "twitter",
+};
+// Reserve space sized to the longest line so the typed animation can't shift layout below.
+const longestTypedLine = hero.typedLines.reduce((a, b) =>
+  a.length >= b.length ? a : b
+);
+---
+
+<header class="home">
+  <div class="overlay">
+    <h2 class="greeting">{hero.greeting}</h2>
+    <h1 class="name">
+      <span class="h-color">{hero.nameFirst}</span> {hero.nameLast}
+    </h1>
+    <p class="typed-line">
+      <span class="typed-ghost" aria-hidden="true">{longestTypedLine}</span>
+      <span class="typed-visible">
+        <span class="typed" data-lines={JSON.stringify(hero.typedLines)}></span><span class="typed-cursor" aria-hidden="true"></span>
+      </span>
+    </p>
+    <div class="buttons">
+      {hero.cta.map((c) => (
+        <a class="top-button" href={c.href}>{c.label}</a>
+      ))}
+    </div>
+    <div class="list-inline">
+      {social.map((s) => (
+        <div>
+          <a class="icon" href={s.href} target="_blank" title={s.label} aria-label={s.label} data-original-title={s.label}>
+            <span class="social-svg" set:html={icons[iconKey[s.icon]]}></span>
+          </a>
+        </div>
+      ))}
+    </div>
+    <span class="down-arrow-icon scroll-hint">
+      {hero.scrollHint}<br />
+      <span set:html={icons.arrowDown}></span>
+    </span>
+  </div>
+</header>
+
+<style>
+  .home {
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 1.5rem 6rem;
+    background: var(--color-cream);
+    position: relative;
+    overflow: hidden;
+  }
+  .home::before {
+    content: "";
+    position: absolute;
+    top: -10%;
+    right: -25%;
+    width: 55vmax;
+    height: 55vmax;
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--color-terracotta) 22%, transparent), transparent 55%);
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+  .home::after {
+    content: "";
+    position: absolute;
+    bottom: -20%;
+    left: -25%;
+    width: 50vmax;
+    height: 50vmax;
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--color-sage) 16%, transparent), transparent 55%);
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+  .overlay {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
+    text-align: center;
+  }
+  .greeting {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.5rem;
+    color: var(--color-stone);
+    margin-bottom: 0.25rem;
+  }
+  .name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(3.5rem, 11vw, 7rem);
+    line-height: 1;
+    margin: 0.5rem 0 1.75rem;
+    letter-spacing: -0.025em;
+  }
+  .h-color {
+    color: var(--color-terracotta);
+  }
+  .typed-line {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    margin: 0 auto 3rem;
+    display: inline-grid;
+    text-align: center;
+    line-height: 1.5;
+    max-width: 100%;
+  }
+  .typed-line > * {
+    grid-area: 1 / 1;
+    justify-self: center;
+  }
+  .typed-ghost {
+    visibility: hidden;
+    pointer-events: none;
+    user-select: none;
+    color: transparent;
+  }
+  .typed-visible {
+    color: var(--color-terracotta);
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0;
+  }
+  .typed-cursor {
+    display: inline-block;
+    width: 0.55ch;
+    height: 1.1em;
+    background: var(--color-terracotta);
+    animation: blink 1s steps(2) infinite;
+    margin-left: 2px;
+    vertical-align: middle;
+    transform: translateY(2px);
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+  .buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .top-button {
+    display: inline-block;
+    padding: 0.7rem 1.6rem;
+    border: 1px solid var(--color-terracotta);
+    color: var(--color-terracotta);
+    background: transparent;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: 999px;
+    transition: all 0.15s ease;
+  }
+  .top-button:hover {
+    background: var(--color-terracotta);
+    color: #181410;
+    text-decoration: none;
+  }
+  .icon {
+    color: var(--color-ink-soft);
+  }
+  .list-inline {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  .icon {
+    color: var(--color-ink-soft);
+    text-decoration: none;
+    display: inline-flex;
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+  .icon:hover {
+    color: var(--color-terracotta);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .social-svg {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+  }
+  .social-svg :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .down-arrow-icon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-stone);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+  .down-arrow-icon :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+</style>
+
+<script>
+  const el = document.querySelector<HTMLElement>(".typed");
+  if (el) {
+    const lines: string[] = JSON.parse(el.dataset.lines || "[]");
+    const TYPE_MS = 70;
+    const DELETE_MS = 35;
+    const PAUSE_AFTER_TYPE = 1800;
+    const PAUSE_AFTER_DELETE = 350;
+    const segmenter =
+      "Segmenter" in Intl
+        ? new Intl.Segmenter(undefined, { granularity: "grapheme" })
+        : null;
+    const split = (s: string) =>
+      segmenter
+        ? Array.from(segmenter.segment(s), (x) => x.segment)
+        : [...s];
+    let li = 0;
+    let i = 0;
+    let deleting = false;
+    function tick() {
+      const chars = split(lines[li]);
+      if (!deleting) {
+        el!.textContent = chars.slice(0, i + 1).join("");
+        i++;
+        if (i >= chars.length) {
+          deleting = true;
+          setTimeout(tick, PAUSE_AFTER_TYPE);
+          return;
+        }
+      } else {
+        i--;
+        el!.textContent = chars.slice(0, i).join("");
+        if (i <= 0) {
+          deleting = false;
+          li = (li + 1) % lines.length;
+          setTimeout(tick, PAUSE_AFTER_DELETE);
+          return;
+        }
+      }
+      setTimeout(tick, deleting ? DELETE_MS : TYPE_MS);
+    }
+    setTimeout(tick, 700);
+  }
+</script>
+

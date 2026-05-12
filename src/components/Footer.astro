@@ -1,0 +1,62 @@
+---
+import { bio } from "../data/bio";
+import { icons } from "./icons";
+
+const iconKey: Record<string, string> = {
+  "envelope-square": "envelope",
+  "linkedin-square": "linkedin",
+  "github-square": "github",
+  "twitter-square": "twitter",
+};
+---
+
+<footer id="footer">
+  <div class="wrap">
+    <div class="socials">
+      {bio.footer.socials.map((s) => (
+        <a href={s.href} target="_blank" rel="noopener" aria-label={s.icon}>
+          <span set:html={icons[iconKey[s.icon]]}></span>
+        </a>
+      ))}
+    </div>
+    <p class="copy">{bio.footer.copyright}</p>
+  </div>
+</footer>
+
+<style>
+  footer {
+    padding: 4rem 1.5rem 3rem;
+    background: var(--color-cream);
+    border-top: 1px solid var(--color-fog);
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .socials a {
+    color: var(--color-ink-soft);
+    transition: color 0.15s ease, transform 0.15s ease;
+    display: inline-flex;
+  }
+  .socials a:hover {
+    color: var(--color-terracotta);
+    transform: translateY(-2px);
+  }
+  .socials :global(svg) {
+    width: 28px;
+    height: 28px;
+  }
+  .copy {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--color-stone);
+    margin: 0;
+  }
+</style>
