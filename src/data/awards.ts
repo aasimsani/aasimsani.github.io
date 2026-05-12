@@ -8,7 +8,7 @@ export type Award = {
 
 export const awards: Award[] = [
   {
-    title: "Forbes 30 Under 30 — Education (2021)",
+    title: "Forbes 30 Under 30: Education (2021)",
     logo: "/images/forbes30u30.png",
     link: "https://www.forbes.com/30-under-30/2021/education/?profile=orai",
     description:
@@ -55,6 +55,6 @@ export const awards: Award[] = [
     logo: "/images/hackprinceton.png",
     link: "https://devpost.com/software/hackprinceton2018-fall",
     description:
-      "Hack Princeton, Fall 2018 — Best Use of Google Cloud Platform.",
+      "Hack Princeton, Fall 2018. Best Use of Google Cloud Platform.",
   },
 ];

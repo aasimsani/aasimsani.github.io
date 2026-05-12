@@ -21,7 +21,7 @@ import SectionHeader from "./SectionHeader.astro";
             {r.link && r.linkLabel && (
               <h5 class="link"><a href={r.link}>{r.linkLabel}</a></h5>
             )}
-            {r.paragraphs.map((p) => <p>{p}</p>)}
+            {r.paragraphs.map((p) => <p set:html={p}></p>)}
           </div>
         </article>
       ))}

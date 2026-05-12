@@ -19,12 +19,12 @@ export const experience: Experience[] = [
     dates: "Jan 2024 - present",
     role: "Founding Engineer (1st employee)",
     tagline:
-      "Global sales tax solved &mdash; we automate compliance, saving finance teams time and money.",
+      "Global sales tax solved. We automate compliance, saving finance teams time and money.",
     stage: "sprouting",
     mat: "bleed",
     paragraphs: [
-      `After seven years in AI I wanted to build something with real economic gravity &mdash; boring technology that moves money. Tax compliance is the most-overlooked layer in the modern commerce stack.`,
-      `I joined as the first engineer and built the plumbing that makes global sales tax actually work inside finance and commerce stacks. <strong>Ingestion:</strong> connectors for Stripe, QuickBooks, Shopify, and Rillet &mdash; webhooks, historical backfill, and a reconciliation system that catches drift. <strong>Compute:</strong> the global nexus engine, the US sales tax engine, and a multi-currency exchange layer. <strong>Ops:</strong> a Temporal-driven backfill orchestrator, an RWX-based CI/CD pipeline, and an internal Slack <code>/deploy</code> bot. Python, DuckDB, PostgreSQL, Temporal.`,
+      `After seven years in AI I wanted to build something with real economic gravity. Boring technology that moves money. Tax compliance is the most-overlooked layer in the modern commerce stack.`,
+      `I joined as the first engineer and built the plumbing that makes global sales tax actually work inside finance and commerce stacks. <strong>Ingestion:</strong> connectors for Stripe, QuickBooks, Shopify, and Rillet, including webhooks, historical backfill, and a reconciliation system that catches drift. <strong>Compute:</strong> the global nexus engine, the US sales tax engine, and a multi-currency exchange layer. <strong>Ops:</strong> a Temporal-driven backfill orchestrator, an RWX-based CI/CD pipeline, and an internal Slack <code>/deploy</code> bot. Python, DuckDB, PostgreSQL, Temporal.`,
     ],
   },
   {

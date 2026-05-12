@@ -2,46 +2,55 @@
 import { nav } from "../data/nav";
 ---
 
+{/* Desktop sticky strip — the horizontal link row that's been there. */}
 <section class="nav-section">
-  <button
-    type="button"
-    class="burger"
-    aria-label="Open section menu"
-    aria-expanded="false"
-    aria-controls="section-menu"
-  >
-    <svg class="b-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
-    <svg class="b-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
-  </button>
   <nav class="nav" id="section-menu" aria-label="Sections">
     {nav.map((n) => <a class="nav-link" href={n.href}>{n.label}</a>)}
   </nav>
 </section>
 
+{/* Mobile-only fixed pill matching ThemeToggle exactly, with its own dropdown. */}
+<button
+  type="button"
+  class="burger"
+  aria-label="Open section menu"
+  aria-expanded="false"
+  aria-controls="mobile-menu"
+>
+  <svg class="b-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+  <svg class="b-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+</button>
+<nav class="mobile-menu" id="mobile-menu" aria-label="Sections" data-open="false">
+  {nav.map((n) => <a class="nav-link" href={n.href}>{n.label}</a>)}
+</nav>
+
 <script>
-  const section = document.querySelector<HTMLElement>(".nav-section");
   const burger = document.querySelector<HTMLButtonElement>(".burger");
-  const menu = document.querySelector<HTMLElement>("#section-menu");
+  const menu = document.querySelector<HTMLElement>(".mobile-menu");
 
   function setOpen(open: boolean) {
-    if (!section || !burger) return;
-    section.dataset.menuOpen = open ? "true" : "false";
+    if (!burger || !menu) return;
+    burger.dataset.open = open ? "true" : "false";
+    menu.dataset.open = open ? "true" : "false";
     burger.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
   burger?.addEventListener("click", () => {
-    const isOpen = section?.dataset.menuOpen === "true";
-    setOpen(!isOpen);
+    setOpen(burger.dataset.open !== "true");
   });
 
-  // Close the menu when a link is tapped.
   menu?.querySelectorAll<HTMLAnchorElement>("a").forEach((a) => {
     a.addEventListener("click", () => setOpen(false));
   });
 
-  // Close on Escape.
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && section?.dataset.menuOpen === "true") setOpen(false);
+    if (e.key === "Escape" && burger?.dataset.open === "true") setOpen(false);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (burger?.dataset.open !== "true") return;
+    const target = e.target as Node;
+    if (!burger.contains(target) && !menu?.contains(target)) setOpen(false);
   });
 </script>
 
@@ -81,73 +90,79 @@ import { nav } from "../data/nav";
     text-decoration: none;
   }
 
-  /* Burger button — hidden on desktop, shown on mobile. */
+  /* Mobile burger — identical pill shape to ThemeToggle, mirrored top-left. */
   .burger {
-    display: none;
-    background: transparent;
-    border: 0;
-    padding: 0.35rem 0.6rem;
+    display: none; /* hidden on desktop; shown via media query below */
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 60;
+    background: color-mix(in srgb, var(--color-cream) 80%, transparent);
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    border: 1px solid var(--color-fog);
     color: var(--color-ink-soft);
+    padding: 0.55rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
     cursor: pointer;
-    border-radius: 4px;
     align-items: center;
     justify-content: center;
-    transition: color 0.15s ease, background 0.15s ease;
+    transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.25);
   }
   .burger:hover {
     color: var(--color-terracotta);
-    background: color-mix(in srgb, var(--color-terracotta) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-terracotta) 50%, var(--color-fog));
+    transform: translateY(-1px);
   }
   .burger :global(svg) {
-    width: 22px;
-    height: 22px;
-    transition: opacity 0.15s ease;
+    width: 18px;
+    height: 18px;
   }
   .burger .b-close { display: none; }
-  .nav-section[data-menu-open="true"] .burger .b-open { display: none; }
-  .nav-section[data-menu-open="true"] .burger .b-close { display: inline-flex; }
+  .burger[data-open="true"] .b-open { display: none; }
+  .burger[data-open="true"] .b-close { display: inline-flex; }
+
+  /* Mobile dropdown menu — fixed below the burger when open. */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: calc(1rem + 40px + 0.5rem); /* below the burger pill + gap */
+    left: 1rem;
+    right: 1rem;
+    z-index: 59;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 0.75rem;
+    background: color-mix(in srgb, var(--color-cream) 92%, transparent);
+    backdrop-filter: blur(20px) saturate(120%);
+    -webkit-backdrop-filter: blur(20px) saturate(120%);
+    border: 1px solid var(--color-fog);
+    border-radius: 0.75rem;
+    box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.45);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: max-height 0.25s ease, opacity 0.15s ease;
+  }
+  .mobile-menu[data-open="true"] {
+    max-height: 70vh;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-menu .nav-link {
+    padding: 0.75rem 0.5rem;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--color-fog);
+  }
+  .mobile-menu .nav-link:last-of-type { border-bottom: 0; }
 
   @media (max-width: 768px) {
-    .nav-section {
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-    }
-    .burger {
-      display: inline-flex;
-    }
-    .nav {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: flex-start;
-      gap: 0;
-      padding: 0.75rem 1rem 1rem;
-      background: color-mix(in srgb, var(--color-cream) 96%, transparent);
-      backdrop-filter: blur(20px) saturate(120%);
-      -webkit-backdrop-filter: blur(20px) saturate(120%);
-      border-bottom: 1px solid var(--color-fog);
-      box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.35);
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      pointer-events: none;
-      transition: max-height 0.25s ease, opacity 0.15s ease;
-    }
-    .nav-section[data-menu-open="true"] .nav {
-      max-height: 70vh;
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .nav-link {
-      padding: 0.75rem 0.5rem;
-      font-size: 1rem;
-      border-bottom: 1px solid var(--color-fog);
-    }
-    .nav-link:last-of-type { border-bottom: 0; }
+    .nav-section { display: none; }
+    .burger { display: inline-flex; }
+    .mobile-menu { display: flex; }
   }
 </style>

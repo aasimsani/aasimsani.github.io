@@ -28,7 +28,7 @@ export const projects: Project[] = [
     linkLabel: "See on Github",
     github: "aasimsani/artificial_manga_panel_dataset",
     paragraphs: [
-      `I love manga, but I can't read Japanese &mdash; and Google Translate's OCR + translation pipeline isn't great with manga text. So I set out to build a speech-bubble detector to localize manga into English faster (which would also help official translators). There was no free, publicly available dataset to train it on, so I generated one.`,
+      `I love manga, but I can't read Japanese, and Google Translate's OCR + translation pipeline isn't great with manga text. So I set out to build a speech-bubble detector to localize manga into English faster (which would also help official translators). There was no free, publicly available dataset to train it on, so I generated one.`,
     ],
   },
   {
@@ -37,11 +37,11 @@ export const projects: Project[] = [
     link: "https://www.linkedin.com/posts/aasimsani_secondbrain-slipbox-knowledge-activity-6962170106504167424-_HKW/",
     linkLabel: "Sneak a peek of my second brain",
     paragraphs: [
-      `I read a lot and listen to a lot of podcasts, and most of it leaks out within a week. So I built a <a href="https://www.buildingasecondbrain.com/">Second Brain</a> using the <a href="https://zettelkasten.de/posts/overview/">Slipbox Method (Zettelkasten)</a> &mdash; a system that organizes what I want to keep into an interconnected web.`,
+      `I read a lot and listen to a lot of podcasts, and most of it leaks out within a week. So I built a <a href="https://www.buildingasecondbrain.com/">Second Brain</a> using the <a href="https://zettelkasten.de/posts/overview/">Slipbox Method (Zettelkasten)</a>: a system that organizes what I want to keep into an interconnected web.`,
     ],
   },
   {
-    title: "gwt — Git Worktree Manager",
+    title: "gwt: Git Worktree Manager",
     logoFallback: "terminal",
     link: "https://github.com/aasimsani/gwt-zsh",
     linkLabel: "See on Github",

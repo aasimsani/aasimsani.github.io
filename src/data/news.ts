@@ -46,7 +46,7 @@ export const podcasts: NewsCard[] = [
 export const articles: NewsCard[] = [
   {
     title: "Orai raises $2.3M to make you a better speaker | TechCrunch",
-    body: `Orai, a startup building communication coaching tools, is announcing that it has raised $2.3 million in seed funding. CEO Danish Dhamani said that he co-founded the company with Paritosh Gupta and Aasim Sani to address a need in his own life — the fact that he was "held back personally and professionally" by lackluster "communications […]`,
+    body: `Orai, a startup building communication coaching tools, is announcing that it has raised $2.3 million in seed funding. CEO Danish Dhamani said that he co-founded the company with Paritosh Gupta and Aasim Sani to address a need in his own life, the fact that he was "held back personally and professionally" by lackluster "communications […]`,
     link: "https://techcrunch.com/2019/02/19/orai-seed-funding/",
     image:
       "https://techcrunch.com/wp-content/uploads/2019/02/Screen-Shot-2019-02-19-at-4.39.16-PM1.png?w=730&crop=1",
