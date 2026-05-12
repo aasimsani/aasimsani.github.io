@@ -6,9 +6,6 @@ export const bio = {
     typedLines: [
       "2x Founder 🚀",
       "Building Taxwire 💰",
-      "Foodie 🍜",
-      "Bookworm 📚",
-      "Cyclist 🚴",
       "Occasionally creating stakeholder value 📈",
     ],
     scrollHint: "Scroll down for more",
