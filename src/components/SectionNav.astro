@@ -2,53 +2,47 @@
 import { nav } from "../data/nav";
 ---
 
-<section class="nav-section d-flex justify-content-center">
-  <div class="nav justify-content-evenly">
+<section class="nav-section">
+  <button
+    type="button"
+    class="burger"
+    aria-label="Open section menu"
+    aria-expanded="false"
+    aria-controls="section-menu"
+  >
+    <svg class="b-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+    <svg class="b-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <nav class="nav" id="section-menu" aria-label="Sections">
     {nav.map((n) => <a class="nav-link" href={n.href}>{n.label}</a>)}
-    <button
-      type="button"
-      class="theme-toggle"
-      aria-label="Toggle light/dark theme"
-      title="Toggle theme"
-    >
-      <svg class="t-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-      <svg class="t-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-  </div>
+  </nav>
 </section>
 
 <script>
-  function applyToggleState() {
-    const explicit = document.documentElement.getAttribute("data-theme");
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDark = explicit ? explicit === "dark" : systemDark;
-    document.querySelectorAll<HTMLButtonElement>(".theme-toggle").forEach((btn) => {
-      btn.dataset.themeIs = isDark ? "dark" : "light";
-    });
+  const section = document.querySelector<HTMLElement>(".nav-section");
+  const burger = document.querySelector<HTMLButtonElement>(".burger");
+  const menu = document.querySelector<HTMLElement>("#section-menu");
+
+  function setOpen(open: boolean) {
+    if (!section || !burger) return;
+    section.dataset.menuOpen = open ? "true" : "false";
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
   }
 
-  function toggleTheme() {
-    const explicit = document.documentElement.getAttribute("data-theme");
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isCurrentlyDark = explicit ? explicit === "dark" : systemDark;
-    const next = isCurrentlyDark ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem("theme", next);
-    } catch (e) { /* localStorage blocked */ }
-    applyToggleState();
-  }
-
-  document.querySelectorAll<HTMLButtonElement>(".theme-toggle").forEach((btn) => {
-    btn.addEventListener("click", toggleTheme);
+  burger?.addEventListener("click", () => {
+    const isOpen = section?.dataset.menuOpen === "true";
+    setOpen(!isOpen);
   });
 
-  // Sync with system pref changes when user hasn't set an explicit theme.
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if (!document.documentElement.getAttribute("data-theme")) applyToggleState();
+  // Close the menu when a link is tapped.
+  menu?.querySelectorAll<HTMLAnchorElement>("a").forEach((a) => {
+    a.addEventListener("click", () => setOpen(false));
   });
 
-  applyToggleState();
+  // Close on Escape.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && section?.dataset.menuOpen === "true") setOpen(false);
+  });
 </script>
 
 <style>
@@ -86,29 +80,74 @@ import { nav } from "../data/nav";
     background: color-mix(in srgb, var(--color-terracotta) 12%, transparent);
     text-decoration: none;
   }
-  .theme-toggle {
+
+  /* Burger button — hidden on desktop, shown on mobile. */
+  .burger {
+    display: none;
     background: transparent;
     border: 0;
-    padding: 0.3rem 0.5rem;
-    margin-left: 0.5rem;
-    color: var(--color-stone);
+    padding: 0.35rem 0.6rem;
+    color: var(--color-ink-soft);
     cursor: pointer;
     border-radius: 4px;
-    display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: color 0.15s ease, background 0.15s ease;
   }
-  .theme-toggle:hover {
+  .burger:hover {
     color: var(--color-terracotta);
     background: color-mix(in srgb, var(--color-terracotta) 10%, transparent);
   }
-  .theme-toggle :global(svg) {
-    width: 16px;
-    height: 16px;
+  .burger :global(svg) {
+    width: 22px;
+    height: 22px;
+    transition: opacity 0.15s ease;
   }
-  .theme-toggle .t-sun { display: none; }
-  .theme-toggle .t-moon { display: inline-flex; }
-  .theme-toggle[data-theme-is="dark"] .t-sun { display: inline-flex; }
-  .theme-toggle[data-theme-is="dark"] .t-moon { display: none; }
+  .burger .b-close { display: none; }
+  .nav-section[data-menu-open="true"] .burger .b-open { display: none; }
+  .nav-section[data-menu-open="true"] .burger .b-close { display: inline-flex; }
+
+  @media (max-width: 768px) {
+    .nav-section {
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .burger {
+      display: inline-flex;
+    }
+    .nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 0;
+      padding: 0.75rem 1rem 1rem;
+      background: color-mix(in srgb, var(--color-cream) 96%, transparent);
+      backdrop-filter: blur(20px) saturate(120%);
+      -webkit-backdrop-filter: blur(20px) saturate(120%);
+      border-bottom: 1px solid var(--color-fog);
+      box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.35);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.25s ease, opacity 0.15s ease;
+    }
+    .nav-section[data-menu-open="true"] .nav {
+      max-height: 70vh;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .nav-link {
+      padding: 0.75rem 0.5rem;
+      font-size: 1rem;
+      border-bottom: 1px solid var(--color-fog);
+    }
+    .nav-link:last-of-type { border-bottom: 0; }
+  }
 </style>
