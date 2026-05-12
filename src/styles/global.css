@@ -1,22 +1,56 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warm-dark Warm Garden — "embers" */
-  --color-cream: #181410;          /* main bg (very dark warm brown) */
-  --color-cream-soft: #221c16;     /* elevated surface */
-  --color-ink: #f1e6d3;            /* primary text — warm cream */
-  --color-ink-soft: #c7baa3;       /* secondary text */
-  --color-terracotta: #e08a6b;     /* brighter terracotta on dark */
-  --color-terracotta-dim: #c46a4d;
-  --color-sage: #a4c193;           /* brighter sage on dark */
-  --color-sage-dim: #7a9b6e;
-  --color-fog: #3a302a;            /* hairlines */
-  --color-stone: #8a7d6c;          /* muted */
+  /* Light mode defaults — Warm Garden cream */
+  --color-cream: #fdf8f0;          /* main bg */
+  --color-cream-soft: #f6efe1;     /* elevated surface */
+  --color-ink: #2a2520;            /* primary text */
+  --color-ink-soft: #4a4339;       /* secondary text */
+  --color-terracotta: #c46a4d;     /* accent */
+  --color-terracotta-dim: #a55539;
+  --color-sage: #7a9b6e;
+  --color-sage-dim: #5f7d54;
+  --color-fog: #e6dfd2;            /* hairlines */
+  --color-stone: #8b7f6e;          /* muted */
   --color-paper: #f5ecdb;          /* parchment for logo mats */
+  --color-placeholder: #f1e6d3;    /* failed-image fallback bg */
 
   --font-display: "Fraunces", "Georgia", serif;
   --font-body: "Inter", "Helvetica Neue", sans-serif;
   --font-mono: "JetBrains Mono", "Menlo", monospace;
+}
+
+/* Dark mode — explicit toggle */
+[data-theme="dark"] {
+  --color-cream: #181410;
+  --color-cream-soft: #221c16;
+  --color-ink: #f1e6d3;
+  --color-ink-soft: #c7baa3;
+  --color-terracotta: #e08a6b;
+  --color-terracotta-dim: #c46a4d;
+  --color-sage: #a4c193;
+  --color-sage-dim: #7a9b6e;
+  --color-fog: #3a302a;
+  --color-stone: #8a7d6c;
+  --color-paper: #f5ecdb;
+  --color-placeholder: #0f0c09;
+}
+
+/* System pref dark when no explicit theme is chosen */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-cream: #181410;
+    --color-cream-soft: #221c16;
+    --color-ink: #f1e6d3;
+    --color-ink-soft: #c7baa3;
+    --color-terracotta: #e08a6b;
+    --color-terracotta-dim: #c46a4d;
+    --color-sage: #a4c193;
+    --color-sage-dim: #7a9b6e;
+    --color-fog: #3a302a;
+    --color-stone: #8a7d6c;
+    --color-placeholder: #0f0c09;
+  }
 }
 
 html {
@@ -25,6 +59,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
   font-size: 17.5px;
+  color-scheme: light dark;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 @media (min-width: 1024px) {
@@ -152,6 +188,11 @@ a.logo-mark {
 .logo-mark[data-mat="white"] {
   background: #ffffff;
   border: 1px solid #e0d8c8;
+}
+
+/* Paper mat needs to stay visible against the page bg in both themes. */
+.logo-mark[data-mat="paper"] {
+  /* falls through to default :root paper color */
 }
 
 /* "bleed" is now the default — keep the value as a no-op alias for clarity in data. */

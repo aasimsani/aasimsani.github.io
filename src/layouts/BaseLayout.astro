@@ -14,6 +14,17 @@ const { title = site.title, description = site.description } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    {/* Inline theme init — runs synchronously before paint to prevent FOUC. */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          if (stored === "dark" || stored === "light") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (e) { /* localStorage blocked */ }
+      })();
+    </script>
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
