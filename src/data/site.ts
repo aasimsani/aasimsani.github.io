@@ -1,5 +1,5 @@
 export const site = {
-  title: "Aasim Sani — Founding Engineer at Taxwire",
+  title: "Aasim Sani",
   description:
     "Founding engineer at Taxwire — we automate global sales tax compliance, saving finance teams time and money. Previously co-founded CopyCat (generative-AI Figma → React.js, 20k+ developers) and Orai (AI public speaking, 1M+ users, Forbes 30 Under 30 for Education). Outside work: ex-pro cyclist, certified mountaineer, avid reader.",
   url: "https://aasimsani.net/",
