@@ -1,7 +1,7 @@
 export const site = {
-  title: "Aasim Sani — Founding Engineer & 2x AI Startup Founder",
+  title: "Aasim Sani — Founding Engineer at Taxwire",
   description:
-    "I'm the founding engineer at Taxwire, building a global sales tax compliance platform. Previously co-founded CopyCat (AI Figma→React, 20k+ developers) and Orai (AI public speaking app, 500k+ users, Forbes 30 Under 30). Besides this, I am an avid bookworm (Goodreads), an ex-pro cyclist, a certified mountaineer, a semi-pro gamer, and an occasional musician in my free time.",
+    "Founding engineer at Taxwire, rebuilding global sales tax compliance for businesses that have outgrown manual filings. Previously co-founded CopyCat (generative-AI Figma → React.js, 20k+ developers) and Orai (AI public speaking, 500k+ users, Forbes 30 Under 30 for Education). Outside work: ex-pro cyclist, certified mountaineer, avid reader.",
   url: "https://aasimsani.net/",
   ogImage: "https://aasimsani.net/images/forbesphoto.png",
   ogSiteName: "Aasim Sani's personal website",

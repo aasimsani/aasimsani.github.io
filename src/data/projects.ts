@@ -37,7 +37,7 @@ export const projects: Project[] = [
     link: "https://www.linkedin.com/posts/aasimsani_secondbrain-slipbox-knowledge-activity-6962170106504167424-_HKW/",
     linkLabel: "Sneak a peek of my second brain",
     paragraphs: [
-      `Why build a <a href="https://www.buildingasecondbrain.com/">Second Brain</a>? Even though I have a good memory, it isn't enough to solve problems fast. I'm an avid reader and podcast listener, yet so much of what I consumed was getting lost. So I built this system based on the <a href="https://zettelkasten.de/posts/overview/">Slipbox Method (Zettelkasten)</a> to organize my knowledge in an interconnected way.`,
+      `I read a lot and listen to a lot of podcasts, and most of it leaks out within a week. So I built a <a href="https://www.buildingasecondbrain.com/">Second Brain</a> using the <a href="https://zettelkasten.de/posts/overview/">Slipbox Method (Zettelkasten)</a> &mdash; a system that organizes what I want to keep into an interconnected web.`,
     ],
   },
   {
@@ -68,9 +68,9 @@ export const projects: Project[] = [
     title: "Agile Connects",
     logo: "/images/agileconnects.png",
     link: "https://www.agileconnects.com/",
-    extraHeadline: "Energy savings algorithm Development",
+    extraHeadline: "Energy savings algorithm development",
     paragraphs: [
-      `I researched an algorithm for calculating the theoretical maximum possible energy savings and cost savings from air conditioning units which would use scheduling algorithms to turn on and off using AgileConnects' IOT products.`,
+      `An algorithm to find the upper bound on energy and cost savings when AgileConnects' IoT scheduling decides when AC units cycle on and off.`,
     ],
   },
 ];

@@ -23,8 +23,8 @@ export const experience: Experience[] = [
     stage: "sprouting",
     mat: "bleed",
     paragraphs: [
-      `Honestly, I never thought I'd end up in fintech. But after 7 years in AI, I wanted to build something more tangible: a kind of boring technology with real economic gravity behind it.`,
-      `So I joined <a href="https://taxwire.com">Taxwire</a> as its first engineer, and I've been building the plumbing that makes global sales tax actually work inside finance and commerce stacks &mdash; a real-time tax calculation API, bulk-ingestion integrations with Stripe, QuickBooks, and Shopify, a global nexus engine, the US sales tax engine itself, and a multi-currency exchange engine &mdash; mostly in Python, DuckDB, and PostgreSQL.`,
+      `After seven years in AI I wanted to build something with real economic gravity &mdash; boring technology that moves money. Tax compliance is the most-overlooked layer in the modern commerce stack.`,
+      `I joined as the first engineer and built the plumbing that makes global sales tax actually work inside finance and commerce stacks. <strong>Ingestion:</strong> connectors for Stripe, QuickBooks, Shopify, and Rillet &mdash; webhooks, historical backfill, and a reconciliation system that catches drift. <strong>Compute:</strong> the global nexus engine, the US sales tax engine, and a multi-currency exchange layer. <strong>Ops:</strong> a Temporal-driven backfill orchestrator, an RWX-based CI/CD pipeline, and an internal Slack <code>/deploy</code> bot. Python, DuckDB, PostgreSQL, Temporal.`,
     ],
   },
   {
@@ -34,12 +34,11 @@ export const experience: Experience[] = [
     dates: "Jan 2021 - Jan 2024",
     role: "Co-founder & Chief AI Officer",
     tagline: "Convert your Figma designs to React.js code in 30 seconds using AI",
-    subTagline: "(Github Co-pilot but for converting designs to code)",
     stage: "evergreen",
     mat: "bleed",
     paragraphs: [
-      `My co-founder and I were inspired to start CopyCat after our (painful) experiences fixing issues with the speed of the front-end development process in our previous company. Where the main culprit was the designer-developer handoff process.`,
-      `So we made CopyCat, a product that converts Figma designs directly to code (React.js) to speed up the development process of a web page by up to 80%. Which has got more than 20k+ users worldwide.`,
+      `At our previous company, the designer-developer handoff broke the front-end pipeline. We started CopyCat to fix it.`,
+      `We built CopyCat: a generative-AI Figma &rarr; React.js compiler that cut web build time by 80%. It reached 20k+ developers.`,
     ],
   },
   {
@@ -48,13 +47,12 @@ export const experience: Experience[] = [
     link: "https://orai.com",
     dates: "Nov 2016 - Dec 2020",
     role: "Intern → Product Manager → Co-founder",
-    tagline: "An AI powered speech coaching app",
-    subTagline: "(Think Duolingo but for Public speaking)",
+    tagline: "An AI speech coach for the other 95% who can't afford a human one.",
     stage: "evergreen",
     mat: "bleed",
     paragraphs: [
       `My co-founders and I started Orai because of our experiences as ESL students in the United States. When we came to Drexel, we could speak English fluently, yet we weren't expressive and confident enough, and because of this, we were limited both personally and professionally. We lost friends, internships, and jobs to this problem.`,
-      `So we tried books, online courses, toastmasters, and finally, a speech coach who offered to coach us for free to fix the issue. Yet when we discovered that a speech coach can charge close to $5000 for that one-hour session, we decided to make an app that could make this quintessential skill accessible to everyone for a lot less. As of today, Orai has scaled to 500k+ users globally, has been adopted by large enterprises such as <u>Comcast, IBM, Nike and HPE</u>. We also fundraised $2.3M from top VC firms such as <a href="https://comcastventures.com/portfolio/">Comcast Ventures</a>, <a href="https://menlovc.com/">Menlo VC</a> and <a href="https://www.bdmifund.com/">BDMI Ventures</a>.`,
+      `We tried books, online courses, Toastmasters, and finally a speech coach who offered to coach us for free. When we found out <a href="https://www.speak-simple.com/presentation-coach-cost/">a speech coach can charge close to $5,000 for that one-hour session</a>, we built an app that did the same job at a tiny fraction of the cost. Orai scaled to 500k+ users and was adopted by Comcast, IBM, Nike, and HPE. We raised $2.3M from <a href="https://comcastventures.com/portfolio/">Comcast Ventures</a>, <a href="https://menlovc.com/">Menlo VC</a>, and <a href="https://www.bdmifund.com/">BDMI Ventures</a>.`,
     ],
   },
 ];
