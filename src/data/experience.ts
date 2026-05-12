@@ -19,7 +19,7 @@ export const experience: Experience[] = [
     dates: "Jan 2024 - present",
     role: "Founding Engineer (1st employee)",
     tagline:
-      "Automate global sales tax compliance across your finance and commerce stack",
+      "Global sales tax solved &mdash; we automate compliance, saving finance teams time and money.",
     stage: "sprouting",
     mat: "bleed",
     paragraphs: [
@@ -52,7 +52,7 @@ export const experience: Experience[] = [
     mat: "bleed",
     paragraphs: [
       `My co-founders and I started Orai because of our experiences as ESL students in the United States. When we came to Drexel, we could speak English fluently, yet we weren't expressive and confident enough, and because of this, we were limited both personally and professionally. We lost friends, internships, and jobs to this problem.`,
-      `We tried books, online courses, Toastmasters, and finally a speech coach who offered to coach us for free. When we found out <a href="https://www.speak-simple.com/presentation-coach-cost/">a speech coach can charge close to $5,000 for that one-hour session</a>, we built an app that did the same job at a tiny fraction of the cost. Orai scaled to 500k+ users and was adopted by Comcast, IBM, Nike, and HPE. We raised $2.3M from <a href="https://comcastventures.com/portfolio/">Comcast Ventures</a>, <a href="https://menlovc.com/">Menlo VC</a>, and <a href="https://www.bdmifund.com/">BDMI Ventures</a>.`,
+      `We tried books, online courses, Toastmasters, and finally a speech coach who offered to coach us for free. When we found out <a href="https://www.speak-simple.com/presentation-coach-cost/">a speech coach can charge close to $5,000 for that one-hour session</a>, we built an app that did the same job at a tiny fraction of the cost. Orai scaled to 1M+ users and was adopted by Comcast, IBM, Nike, and HPE. We raised $2.3M from <a href="https://comcastventures.com/portfolio/">Comcast Ventures</a>, <a href="https://menlovc.com/">Menlo VC</a>, and <a href="https://www.bdmifund.com/">BDMI Ventures</a>.`,
     ],
   },
 ];
