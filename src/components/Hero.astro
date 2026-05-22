@@ -1,6 +1,7 @@
 ---
 import { bio } from "../data/bio";
 import { icons } from "./icons";
+import WovenBackground from "./WovenBackground.astro";
 const { hero, social } = bio;
 const iconKey: Record<string, string> = {
   linkedin: "linkedin",
@@ -12,13 +13,32 @@ const iconKey: Record<string, string> = {
 const longestTypedLine = hero.typedLines.reduce((a, b) =>
   a.length >= b.length ? a : b
 );
+const firstChars = [...hero.nameFirst];
+const lastChars = [...hero.nameLast];
 ---
 
+{/* Synchronously mark the doc as animating BEFORE the name paints, so the
+    pre-reveal hidden state applies without a flash of fully-visible text.
+    Skipped under reduced-motion (name stays visible). */}
+<script is:inline>
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.documentElement.classList.add("js-anim");
+  }
+</script>
+
 <header class="home">
+  <WovenBackground />
   <div class="overlay">
     <h2 class="greeting">{hero.greeting}</h2>
-    <h1 class="name">
-      <span class="h-color">{hero.nameFirst}</span> {hero.nameLast}
+    <h1 class="name" aria-label={`${hero.nameFirst} ${hero.nameLast}`}>
+      <span class="name-inner" aria-hidden="true">
+        <span class="word h-color">
+          {firstChars.map((c) => <span class="reveal-char">{c}</span>)}
+        </span>{" "}
+        <span class="word">
+          {lastChars.map((c) => <span class="reveal-char">{c}</span>)}
+        </span>
+      </span>
     </h1>
     <p class="typed-line">
       <span class="typed-ghost" aria-hidden="true">{longestTypedLine}</span>
@@ -88,6 +108,21 @@ const longestTypedLine = hero.typedLines.reduce((a, b) =>
     max-width: 720px;
     text-align: center;
   }
+  /* Scrim: a soft pool of the page background behind the text so the particle
+     field reads as ambience, not noise. Sits above the canvas, below the text. */
+  .overlay::before {
+    content: "";
+    position: absolute;
+    inset: -12% -22%;
+    z-index: -1;
+    background: radial-gradient(
+      ellipse at center,
+      var(--color-cream) 0%,
+      color-mix(in srgb, var(--color-cream) 72%, transparent) 42%,
+      transparent 72%
+    );
+    pointer-events: none;
+  }
   .greeting {
     font-family: var(--font-display);
     font-style: italic;
@@ -103,9 +138,32 @@ const longestTypedLine = hero.typedLines.reduce((a, b) =>
     line-height: 1;
     margin: 0.5rem 0 1.75rem;
     letter-spacing: -0.025em;
+    /* Halo in the bg color lifts the name off the weave for legibility. */
+    text-shadow: 0 2px 28px var(--color-cream);
   }
   .h-color {
     color: var(--color-terracotta);
+  }
+  .name-inner {
+    display: inline;
+  }
+  .word {
+    display: inline-block;
+  }
+  .reveal-char {
+    display: inline-block;
+  }
+  /* .js-anim is set synchronously on <html> before paint; hides chars until the
+     stagger animation runs. Absent under reduced-motion or if JS is disabled. */
+  :global(.js-anim) .reveal-char {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-char {
+      opacity: 1;
+      transform: none;
+    }
   }
   .typed-line {
     font-family: var(--font-mono);
@@ -215,6 +273,24 @@ const longestTypedLine = hero.typedLines.reduce((a, b) =>
     height: 20px;
   }
 </style>
+
+<script>
+  import { animate, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const chars = Array.from(document.querySelectorAll<HTMLElement>(".reveal-char"));
+  if (!reduce && chars.length) {
+    animate(
+      chars,
+      { opacity: [0, 1], transform: ["translateY(40px)", "translateY(0px)"] },
+      {
+        delay: stagger(0.04, { startDelay: 0.3 }),
+        duration: 0.9,
+        ease: [0.2, 0.65, 0.3, 0.9],
+      }
+    );
+  }
+</script>
 
 <script>
   const el = document.querySelector<HTMLElement>(".typed");
