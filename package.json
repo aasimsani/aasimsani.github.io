@@ -9,7 +9,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "encrypt": "node scripts/encrypt-page.mjs"
+    "encrypt": "node scripts/encrypt-page.mjs",
+    "publish": "node scripts/publish-page.mjs",
+    "new-post": "node scripts/new-post.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",

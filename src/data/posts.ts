@@ -9,6 +9,7 @@ export interface Post {
 }
 
 export const posts: Post[] = [
+  // new-post:insert
   {
     slug: "inattentional-blindness",
     title: "Your Startup Isn't Slow. It's Blind.",
