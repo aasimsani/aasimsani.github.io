@@ -1,0 +1,70 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ThemeToggle from "../../components/ThemeToggle.astro";
+import Footer from "../../components/Footer.astro";
+import { site } from "../../data/site";
+---
+
+<BaseLayout
+  title="Vault · Aasim Sani"
+  description="Encrypted drafts and private documents, shared by direct link."
+  ogType="website"
+  ogTitle="Vault · Aasim Sani"
+  canonical={`${site.url}vault/`}
+>
+  <ThemeToggle />
+  <main class="vault">
+    <a class="home-link" href="/">&larr; aasimsani.net</a>
+    <div class="lock" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h1>Vault</h1>
+    <p>
+      This is where I share drafts and documents privately &mdash; essays in
+      review, unredacted write-ups, work that isn&rsquo;t public yet. Each
+      document lives at its own unlisted link and is
+      <b>encrypted inside the page itself</b> (AES&#8209;256&#8209;GCM): the
+      server, this site&rsquo;s repository, and anyone without the password
+      see only ciphertext.
+    </p>
+    <p>
+      If I&rsquo;ve shared something with you, you&rsquo;ll have received a
+      direct link and a password. Nothing is listed here.
+    </p>
+    <p class="mono-note">no link + no password = nothing to see &mdash; that&rsquo;s the point</p>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .vault {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 6rem 1.5rem 5rem;
+    min-height: 65vh;
+  }
+  .home-link {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-stone);
+    text-decoration: none;
+  }
+  .home-link:hover { color: var(--color-terracotta); }
+  .lock {
+    margin-top: 2.5rem;
+    color: var(--color-sage-dim);
+  }
+  .lock svg { width: 34px; height: 34px; }
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 3rem);
+    margin: 0.8rem 0 1.2rem;
+  }
+  p { color: var(--color-ink-soft); }
+  p b { color: var(--color-ink); }
+  .mono-note {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-stone);
+    margin-top: 2.5rem;
+  }
+</style>

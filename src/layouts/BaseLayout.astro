@@ -5,9 +5,23 @@ import { site } from "../data/site";
 interface Props {
   title?: string;
   description?: string;
+  /* Per-page social-card overrides — defaults preserve the homepage's profile card. */
+  ogType?: string;
+  ogTitle?: string;
+  ogImage?: string;
+  canonical?: string;
+  publishedTime?: string;
 }
 
-const { title = site.title, description = site.description } = Astro.props;
+const {
+  title = site.title,
+  description = site.description,
+  ogType = "profile",
+  ogTitle = site.ogTitle,
+  ogImage = site.ogImage,
+  canonical = site.url,
+  publishedTime,
+} = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -30,20 +44,22 @@ const { title = site.title, description = site.description } = Astro.props;
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link rel="canonical" href={site.url} />
+    <link rel="canonical" href={canonical} />
 
-    <meta property="og:type" content="profile" />
-    <meta property="og:title" content={site.ogTitle} />
-    <meta property="og:url" content={site.url} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={site.ogImage} />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:site_name" content={site.ogSiteName} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+    {publishedTime && <meta property="article:author" content={`${site.firstName} ${site.lastName}`} />}
 
     <meta name="twitter:creator" content={site.twitterCreator} />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:title" content={site.ogTitle} />
+    <meta property="twitter:title" content={ogTitle} />
     <meta name="twitter:description" content={description} />
-    <meta property="twitter:image" content={site.ogImage} />
+    <meta property="twitter:image" content={ogImage} />
 
     <meta name="description" content={description} />
 

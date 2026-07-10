@@ -10,3 +10,7 @@ dist/
 .claude/
 .serena/
 .playwright-mcp/
+
+# Vault plaintext sources + working drafts — NEVER commit (public/vault/ ciphertext is the publishable form)
+private-src/
+drafts/
