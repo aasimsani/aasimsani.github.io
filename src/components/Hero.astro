@@ -110,6 +110,10 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
     );
     pointer-events: none;
   }
+  /* After hours shades text with the pixel world's own panels, and this pool would wash out the hero waiting under the slider. */
+  :global([data-site-mode="afterhours"]) .overlay::before {
+    display: none;
+  }
   .name {
     font-family: var(--font-display);
     font-weight: 750;
@@ -367,9 +371,14 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
     words.forEach((w) => (w.style.visibility = "visible"));
     // Serious mode skips the block-glyph decode and keeps only the spring.
     if (document.documentElement.dataset.siteMode === "afterhours") {
+      // Block glyphs are wider than letters, so the name keeps its settled height while
+      // it decodes. Otherwise it wraps to an extra line and shoves the page down.
+      const name = document.querySelector<HTMLElement>(".name");
+      if (name) name.style.height = `${name.offsetHeight}px`;
       animate(words, {
         innerHTML: scrambleText({ chars: "blocks", from: "center", perturbation: 0.4, revealRate: 9, settleDuration: 700 }),
         delay: stagger(160, { start: 350 }),
+        onComplete: () => name && (name.style.height = ""),
       });
     }
     animate(words, { y: [26, 0], opacity: [0, 1], delay: stagger(160, { start: 350 }), ease: springy });

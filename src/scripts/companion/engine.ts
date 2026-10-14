@@ -293,10 +293,13 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     S = innerWidth >= 900 ? 4 : 3;
     W = Math.ceil(innerWidth / S);
     H = Math.ceil(innerHeight / S);
-    canvas.width = W;
-    canvas.height = H;
-    panelLayer.width = W;
-    panelLayer.height = H;
+    // Setting a canvas size wipes it, even to the same value, so only a real size change touches it.
+    if (canvas.width !== W || canvas.height !== H) {
+      canvas.width = W;
+      canvas.height = H;
+      panelLayer.width = W;
+      panelLayer.height = H;
+    }
     canvas.style.width = `${W * S}px`;
     canvas.style.height = `${H * S}px`;
     WH = Math.ceil(document.documentElement.scrollHeight / S);
@@ -409,6 +412,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       for (const e of enemies) if (e.tier !== "minion" && e.t < hero.t) e.alive = false;
       emit("world:state", { cleared: enemies.filter((e) => e.tier === "mini" && !e.alive).map((e) => e.zone) });
     }
+    // Draw right away, so the screen never shows a blank frame between a relayout and the next tick.
+    draw();
   }
 
   // Minions ahead of the hero follow the current hype density. Ones behind him stay beaten.
@@ -889,14 +894,16 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     const hx = hero.x + hero.dragX, hy = hero.y + hero.dragY - 7 - camY;
     windowOpen += ((startsAtSlider && hero.t < 1e-4 ? 1 : 0.5) - windowOpen) * 0.06;
     const open = windowOpen.toFixed(3);
-    const hole = pctx.createRadialGradient(hx, hy, 0, hx, hy, 15);
+    // The window also widens while he waits, so his whole sprite sits in the clear middle.
+    const radius = 15 + (windowOpen - 0.5) * 20;
+    const hole = pctx.createRadialGradient(hx, hy, 0, hx, hy, radius);
     hole.addColorStop(0, `rgba(0,0,0,${open})`);
     hole.addColorStop(0.6, `rgba(0,0,0,${(windowOpen * 0.7).toFixed(3)})`);
     hole.addColorStop(1, "rgba(0,0,0,0)");
     pctx.globalAlpha = 1;
     pctx.globalCompositeOperation = "destination-out";
     pctx.fillStyle = hole;
-    pctx.fillRect(hx - 16, hy - 16, 32, 32);
+    pctx.fillRect(hx - radius - 1, hy - radius - 1, radius * 2 + 2, radius * 2 + 2);
     pctx.globalCompositeOperation = "source-over";
     ctx.drawImage(panelLayer, 0, 0);
   }
@@ -1038,7 +1045,13 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(layout);
   };
-  new ResizeObserver(relayout).observe(document.body);
+  // A relayout repaints the page-tall road, so a body that only wobbles by a pixel is ignored.
+  let bodyH = 0;
+  new ResizeObserver(([e]) => {
+    if (Math.abs(e.contentRect.height - bodyH) < 2) return;
+    bodyH = e.contentRect.height;
+    relayout();
+  }).observe(document.body);
   addEventListener("resize", relayout);
   new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 

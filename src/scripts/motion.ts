@@ -50,7 +50,18 @@ function headings() {
         tl.add(zone, { opacity: [0, 1], duration: 1 }, "<<");
         tl.add(zone, { innerHTML: scrambleText({ chars: "shades", from: "left" }) }, "<<");
       }
-      if (title) tl.add(title, { innerHTML: scrambleText({ chars: "blocks", from: "left", perturbation: 0.3 }) }, "<<+=60");
+      if (title) {
+        // Block glyphs are wider than letters, so the scrambled title would wrap to an
+        // extra line and push the page down on every frame. The title keeps its settled
+        // height while it decodes, and the extra glyphs are clipped.
+        title.style.height = `${title.offsetHeight}px`;
+        title.style.overflow = "clip";
+        const settle = () => {
+          title.style.height = "";
+          title.style.overflow = "";
+        };
+        tl.add(title, { innerHTML: scrambleText({ chars: "blocks", from: "left", perturbation: 0.3 }), onComplete: settle }, "<<+=60");
+      }
     };
     whenVisible(h, "85%", play);
   });
