@@ -892,7 +892,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     // to zero, so the words over him stay readable. While he waits in the empty gap under
     // the slider, the window opens fully.
     const hx = hero.x + hero.dragX, hy = hero.y + hero.dragY - 7 - camY;
-    windowOpen += ((startsAtSlider && hero.t < 1e-4 ? 1 : 0.5) - windowOpen) * 0.06;
+    // A cream panel fades him more than a dark one, so by day the window over text opens a little wider.
+    windowOpen += ((startsAtSlider && hero.t < 1e-4 ? 1 : day ? 0.62 : 0.5) - windowOpen) * 0.06;
     const open = windowOpen.toFixed(3);
     // The window also widens while he waits, so his whole sprite sits in the clear middle.
     const radius = 15 + (windowOpen - 0.5) * 20;
