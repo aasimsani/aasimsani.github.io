@@ -5,14 +5,14 @@ import { nav } from "../data/nav";
 {/* Desktop sticky strip — the horizontal link row that's been there. */}
 <section class="nav-section">
   <nav class="nav" id="section-menu" aria-label="Sections">
-    {nav.map((n) => <a class="nav-link" href={n.href}>{n.label}</a>)}
+    {nav.map((n) => <a class="nav-link" href={n.href}>{n.short}</a>)}
   </nav>
 </section>
 
 {/* Mobile-only fixed pill matching ThemeToggle exactly, with its own dropdown. */}
 <button
   type="button"
-  class="burger"
+  class="burger px-frame"
   aria-label="Open section menu"
   aria-expanded="false"
   aria-controls="mobile-menu"
@@ -21,7 +21,7 @@ import { nav } from "../data/nav";
   <svg class="b-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
 </button>
 <nav class="mobile-menu" id="mobile-menu" aria-label="Sections" data-open="false">
-  {nav.map((n) => <a class="nav-link" href={n.href}>{n.label}</a>)}
+  {nav.map((n) => <a class="nav-link" href={n.href}>{n.short}</a>)}
 </nav>
 
 <script>
@@ -59,11 +59,8 @@ import { nav } from "../data/nav";
     position: sticky;
     top: 0;
     z-index: 50;
-    background: color-mix(in srgb, var(--color-cream) 86%, transparent);
-    backdrop-filter: blur(12px) saturate(120%);
-    -webkit-backdrop-filter: blur(12px) saturate(120%);
-    border-top: 1px solid var(--color-fog);
-    border-bottom: 1px solid var(--color-fog);
+    background: var(--color-bg);
+    border-bottom: 2px solid var(--color-line);
     padding: 0.75rem 1rem;
   }
   .nav {
@@ -75,19 +72,34 @@ import { nav } from "../data/nav";
     gap: 0.5rem 1.5rem;
   }
   .nav-link {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.82rem;
-    color: var(--color-stone);
+    color: var(--color-muted);
     text-decoration: none;
     padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: color 0.15s ease, background 0.15s ease;
+    transition: color 0.12s steps(2), background-color 0.12s steps(2);
     white-space: nowrap;
   }
-  .nav-link:hover {
-    color: var(--color-terracotta);
-    background: color-mix(in srgb, var(--color-terracotta) 12%, transparent);
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    color: var(--color-bg);
+    background: var(--color-accent);
     text-decoration: none;
+  }
+
+  /* After hours turns the nav into a quest map: the current zone glows, and cleared zones get a marker. */
+  :global([data-site-mode="afterhours"]) .nav-link[data-current="true"] {
+    color: var(--color-accent);
+  }
+  :global([data-site-mode="afterhours"]) .nav-link[data-cleared="true"]::after {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-left: 0.45rem;
+    vertical-align: 0.1em;
+    background: var(--color-teal);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
   }
 
   /* Mobile burger — identical pill shape to ThemeToggle, mirrored top-left. */
@@ -97,25 +109,21 @@ import { nav } from "../data/nav";
     top: 1rem;
     left: 1rem;
     z-index: 60;
-    background: color-mix(in srgb, var(--color-cream) 80%, transparent);
-    backdrop-filter: blur(12px) saturate(120%);
-    -webkit-backdrop-filter: blur(12px) saturate(120%);
-    border: 1px solid var(--color-fog);
-    color: var(--color-ink-soft);
+    background: var(--color-surface);
+    color: var(--color-text-soft);
+    border: 0;
     padding: 0.55rem;
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
+    width: 44px;
+    height: 44px;
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-    box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.25);
+    transition: color 0.12s steps(2), background-color 0.12s steps(2);
   }
-  .burger:hover {
-    color: var(--color-terracotta);
-    border-color: color-mix(in srgb, var(--color-terracotta) 50%, var(--color-fog));
-    transform: translateY(-1px);
+  .burger:hover,
+  .burger:focus-visible {
+    color: var(--color-bg);
+    background: var(--color-accent);
   }
   .burger :global(svg) {
     width: 18px;
@@ -136,12 +144,8 @@ import { nav } from "../data/nav";
     flex-direction: column;
     align-items: stretch;
     padding: 0.5rem 0.75rem;
-    background: color-mix(in srgb, var(--color-cream) 92%, transparent);
-    backdrop-filter: blur(20px) saturate(120%);
-    -webkit-backdrop-filter: blur(20px) saturate(120%);
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.45);
+    background: var(--color-surface);
+    border: 0;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
@@ -156,7 +160,7 @@ import { nav } from "../data/nav";
   .mobile-menu .nav-link {
     padding: 0.75rem 0.5rem;
     font-size: 1rem;
-    border-bottom: 1px solid var(--color-fog);
+    border-bottom: 1px solid var(--color-line);
   }
   .mobile-menu .nav-link:last-of-type { border-bottom: 0; }
 

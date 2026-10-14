@@ -1,44 +1,91 @@
 ---
-import { icons } from "./icons";
+// Each section is a zone on the wanderer's road, so the heading carries the
+// same lantern the background world hangs at that section's crossing.
+import { nav } from "../data/nav";
 
 interface Props {
   title: string;
-  glyph?: keyof typeof icons;
   id?: string;
 }
 
-const { title, glyph, id } = Astro.props;
+const { title, id } = Astro.props;
+const zone = nav.findIndex((n) => n.label.toLowerCase() === title.toLowerCase()) + 1;
+// Pixel lantern on a 7×11 grid: hook, cap, glass, base.
+const lantern: [number, number, number, number, string][] = [
+  [3, 0, 1, 1, "frame"],
+  [2, 1, 3, 1, "frame"],
+  [1, 2, 5, 1, "frame"],
+  [1, 3, 1, 5, "frame"],
+  [5, 3, 1, 5, "frame"],
+  [2, 3, 3, 5, "flame"],
+  [3, 4, 1, 2, "core"],
+  [1, 8, 5, 1, "frame"],
+  [2, 9, 3, 1, "frame"],
+];
 ---
 
-<div class="heading" id={id}>
-  <h2 class="heading-text">{title}</h2>
-  {glyph && (
-    <span class="heading-icon" set:html={icons[glyph]}></span>
-  )}
+<div class="heading" id={id} data-heading data-title={title}>
+  <svg class="lantern afterhours-only" viewBox="0 0 7 11" shape-rendering="crispEdges" aria-hidden="true">
+    {lantern.map(([x, y, w, h, part]) => <rect x={x} y={y} width={w} height={h} class={part} />)}
+  </svg>
+  <div class="titles">
+    {zone > 0 && <p class="zone afterhours-only">Zone {zone}</p>}
+    <h2 class="heading-text">{title}</h2>
+  </div>
 </div>
 
 <style>
   .heading {
-    text-align: center;
-    margin-bottom: 3rem;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
+    align-items: flex-end;
+    gap: 1.1rem;
+    margin-bottom: 3rem;
+  }
+  .lantern {
+    width: 28px;
+    height: 44px;
+    flex: none;
+  }
+  .lantern .frame {
+    fill: var(--color-muted);
+  }
+  .lantern .flame {
+    fill: var(--color-accent);
+  }
+  .lantern .core {
+    fill: var(--color-accent-strong);
+  }
+  /* After hours keeps each lantern dark until the hero clears that zone. Under siege, the frame flashes. */
+  :global([data-site-mode="afterhours"]) .heading:not([data-cleared]) .lantern .flame,
+  :global([data-site-mode="afterhours"]) .heading:not([data-cleared]) .lantern .core {
+    fill: var(--color-line);
+  }
+  .heading[data-siege] .lantern .frame {
+    fill: var(--color-accent);
+    animation: siege 0.5s steps(2) infinite;
+  }
+  @keyframes siege {
+    50% {
+      opacity: 0.35;
+    }
+  }
+  .heading[data-cleared] .zone {
+    color: var(--color-accent);
+  }
+  .titles {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .zone {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    line-height: 1;
+    margin: 0;
+    color: var(--color-teal);
   }
   .heading-text {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1;
     margin: 0;
-    letter-spacing: -0.02em;
-  }
-  .heading-icon {
-    display: inline-flex;
-    color: var(--color-sage-dim);
-  }
-  .heading-icon :global(svg) {
-    width: 32px;
-    height: 32px;
   }
 </style>

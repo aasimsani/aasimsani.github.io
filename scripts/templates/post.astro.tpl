@@ -90,18 +90,18 @@ const canonical = `${site.url}blog/${post.slug}/`;
   }
   .post-header { margin-bottom: 3.5rem; }
   .home-link {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.85rem;
-    color: var(--color-stone);
+    color: var(--color-muted);
     text-decoration: none;
   }
-  .home-link:hover { color: var(--color-terracotta); }
+  .home-link:hover { color: var(--color-accent); }
   .kicker {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.8rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-terracotta);
+    color: var(--color-accent);
     margin: 2.2rem 0 0.8rem;
   }
   h1 {
@@ -113,18 +113,18 @@ const canonical = `${site.url}blog/${post.slug}/`;
     font-family: var(--font-display);
     font-size: 1.25rem;
     line-height: 1.5;
-    color: var(--color-ink-soft);
+    color: var(--color-text-soft);
     max-width: 38rem;
   }
   .byline {
     display: flex;
     gap: 0.6rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.82rem;
-    color: var(--color-stone);
+    color: var(--color-muted);
     margin-top: 1.4rem;
   }
-  .byline b { color: var(--color-ink); font-weight: 500; }
+  .byline b { color: var(--color-text); font-weight: 500; }
 
   .read-progress {
     position: fixed;
@@ -136,16 +136,16 @@ const canonical = `${site.url}blog/${post.slug}/`;
     display: block;
     height: 100%;
     width: 0;
-    background: var(--color-terracotta);
+    background: var(--color-accent);
     transition: width 0.1s linear;
   }
 
   .section-label {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.78rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-stone);
+    color: var(--color-muted);
     margin-bottom: 0.6rem;
   }
   h2 {
@@ -157,14 +157,14 @@ const canonical = `${site.url}blog/${post.slug}/`;
     font-family: var(--font-display);
     font-size: 1.18rem;
     line-height: 1.55;
-    color: var(--color-ink);
+    color: var(--color-text);
   }
-  sup a { text-decoration: none; font-family: var(--font-mono); font-size: 0.75em; }
+  sup a { text-decoration: none; font-family: var(--font-ui); font-size: 0.75em; }
 
   .cta {
     font-family: var(--font-display);
     font-size: 1.15rem;
-    color: var(--color-ink);
+    color: var(--color-text);
   }
   .share-row {
     display: flex;
@@ -173,11 +173,11 @@ const canonical = `${site.url}blog/${post.slug}/`;
     margin-top: 1.6rem;
   }
   .share-btn {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.82rem;
-    color: var(--color-terracotta);
+    color: var(--color-accent);
     background: transparent;
-    border: 1px solid color-mix(in srgb, var(--color-terracotta) 50%, var(--color-fog));
+    border: 1px solid color-mix(in srgb, var(--color-accent) 50%, var(--color-line));
     border-radius: 999px;
     padding: 0.45rem 1rem;
     cursor: pointer;
@@ -185,14 +185,14 @@ const canonical = `${site.url}blog/${post.slug}/`;
     transition: background 0.15s ease, color 0.15s ease;
   }
   .share-btn:hover {
-    background: var(--color-terracotta);
-    color: var(--color-cream);
+    background: var(--color-accent);
+    color: var(--color-bg);
   }
 
   .sources ol { padding-left: 1.2rem; }
   .sources li {
     font-size: 0.88rem;
-    color: var(--color-ink-soft);
+    color: var(--color-text-soft);
     margin-bottom: 0.6rem;
   }
 </style>
