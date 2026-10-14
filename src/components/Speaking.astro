@@ -1,28 +1,34 @@
 ---
 import { speaking } from "../data/speaking";
 import SectionHeader from "./SectionHeader.astro";
+
+// Talks link out behind a poster instead of embedding players, so the page
+// loads no third-party video code until someone chooses to watch.
+const ytId = (src: string) => src.match(/embed\/([\w-]+)/)?.[1];
+const fullTitle = (t: (typeof speaking)[number]) => [t.title, t.subtitle].filter(Boolean).map((x) => x!.trim()).join(" ");
+const watchUrl = (t: (typeof speaking)[number]) => {
+  const id = t.embed.kind === "youtube" ? ytId(t.embed.src) : undefined;
+  return id ? `https://www.youtube.com/watch?v=${id}` : t.embed.src.replace("/embed/feed/", "/feed/");
+};
 ---
 
 <section class="publicspeaking section-anchor" id="publicspeaking">
   <div class="container">
-    <SectionHeader title="Public Speaking" glyph="microphone" />
+    <SectionHeader title="Public Speaking" />
     <div class="grid">
       {speaking.map((t, i) => (
         <article class="talk">
-          <h3>{t.title}</h3>
-          {t.subtitle && <h3>{t.subtitle}</h3>}
-          <h5>{t.tagline}</h5>
-          <div class="embed">
-            <iframe
-              class="iframe-border"
-              id={t.embed.kind === "linkedin" ? "linkedin-iframe" : undefined}
-              src={t.embed.src}
-              title="Embedded video"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-            />
-          </div>
+          <a class="poster px-frame" href={watchUrl(t)} target="_blank" rel="noopener">
+            {t.embed.kind === "youtube" ? (
+              <img src={`https://i.ytimg.com/vi/${ytId(t.embed.src)}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" />
+            ) : (
+              <span class="poster-fallback">Watch on LinkedIn</span>
+            )}
+            <span class="play" aria-hidden="true"></span>
+            <span class="sr-only">Watch {fullTitle(t)}</span>
+          </a>
+          <h3>{fullTitle(t)}</h3>
+          <p class="tagline">{t.tagline}</p>
         </article>
       ))}
     </div>
@@ -32,7 +38,7 @@ import SectionHeader from "./SectionHeader.astro";
 <style>
   .publicspeaking {
     padding: 5rem 1.5rem;
-    background: var(--color-cream-soft);
+    background: transparent;
   }
   .container {
     max-width: 1080px;
@@ -44,30 +50,59 @@ import SectionHeader from "./SectionHeader.astro";
     gap: 3rem 2rem;
   }
   .talk h3 {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
+    margin: 1rem 0 0.35rem;
+  }
+  .tagline {
+    color: var(--color-text-soft);
     margin: 0;
-    font-weight: 500;
   }
-  .talk h5 {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-weight: 300;
-    color: var(--color-ink-soft);
-    margin: 0.5rem 0 1rem;
-    font-size: 1.05rem;
-  }
-  .embed {
+  .poster {
     position: relative;
+    display: block;
     aspect-ratio: 16 / 9;
-    border-radius: 0.5rem;
+    max-width: 100%;
+    background: var(--color-surface);
     overflow: hidden;
-    border: 1px solid var(--color-fog);
   }
-  .embed iframe {
-    position: absolute;
-    inset: 0;
+  .poster img {
     width: 100%;
     height: 100%;
-    border: 0;
+    object-fit: cover;
+    filter: saturate(0.7) brightness(0.8);
+    transition: filter 0.2s steps(3);
+  }
+  .poster:hover img,
+  .poster:focus-visible img {
+    filter: none;
+  }
+  .poster-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: end center;
+    padding-bottom: 1.1rem;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--color-text-soft);
+  }
+  /* A pixel play triangle built from a stepped clip-path. */
+  .play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+    background: var(--color-accent);
+    clip-path: polygon(30% 20%, 40% 20%, 40% 30%, 50% 30%, 50% 40%, 60% 40%, 60% 45%, 75% 45%, 75% 55%, 60% 55%, 60% 60%, 50% 60%, 50% 70%, 40% 70%, 40% 80%, 30% 80%);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 </style>

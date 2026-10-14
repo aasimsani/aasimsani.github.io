@@ -1,0 +1,320 @@
+---
+// The After hours game. A pixel world sits behind the whole site, where a hero
+// walks a road down the gutters, cuts through minions, fights a mini-boss at
+// every section break, and meets the final boss in the footer. The engine only
+// loads once After hours is on.
+---
+
+<div class="world afterhours-only" aria-hidden="true">
+  <canvas></canvas>
+</div>
+
+<div class="grab afterhours-only" aria-hidden="true" title="Pick him up"></div>
+
+<div class="fx afterhours-only" aria-hidden="true"></div>
+
+<div class="hud px-frame afterhours-only" role="group" aria-label="Game status">
+  <span class="zone"><span class="caret">&gt;</span> <span data-zone>Start</span></span>
+  <span class="embers" title="Embers collected"><span class="ember-icon" aria-hidden="true"></span><span data-embers>0</span></span>
+  <button type="button" class="mode" data-mode aria-pressed="true">Fight</button>
+</div>
+
+<div class="bossbar px-frame afterhours-only" hidden>
+  <p class="boss-tier" data-boss-tier>Mini-boss</p>
+  <p class="boss-name" data-boss-name></p>
+  <div class="boss-hp"><span data-boss-fill></span></div>
+</div>
+
+<div class="banner afterhours-only" role="status" hidden>
+  <p class="banner-title" data-banner-title>PR closed</p>
+  <p class="banner-sub" data-banner-sub></p>
+</div>
+
+<style>
+  .world {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .world canvas {
+    display: block;
+    image-rendering: pixelated;
+  }
+  .fx {
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .grab {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 72px;
+    z-index: 30;
+    cursor: grab;
+    touch-action: none;
+  }
+  .grab:active {
+    cursor: grabbing;
+  }
+  @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    :global([data-site-mode="afterhours"]) .grab {
+      display: block;
+    }
+  }
+
+  .hud {
+    position: fixed;
+    left: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    z-index: 55;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0 0 0 0.85rem;
+    background: var(--color-surface);
+    color: var(--color-text-soft);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    line-height: 1;
+  }
+  .caret {
+    color: var(--color-accent);
+  }
+  .embers {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-accent);
+  }
+  .embers [data-embers] {
+    display: inline-block;
+    min-width: 2ch;
+  }
+  .ember-icon {
+    width: 8px;
+    height: 8px;
+    background: var(--color-accent);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  }
+  .mode {
+    font: inherit;
+    min-height: 44px;
+    padding: 0 0.85rem;
+    border: 0;
+    background: var(--color-line);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: background-color 0.12s steps(2), color 0.12s steps(2);
+  }
+  .mode:hover,
+  .mode:focus-visible {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+  /* On narrow screens the HUD joins the top bar, between the burger and the theme toggle. */
+  @media (max-width: 900px) {
+    .hud {
+      left: 50%;
+      bottom: auto;
+      top: 1rem;
+      translate: -50% 0;
+    }
+    .hud .zone {
+      display: none;
+    }
+  }
+  /* Between tablet and wide desktop the gutters are too narrow for the HUD, so it tucks away with the adventure switch. */
+  @media (min-width: 901px) {
+    .hud {
+      transition: translate 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    :global([data-chrome="tucked"]) .hud {
+      translate: 0 calc(100% + 2rem);
+    }
+  }
+
+  .bossbar {
+    position: fixed;
+    left: 50%;
+    top: 5.25rem;
+    /* The translate property centers the bar, because anime.js owns its transform. */
+    translate: -50% 0;
+    z-index: 56;
+    width: min(26rem, calc(100vw - 2rem));
+    padding: 0.7rem 0.9rem 0.8rem;
+    background: var(--color-surface);
+    font-family: var(--font-ui);
+  }
+  /* The bar hides while its boss is far off screen, so it never covers unrelated sections. */
+  .bossbar[data-away] {
+    visibility: hidden;
+  }
+  /* On narrow screens the top bar holds the HUD, so the boss bar drops to the bottom, clear of the headings. */
+  @media (max-width: 900px) {
+    .bossbar {
+      top: auto;
+      bottom: calc(4.8rem + env(safe-area-inset-bottom, 0px));
+    }
+  }
+  .boss-tier {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-teal);
+  }
+  .boss-name {
+    margin: 0.3rem 0 0.55rem;
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+  .boss-hp {
+    height: 8px;
+    background: var(--color-line);
+  }
+  .boss-hp span {
+    display: block;
+    height: 100%;
+    background: var(--color-accent);
+    transform-origin: left center;
+  }
+
+  .banner {
+    position: fixed;
+    left: 50%;
+    top: 38%;
+    transform: translate(-50%, -50%);
+    z-index: 80;
+    text-align: center;
+    pointer-events: none;
+  }
+  .banner-title {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: clamp(2.2rem, 7vw, 5rem);
+    line-height: 1;
+    color: var(--color-accent);
+    text-shadow: 4px 4px 0 var(--color-bg);
+  }
+  .banner-sub {
+    margin: 0.8rem 0 0;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--color-text);
+    text-shadow: 2px 2px 0 var(--color-bg);
+  }
+
+  /* Floating text the HUD script spawns: damage numbers, embers, speech bubbles. */
+  .fx :global(.dmg) {
+    position: absolute;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--color-text);
+    text-shadow: 2px 2px 0 var(--color-bg);
+  }
+  .fx :global(.dmg.big) {
+    font-size: 1.1rem;
+    color: var(--color-accent);
+  }
+  .fx :global(.ember) {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--color-accent);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  }
+  .fx :global(.say) {
+    position: absolute;
+    max-width: 15rem;
+    padding: 0.5rem 0.7rem;
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    line-height: 1.35;
+  }
+  .fx :global(.slash) {
+    position: absolute;
+    overflow: visible;
+  }
+  .fx :global(.slash path) {
+    fill: none;
+    stroke: var(--world-fx);
+    stroke-width: 5;
+    stroke-linecap: square;
+    filter: drop-shadow(0 0 6px var(--color-teal));
+  }
+  .fx :global(.confetti) {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+  }
+</style>
+
+<script>
+  import { animate, spring } from "animejs";
+  import type { World } from "../scripts/companion/engine";
+  import "../scripts/companion/hud";
+
+  let world: World | null = null;
+  let loading = false;
+  const hypeStop = () => Number(document.querySelector<HTMLElement>(".hype")?.dataset.stop ?? 1);
+
+  // The engine loads the first time After hours is on, and pauses whenever Serious takes over.
+  async function sync() {
+    if (document.documentElement.dataset.siteMode !== "afterhours") {
+      world?.pause();
+      return;
+    }
+    if (world) return world.play();
+    if (loading) return;
+    loading = true;
+    const { mountWorld } = await import("../scripts/companion/engine");
+    world = mountWorld(document.body, hypeStop());
+    initGrab(world);
+  }
+
+  // A grab handle rides on top of the hero. Drag him anywhere, and on release a
+  // spring snaps him back onto the road with a little overshoot.
+  function initGrab(w: World) {
+    const grab = document.querySelector<HTMLElement>(".grab");
+    if (!grab) return;
+    // Over the content column the handle lets clicks through, so it never blocks a link.
+    const column = document.querySelector<HTMLElement>("body > section[id] .container") ?? document.querySelector<HTMLElement>("body > section[id]");
+    const follow = () => {
+      const p = w.toScreen();
+      grab.style.transform = `translate(${Math.round(p.x - 28)}px, ${Math.round(p.y - 70)}px)`;
+      const c = column?.getBoundingClientRect();
+      const over = !!c && p.x > c.left - 28 && p.x < c.right + 28;
+      if (!w.hero.held) grab.style.pointerEvents = over ? "none" : "auto";
+      requestAnimationFrame(follow);
+    };
+    follow();
+    let start = { x: 0, y: 0, dx: 0, dy: 0 };
+    grab.addEventListener("pointerdown", (e) => {
+      grab.setPointerCapture(e.pointerId);
+      start = { x: e.clientX, y: e.clientY, dx: w.hero.dragX, dy: w.hero.dragY };
+      w.hero.held = true;
+    });
+    grab.addEventListener("pointermove", (e) => {
+      if (!w.hero.held) return;
+      const s = w.scale();
+      w.hero.dragX = start.dx + (e.clientX - start.x) / s;
+      w.hero.dragY = start.dy + (e.clientY - start.y) / s;
+    });
+    const release = () => {
+      if (!w.hero.held) return;
+      w.hero.held = false;
+      animate(w.hero, { dragX: 0, dragY: 0, ease: spring({ stiffness: 170, damping: 8 }) });
+    };
+    grab.addEventListener("pointerup", release);
+    grab.addEventListener("pointercancel", release);
+  }
+
+  sync();
+  addEventListener("site:mode", sync);
+</script>

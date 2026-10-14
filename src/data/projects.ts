@@ -13,7 +13,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     title: "MeowLearning",
-    logo: "/images/meowlearning.png",
+    logo: "/images/meowlearning.webp",
     link: "https://github.com/aasimsani/meow-learning",
     linkLabel: "See on Github",
     github: "aasimsani/meow-learning",
@@ -23,7 +23,7 @@ export const projects: Project[] = [
   },
   {
     title: "Artificial Manga Panel Dataset",
-    logo: "/images/ampd.png",
+    logo: "/images/ampd.webp",
     link: "https://github.com/aasimsani/artificial_manga_panel_dataset",
     linkLabel: "See on Github",
     github: "aasimsani/artificial_manga_panel_dataset",
@@ -33,7 +33,7 @@ export const projects: Project[] = [
   },
   {
     title: "Second Brain Slipbox",
-    logo: "/images/secondbrain.png",
+    logo: "/images/secondbrain.webp",
     link: "https://www.linkedin.com/posts/aasimsani_secondbrain-slipbox-knowledge-activity-6962170106504167424-_HKW/",
     linkLabel: "Sneak a peek of my second brain",
     paragraphs: [
@@ -56,7 +56,7 @@ export const projects: Project[] = [
   },
   {
     title: "ML Project Template",
-    logo: "/images/copycat.png",
+    logo: "/images/copycat.webp",
     link: "https://github.com/aasimsani/ml_project_template",
     linkLabel: "See on Github",
     github: "aasimsani/ml_project_template",
@@ -66,7 +66,7 @@ export const projects: Project[] = [
   },
   {
     title: "Agile Connects",
-    logo: "/images/agileconnects.png",
+    logo: "/images/agileconnects.webp",
     link: "https://www.agileconnects.com/",
     extraHeadline: "Energy savings algorithm development",
     paragraphs: [
