@@ -11,7 +11,7 @@
 // world:defeat, world:zone, world:say, world:hurt, world:state), and hud.ts
 // turns those into page reactions.
 import { animate, createTimer } from "animejs";
-import { buildJourney, pointAt, scrollSpeed, spawnPlan, tAtY, type Pt } from "./world";
+import { buildJourney, pointAt, roundCorners, scrollSpeed, spawnPlan, tAtY, type Pt } from "./world";
 import { BAT, GULL, LEGS, LOOKS, MINI_BOSSES, MINION_DAY, MINION_NIGHT, SLIME, SLIME_DAY, SLOP_LINES, SLOP_PAL, SLOP_PR, WHITE, dayPalette, type Frame, type Look } from "./sprites";
 
 type Mode = "fight" | "wander";
@@ -41,7 +41,11 @@ type Panel = { x0: number; x1: number; y0: number; y1: number };
 const MARGIN = 3;
 const MINIONS_PER_ZONE = [1, 2, 3, 5, 7];
 const SKY_TINT = [0.28, 0, 0.3, 0.45, 0.55];
-const PER_SWING = 70; // pixels of scroll that buy one swing
+// Pixels of scroll that buy one swing. Phones get cheaper swings, so a fight
+// ends before the boss scrolls up under the top bar.
+const perSwing = () => (innerWidth < 700 ? 42 : 70);
+// Phones and tablets fight on their own, because scrolling to swing feels bad on touch.
+const touch = matchMedia("(pointer: coarse)").matches;
 const NINJA_SPEED = 2600; // px/s of scrolling that triggers a ninja dash
 
 function rng(seed: number) {
@@ -84,6 +88,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   let zoneSpans: [number, number][] = [];
   let enemies: Enemy[] = [];
   let lanterns: { x: number; y: number; t: number; lit: number }[] = [];
+  let roadArt: HTMLCanvasElement | null = null;
   let zones: { name: string; t: number }[] = [];
   let panels: Panel[] = [];
   let panelAlpha = 0.84;
@@ -146,6 +151,89 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     skyNow.top = target.top;
     skyNow.bot = target.bot;
     sky = paintSky();
+    if (road.length) roadArt = paintRoad();
+  }
+
+  // The road is painted once per layout or theme into a page-tall offscreen canvas.
+  // Steep legs become stone steps cut into the cliff, gentle legs become a cobbled
+  // ledge with a rocky underside, and the long legs that cross the content column
+  // become rope-and-plank bridges.
+  function paintRoad() {
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = WH + 16;
+    const g = c.getContext("2d")!;
+    const dot = (x: number, y: number, color: string, w = 1, h = 1) => {
+      g.fillStyle = color;
+      g.fillRect(Math.round(x), Math.round(y), w, h);
+    };
+    const hash = (x: number, y: number) => (((Math.round(x) * 73856093) ^ (Math.round(y) * 19349663)) >>> 0) % 997;
+    const mid = W / 2;
+
+    for (let i = 0; i < road.length - 1; i++) {
+      const a = road[i], b = road[i + 1];
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const bridge = (a.x - mid) * (b.x - mid) < 0 && Math.abs(dx) > 16;
+
+      if (bridge) {
+        const x0 = Math.round(Math.min(a.x, b.x)), x1 = Math.round(Math.max(a.x, b.x));
+        const at = (x: number) => a.y + (dy * (x - a.x)) / dx;
+        // Posts split the span evenly, and the hand rope sags between each pair.
+        const spans = Math.max(1, Math.round((x1 - x0) / 30));
+        const posts = Array.from({ length: spans + 1 }, (_, i) => Math.round(x0 + ((x1 - x0) * i) / spans));
+        for (let x = x0; x <= x1; x++) {
+          const y = Math.round(at(x));
+          const p = posts.findIndex((q, i) => i < spans && x >= q && x <= posts[i + 1]);
+          const k = (x - posts[p]) / Math.max(1, posts[p + 1] - posts[p]);
+          const sag = Math.round(Math.sin(Math.PI * k) * 2);
+          // Planks with a dark gap every third column, and a beam underneath.
+          const gap = x % 3 === 0;
+          dot(x, y, gap ? col.road : col.roadHi);
+          dot(x, y + 1, gap ? col.roadLo : col.road);
+          dot(x, y + 2, col.roadLo);
+          // Ropes and posts use the mid and light woods, so they read against the night sky too.
+          dot(x, y - 6 + sag, col.roadHi);
+          if (x % 4 === 2) dot(x, y - 5 + sag, col.road, 1, 5 - sag);
+          dot(x, y + 4 + sag, col.road);
+        }
+        for (const x of posts) {
+          const y = Math.round(at(x));
+          dot(x - 1, y - 7, col.road, 2, 11);
+          dot(x, y - 7, col.roadHi, 1, 11);
+          dot(x - 1, y - 8, col.roadHi, 2, 1);
+        }
+        continue;
+      }
+
+      if (Math.abs(dy) > Math.abs(dx)) {
+        // Steep legs are steps. Each step is three rows: a lit lip, the tread, then its shadow.
+        for (let y = Math.round(a.y); y <= b.y; y++) {
+          const x = Math.round(a.x + (dx * (y - a.y)) / (dy || 1));
+          const r = ((y % 3) + 3) % 3;
+          dot(x - 3, y, col.rockHi);
+          dot(x - 2, y, r === 0 ? col.roadHi : r === 1 ? col.road : col.roadLo, 5, 1);
+          dot(x + 3, y, col.rock, 2, 1);
+          if (r === 0 && hash(x, y) % 4 === 0) dot(x - 2 + (hash(x, y) % 5), y, col.rockHi);
+          if (r === 0 && hash(y, x) % 7 === 0) dot(x + 2, y - 1, col.grass);
+        }
+        continue;
+      }
+
+      // Gentle legs are a cobbled ledge with a jagged rock underside.
+      const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x);
+      for (let x = Math.round(x0); x <= x1; x++) {
+        const y = Math.round(dx ? a.y + (dy * (x - a.x)) / dx : a.y);
+        const h = hash(x, y);
+        dot(x, y, col.roadHi);
+        dot(x, y + 1, x % 4 === 0 ? col.roadLo : col.road);
+        dot(x, y + 2, (x + 2) % 4 === 0 ? col.roadLo : col.road);
+        dot(x, y + 3, col.roadLo);
+        dot(x, y + 4, col.rock, 1, 1 + (h % 3));
+        if (h % 5 === 0) dot(x, y + 5 + (h % 3), col.rock);
+        if (h % 9 === 0) dot(x, y - 1, col.grass);
+      }
+    }
+    return c;
   }
 
   // The hype slider tints the sky: green for touch grass, LinkedIn blue in the middle, hustle magenta at the top.
@@ -232,7 +320,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     const padTop = (el: Element) => parseFloat(getComputedStyle(el).paddingTop) || 80;
     const boundaries = blocks.map((el) => Math.round(el.id === "footer" ? top(el) + (el.offsetHeight * 0.42) / S : top(el) + (padTop(el) * 0.74) / S));
     const journey = buildJourney({ top: 26, bottom: WH - 14, boundaries, left, right, leg: 56, cross: 6, sway: 0.35, rand: terrain });
-    road = journey.road;
+    // Rounded turns, so the hero and the painted road both follow smooth bends.
+    road = roundCorners(journey.road, 7, 6);
     crossings = journey.crossings;
     roadLen = road.slice(1).reduce((a, p, i) => a + Math.hypot(p.x - road[i].x, p.y - road[i].y), 0);
 
@@ -334,7 +423,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     });
   }
 
-  const goal = () => tAtY(road, (scrollY + innerHeight * 0.62) / S);
+  // The hero leads at 62% of the screen, or 70% on phones, so fights start low enough to stay in view.
+  const goal = () => tAtY(road, (scrollY + innerHeight * (innerWidth < 700 ? 0.7 : 0.62)) / S);
   const screen = (x: number, y: number) => ({ x: x * S, y: y * S - scrollY });
 
   function place() {
@@ -471,19 +561,24 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     if (foe) {
       hero.dir = foe.x >= hero.x ? 1 : -1;
       // Standing still in front of a monster for a beat shows a hint once per monster.
-      if (++blockedFor === 40 && energy < PER_SWING && prompted !== foe) {
+      if (++blockedFor === 40 && !touch && energy < perSwing() && prompted !== foe) {
         prompted = foe;
         emit("world:prompt", screen(hero.x, hero.y - 24));
       }
     } else {
       blockedFor = 0;
-      energy = Math.min(energy, PER_SWING);
+      energy = Math.min(energy, perSwing());
     }
-    if (foe && hero.atk < 0 && energy >= PER_SWING) {
-      energy -= PER_SWING;
+    // When the reader has scrolled well past the hero, he cuts minions down for free
+    // to catch up, so he reaches the next boss while it's still on screen.
+    const lagging = foe?.tier === "minion" && (want - hero.t) * roadLen * S > innerHeight * 0.15;
+    // On touch screens he also fights on his own, swinging every 20 frames while blocked.
+    const free = lagging || (touch && blockedFor >= 20);
+    if (foe && hero.atk < 0 && (free || energy >= perSwing())) {
+      if (!free) energy -= perSwing();
       blockedFor = 0;
       hero.target = foe;
-      hero.atkLen = ninja ? 4 : 7;
+      hero.atkLen = ninja || lagging ? 4 : 7;
       hero.atk = 0;
     }
     if (hero.atk >= 0) {
@@ -698,17 +793,9 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       ctx.fillRect(W - r - 1, row, 1, 1);
     }
 
-    for (let i = 0; i < road.length - 1; i++) {
-      const a = road[i], b = road[i + 1];
-      if (b.y < camY - 8 || a.y > camY + H + 8) continue;
-      const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * 1.5);
-      for (let k = 0; k <= n; k++) {
-        const x = a.x + ((b.x - a.x) * k) / n, y = a.y + ((b.y - a.y) * k) / n;
-        px(x, y, col.roadHi);
-        px(x, y + 1, col.road, 1, 2);
-        px(x, y + 3, col.rock, 1, 3);
-        px(x, y + 6, col.roadLo);
-      }
+    if (roadArt) {
+      const sy = Math.round(camY);
+      ctx.drawImage(roadArt, 0, sy, W, H, 0, 0, W, H);
     }
     for (const g of tufts) {
       if (g.y < camY - 4 || g.y > camY + H + 4) continue;
@@ -804,7 +891,18 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       const enraged = e.hp <= e.max / 2;
       const bob = Math.round(Math.sin(time * 0.06) * 1.5);
       glow(e.x, e.y - 14, 30, enraged ? 0.32 : 0.18, enraged ? "255,79,216" : "127,174,154");
-      sprite(frame, e.x - 13 + e.kx, e.y - frame.length + bob, dir, white ? WHITE(SLOP_PAL) : day ? dayPalette(SLOP_PAL) : SLOP_PAL);
+      const left = e.x - Math.floor(frame[0].length / 2) + e.kx, top = e.y - frame.length + bob;
+      sprite(frame, left, top, dir, white ? WHITE(SLOP_PAL) : day ? dayPalette(SLOP_PAL) : SLOP_PAL);
+      // The slop glitches. A few rows tear sideways every few frames, and more once it's enraged.
+      if (e.alive && time % (enraged ? 3 : 7) === 0) {
+        const tears = enraged ? 4 : 2;
+        for (let i = 0; i < tears; i++) {
+          const row = Math.round(top - camY + rand() * frame.length);
+          const shift = Math.round((rand() - 0.5) * (enraged ? 8 : 4));
+          const h = 1 + Math.floor(rand() * 2), x = Math.round(left - 2), w = frame[0].length + 4;
+          ctx.drawImage(canvas, x, row, w, h, x + shift, row, w, h);
+        }
+      }
       if (e.telegraph) px(e.x, e.y - frame.length - 6 + bob, col.fx, 1, 3);
       // Napping in wander mode: little z's float up.
       if (!fight && e.alive && time % 60 < 40) px(e.x + 10, e.y - frame.length - 4 - ((time % 60) >> 3), col.teal, 2, 2);
@@ -937,7 +1035,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   const samples: { t: number; d: number }[] = [];
   function feed(dy: number) {
     if (dy <= 0) return;
-    energy = Math.min(energy + dy, PER_SWING * 6);
+    energy = Math.min(energy + dy, perSwing() * 6);
     const now = performance.now();
     // After a pause, seed the window one frame back so a single big jump still reads as fast.
     if (!samples.length) samples.push({ t: now - 16, d: travel });

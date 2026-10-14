@@ -1,7 +1,7 @@
 // Run with: npm run test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildJourney, buildRoad, pointAt, scrollSpeed, spawnPlan, stopForValue, tAtY } from "./world.ts";
+import { buildJourney, buildRoad, pointAt, roundCorners, scrollSpeed, spawnPlan, stopForValue, tAtY } from "./world.ts";
 
 test("buildRoad zigzags down inside the margins", () => {
   const road = buildRoad(60, 600, 6, 8);
@@ -142,4 +142,21 @@ test("scrollSpeed measures pixels per second across the sample window", () => {
   assert.equal(scrollSpeed([{ t: 0, d: 0 }, { t: 100, d: 300 }]), 3000);
   assert.equal(scrollSpeed([{ t: 0, d: 0 }, { t: 50, d: 40 }, { t: 200, d: 100 }]), 500, "uses the first and last sample");
   assert.equal(scrollSpeed([{ t: 10, d: 5 }, { t: 10, d: 90 }]), 0, "a zero-length window has no speed");
+});
+
+test("roundCorners rounds each turn and keeps the ends and the downhill rule", () => {
+  const road = [
+    { x: 0, y: 0 },
+    { x: 40, y: 40 },
+    { x: 0, y: 80 },
+    { x: 100, y: 84 },
+  ];
+  const out = roundCorners(road, 6, 5);
+  assert.deepEqual(out[0], road[0]);
+  assert.deepEqual(out.at(-1), road.at(-1));
+  for (let i = 1; i < out.length; i++) assert.ok(out[i].y >= out[i - 1].y, "rounded road must still only go downhill");
+  // The sharp corners themselves are cut off.
+  for (const v of road.slice(1, -1)) assert.ok(!out.some((p) => p.x === v.x && p.y === v.y), `corner (${v.x}, ${v.y}) survived`);
+  // A long leg keeps its middle, so crossings and bosses stay on the road.
+  assert.ok(out.some((p) => p.x === 50 && p.y === 82) || out.some((p, i) => i > 0 && out[i - 1].x < 50 && p.x > 50));
 });

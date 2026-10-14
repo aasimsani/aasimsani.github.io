@@ -150,3 +150,30 @@ export function scrollSpeed(samples: { t: number; d: number }[]): number {
   const dt = b.t - a.t;
   return dt > 0 ? ((b.d - a.d) / dt) * 1000 : 0;
 }
+
+/**
+ * Round every interior corner of a polyline with a quadratic curve that starts
+ * `radius` before the corner and ends `radius` after it. Short legs shrink the
+ * radius so neighbouring curves never overlap.
+ */
+export function roundCorners(road: Pt[], radius: number, steps: number): Pt[] {
+  if (road.length < 3) return road.slice();
+  const out: Pt[] = [road[0]];
+  for (let i = 1; i < road.length - 1; i++) {
+    const a = road[i - 1], v = road[i], b = road[i + 1];
+    const la = Math.hypot(v.x - a.x, v.y - a.y), lb = Math.hypot(b.x - v.x, b.y - v.y);
+    const r = Math.min(radius, la / 2, lb / 2);
+    if (r < 0.5) {
+      out.push(v);
+      continue;
+    }
+    const p0 = { x: v.x + ((a.x - v.x) * r) / la, y: v.y + ((a.y - v.y) * r) / la };
+    const p2 = { x: v.x + ((b.x - v.x) * r) / lb, y: v.y + ((b.y - v.y) * r) / lb };
+    for (let k = 0; k <= steps; k++) {
+      const t = k / steps, u = 1 - t;
+      out.push({ x: u * u * p0.x + 2 * u * t * v.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * v.y + t * t * p2.y });
+    }
+  }
+  out.push(road[road.length - 1]);
+  return out;
+}
