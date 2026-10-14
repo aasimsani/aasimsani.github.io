@@ -401,9 +401,10 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
       return existing.length ? [...existing] : (splitText(copy!, { words: { class: "w" } }).words as HTMLElement[]);
     };
 
+    // A fast drag cancels a copy swap halfway, so the stamp tracks whether it's showing instead of trusting the last stop.
+    let stampShown = current === 4;
     async function show(next: number) {
       const mine = ++token;
-      const leaving = current;
       current = next;
       input!.setAttribute("aria-valuetext", stops[next].label);
       if (bubble) {
@@ -424,6 +425,11 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
         return;
       }
 
+      if (next !== 4 && stampShown) {
+        stampShown = false;
+        animate(stamp!, { opacity: 0, scale: 0.4, duration: 200, ease: "inQuad" });
+      }
+
       // Words leave upward, the copy swaps, then new words spring in.
       await animate(words(), { opacity: 0, y: -10, duration: 160, delay: stagger(6), ease: "inQuad" });
       if (mine !== token) return;
@@ -432,6 +438,7 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
       animate(words(), { opacity: [0, 1], y: [14, 0], delay: stagger(next === 4 ? 22 : 9), ease: springy });
 
       if (next === 4) {
+        stampShown = true;
         animate(stamp!, {
           opacity: [0, 1],
           scale: [3.2, 1],
@@ -441,8 +448,6 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
           ease: spring({ stiffness: 220, damping: 11 }),
         });
         animate(hype!, { x: [0, -6, 6, -4, 4, 0], duration: 360, delay: 120, ease: "linear" });
-      } else if (leaving === 4) {
-        animate(stamp!, { opacity: 0, scale: 0.4, duration: 200, ease: "inQuad" });
       }
     }
 
