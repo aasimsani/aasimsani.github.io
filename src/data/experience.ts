@@ -23,7 +23,8 @@ export const experience: Experience[] = [
     mat: "bleed",
     paragraphs: [
       `After seven years in AI I wanted to build systems where speed and correctness both matter. Sales tax compliance needs both, because every transaction has to compute fast and every return has to be right.`,
-      `I joined as the first engineer and built the systems that run global sales tax inside finance and commerce stacks. <strong>Ingestion:</strong> connectors for Stripe, QuickBooks, Shopify, and Rillet, including webhooks, historical backfill, and a reconciliation system that catches drift. <strong>Compute:</strong> the global nexus engine, the US sales tax engine, and a multi-currency exchange layer. <strong>Ops:</strong> a Temporal-driven backfill orchestrator, an RWX-based CI/CD pipeline, and an internal Slack <code>/deploy</code> bot. Python, DuckDB, PostgreSQL, Temporal.`,
+      `I joined as the first engineer and built the systems that run global sales tax inside finance and commerce stacks. <strong>Compute:</strong> a real-time tax calculation API in FastAPI that returns the exact tax on every transaction, plus the global nexus engine, the US sales tax engine, and a multi-currency exchange layer. <strong>Ingestion:</strong> Temporal pipelines that bring in 100M+ transactions a month from Stripe, QuickBooks, Shopify, Business Central, Odoo, Maxio, Measure, and Rillet, with webhooks, historical backfill, and a reconciliation system that catches drift. <strong>Ops:</strong> a Temporal-driven backfill orchestrator, an RWX-based CI/CD pipeline, and an internal Slack <code>/deploy</code> bot. Python, FastAPI, DuckDB, PostgreSQL, Temporal.`,
+      `I also ran integration support for our first 200 customers, and I built a certification program for customers' own API integrations.`,
     ],
   },
   {
