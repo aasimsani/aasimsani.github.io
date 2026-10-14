@@ -77,6 +77,12 @@ export type World = {
 export function mountWorld(root: HTMLElement, startHype = 1): World {
   const canvas = root.querySelector<HTMLCanvasElement>(".world canvas")!;
   const ctx = canvas.getContext("2d")!;
+  // Panels are drawn on their own layer, so a soft hole can follow the hero through them.
+  const panelLayer = document.createElement("canvas");
+  const pctx = panelLayer.getContext("2d")!;
+  // The road starts under the hype slider when the slider is on the page.
+  let startsAtSlider = false;
+  let windowOpen = 1;
   const modeBtn = root.querySelector<HTMLButtonElement>("[data-mode]");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const rand = rng(7);
@@ -104,7 +110,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   const hero = {
     t: 0, x: 0, y: 0, dir: 1 as 1 | -1, speed: 0, phase: 0, blink: 0, jump: 0,
     atk: -1, atkLen: 8, target: null as Enemy | null,
-    dragX: 0, dragY: 0, held: false, hurt: 0,
+    dragX: 0, dragY: 0, held: false, hurt: 0, homeX: 0,
     look: LOOKS[startHype],
   };
   const scarf = Array.from({ length: 11 }, () => ({ x: 0, y: 0, px: 0, py: 0 }));
@@ -289,6 +295,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     H = Math.ceil(innerHeight / S);
     canvas.width = W;
     canvas.height = H;
+    panelLayer.width = W;
+    panelLayer.height = H;
     canvas.style.width = `${W * S}px`;
     canvas.style.height = `${H * S}px`;
     WH = Math.ceil(document.documentElement.scrollHeight / S);
@@ -319,16 +327,22 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     // Crossings sit in each section's top padding. The footer's crossing sits mid-arena, where the final boss waits.
     const padTop = (el: Element) => parseFloat(getComputedStyle(el).paddingTop) || 80;
     const boundaries = blocks.map((el) => Math.round(el.id === "footer" ? top(el) + (el.offsetHeight * 0.42) / S : top(el) + (padTop(el) * 0.74) / S));
-    const journey = buildJourney({ top: 26, bottom: WH - 14, boundaries, left, right, leg: 56, cross: 6, sway: 0.35, rand: terrain });
+    // The hero starts in the gap under the hype slider, then walks out to the right gutter.
+    const ctrl = document.querySelector<HTMLElement>(".hype-control")?.getBoundingClientRect();
+    startsAtSlider = !!ctrl && ctrl.width > 0;
+    const start = startsAtSlider ? { x: Math.round((ctrl!.left + ctrl!.width / 2) / S), y: Math.round((ctrl!.bottom + scrollY) / S) + 15 } : null;
+    const journey = buildJourney({ top: start ? start.y : 26, bottom: WH - 14, boundaries, left, right, leg: 56, cross: 6, sway: 0.35, rand: terrain });
     // Rounded turns, so the hero and the painted road both follow smooth bends.
-    road = roundCorners(journey.road, 7, 6);
+    road = roundCorners(start ? [start, ...journey.road] : journey.road, 7, 6);
     crossings = journey.crossings;
     roadLen = road.slice(1).reduce((a, p, i) => a + Math.hypot(p.x - road[i].x, p.y - road[i].y), 0);
 
     const names = blocks.map((el) => el.querySelector<HTMLElement>("[data-heading]")?.dataset.title || "Arena");
     zones = [{ name: "Start", t: 0 }, ...crossings.map((c, i) => ({ name: names[i], t: tAtY(road, c.y) }))];
     const ts = crossings.map((c) => tAtY(road, c.y));
-    zoneSpans = ts.map((t, i) => [i ? ts[i - 1] : 0, t]);
+    // Minions never spawn on the walk out from under the slider.
+    const walkOut = start ? Math.abs(journey.road[0].x - start.x) / roadLen : 0;
+    zoneSpans = ts.map((t, i) => [i ? ts[i - 1] : walkOut, t]);
     lanterns = crossings.map((c, i) => {
       const p = pointAt(road, Math.max(0, ts[i] - 12 / roadLen));
       return { x: p.x, y: p.y, t: ts[i], lit: 0 };
@@ -429,9 +443,17 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
 
   function place() {
     const p = pointAt(road, hero.t);
-    hero.x = p.x;
+    hero.x = p.x + hero.homeX;
     hero.y = p.y;
     hero.dir = p.dir;
+  }
+
+  // The slider thumb's center, in world pixels.
+  function thumbAt() {
+    const input = document.querySelector<HTMLInputElement>(".hype-control input");
+    const r = input?.getBoundingClientRect();
+    if (!input || !r?.width) return road[0].x;
+    return (r.left + 9 + ((r.width - 18) * Number(input.value)) / 100) / S;
   }
 
   function snap() {
@@ -534,6 +556,14 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     hero.t += (Math.sign(gap) * mag) / roadLen;
     place();
     hero.speed = hero.speed * 0.7 + mag * 0.3;
+    // Before the walk starts, he stands under the slider thumb and walks along as it moves.
+    const home = startsAtSlider && hero.t < 1e-4 ? thumbAt() - road[0].x : 0;
+    const step = Math.max(-2.6, Math.min(2.6, (home - hero.homeX) * 0.2));
+    hero.homeX += step;
+    if (Math.abs(step) > 0.05) {
+      hero.dir = step > 0 ? 1 : -1;
+      hero.speed = Math.max(hero.speed, Math.abs(step));
+    }
     if (Math.abs(hero.x - prevX) > 0.01) hero.dir = hero.x > prevX ? 1 : -1;
     hero.phase += hero.speed / 2.4;
     if (hero.blink > 0) hero.blink--;
@@ -837,22 +867,38 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     ctx.globalAlpha = 1;
 
     // Panels behind text. Dithered edges keep them pixel-native.
-    ctx.fillStyle = col.bg;
+    pctx.clearRect(0, 0, W, H);
+    pctx.fillStyle = col.bg;
     for (const p of panels) {
       if (p.y1 < camY || p.y0 > camY + H) continue;
       const x0 = Math.round(p.x0), w = Math.round(p.x1 - p.x0);
       const y0 = Math.round(p.y0 - camY), y1 = Math.round(p.y1 - camY);
-      ctx.globalAlpha = panelAlpha;
-      ctx.fillRect(x0, y0, w, y1 - y0);
+      pctx.globalAlpha = panelAlpha;
+      pctx.fillRect(x0, y0, w, y1 - y0);
       for (let k = 1; k <= 5; k++) {
-        ctx.globalAlpha = panelAlpha * (1 - k / 6);
-        ctx.fillRect(x0, y0 - k, w, 1);
-        ctx.fillRect(x0, y1 + k - 1, w, 1);
-        ctx.fillRect(x0 - k, y0, 1, y1 - y0);
-        ctx.fillRect(x0 + w + k - 1, y0, 1, y1 - y0);
+        pctx.globalAlpha = panelAlpha * (1 - k / 6);
+        pctx.fillRect(x0, y0 - k, w, 1);
+        pctx.fillRect(x0, y1 + k - 1, w, 1);
+        pctx.fillRect(x0 - k, y0, 1, y1 - y0);
+        pctx.fillRect(x0 + w + k - 1, y0, 1, y1 - y0);
       }
     }
-    ctx.globalAlpha = 1;
+    // A soft window follows the hero. Over text it thins the panel to about half, never
+    // to zero, so the words over him stay readable. While he waits in the empty gap under
+    // the slider, the window opens fully.
+    const hx = hero.x + hero.dragX, hy = hero.y + hero.dragY - 7 - camY;
+    windowOpen += ((startsAtSlider && hero.t < 1e-4 ? 1 : 0.5) - windowOpen) * 0.06;
+    const open = windowOpen.toFixed(3);
+    const hole = pctx.createRadialGradient(hx, hy, 0, hx, hy, 15);
+    hole.addColorStop(0, `rgba(0,0,0,${open})`);
+    hole.addColorStop(0.6, `rgba(0,0,0,${(windowOpen * 0.7).toFixed(3)})`);
+    hole.addColorStop(1, "rgba(0,0,0,0)");
+    pctx.globalAlpha = 1;
+    pctx.globalCompositeOperation = "destination-out";
+    pctx.fillStyle = hole;
+    pctx.fillRect(hx - 16, hy - 16, 32, 32);
+    pctx.globalCompositeOperation = "source-over";
+    ctx.drawImage(panelLayer, 0, 0);
   }
 
   function drawEnemy(e: Enemy) {

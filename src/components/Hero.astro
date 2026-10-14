@@ -181,6 +181,10 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
     max-width: 38rem;
     margin: 0 auto 2.75rem;
   }
+  /* After hours leaves a gap under the slider, where the hero waits until the reader scrolls. */
+  :global([data-site-mode="afterhours"]) .hype {
+    margin-bottom: 5rem;
+  }
   .bio,
   .hype-copy {
     font-size: 1.2rem;
