@@ -81,7 +81,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   const panelLayer = document.createElement("canvas");
   const pctx = panelLayer.getContext("2d")!;
   // The road starts under the hype slider when the slider is on the page.
-  let startsAtSlider = false;
+  let startsAtSlider = false, waiting = false;
   let windowOpen = 1;
   const modeBtn = root.querySelector<HTMLButtonElement>("[data-mode]");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -110,7 +110,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   const hero = {
     t: 0, x: 0, y: 0, dir: 1 as 1 | -1, speed: 0, phase: 0, blink: 0, jump: 0,
     atk: -1, atkLen: 8, target: null as Enemy | null,
-    dragX: 0, dragY: 0, held: false, hurt: 0, homeX: 0,
+    dragX: 0, dragY: 0, held: false, hurt: 0,
     look: LOOKS[startHype],
   };
   const scarf = Array.from({ length: 11 }, () => ({ x: 0, y: 0, px: 0, py: 0 }));
@@ -331,9 +331,11 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     const padTop = (el: Element) => parseFloat(getComputedStyle(el).paddingTop) || 80;
     const boundaries = blocks.map((el) => Math.round(el.id === "footer" ? top(el) + (el.offsetHeight * 0.42) / S : top(el) + (padTop(el) * 0.74) / S));
     // The hero starts in the gap under the hype slider, then walks out to the right gutter.
+    // The road begins under the thumb's leftmost spot, so the ledge runs under the whole slider.
     const ctrl = document.querySelector<HTMLElement>(".hype-control")?.getBoundingClientRect();
-    startsAtSlider = !!ctrl && ctrl.width > 0;
-    const start = startsAtSlider ? { x: Math.round((ctrl!.left + ctrl!.width / 2) / S), y: Math.round((ctrl!.bottom + scrollY) / S) + 15 } : null;
+    const track = document.querySelector<HTMLElement>(".hype-control input")?.getBoundingClientRect();
+    startsAtSlider = !!ctrl?.width && !!track?.width;
+    const start = startsAtSlider ? { x: Math.round((track!.left + 9) / S), y: Math.round((ctrl!.bottom + scrollY) / S) + 15 } : null;
     const journey = buildJourney({ top: start ? start.y : 26, bottom: WH - 14, boundaries, left, right, leg: 56, cross: 6, sway: 0.35, rand: terrain });
     // Rounded turns, so the hero and the painted road both follow smooth bends.
     road = roundCorners(start ? [start, ...journey.road] : journey.road, 7, 6);
@@ -443,12 +445,18 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   }
 
   // The hero leads at 62% of the screen, or 70% on phones, so fights start low enough to stay in view.
-  const goal = () => tAtY(road, (scrollY + innerHeight * (innerWidth < 700 ? 0.7 : 0.62)) / S);
+  // Until the reader scrolls past the slider, he stands under its thumb and walks along as it moves.
+  const goal = () => {
+    const lead = tAtY(road, (scrollY + innerHeight * (innerWidth < 700 ? 0.7 : 0.62)) / S);
+    const home = startsAtSlider ? Math.max(0, (thumbAt() - road[0].x) / roadLen) : 0;
+    waiting = lead <= home;
+    return Math.max(lead, home);
+  };
   const screen = (x: number, y: number) => ({ x: x * S, y: y * S - scrollY });
 
   function place() {
     const p = pointAt(road, hero.t);
-    hero.x = p.x + hero.homeX;
+    hero.x = p.x;
     hero.y = p.y;
     hero.dir = p.dir;
   }
@@ -561,14 +569,6 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     hero.t += (Math.sign(gap) * mag) / roadLen;
     place();
     hero.speed = hero.speed * 0.7 + mag * 0.3;
-    // Before the walk starts, he stands under the slider thumb and walks along as it moves.
-    const home = startsAtSlider && hero.t < 1e-4 ? thumbAt() - road[0].x : 0;
-    const step = Math.max(-2.6, Math.min(2.6, (home - hero.homeX) * 0.2));
-    hero.homeX += step;
-    if (Math.abs(step) > 0.05) {
-      hero.dir = step > 0 ? 1 : -1;
-      hero.speed = Math.max(hero.speed, Math.abs(step));
-    }
     if (Math.abs(hero.x - prevX) > 0.01) hero.dir = hero.x > prevX ? 1 : -1;
     hero.phase += hero.speed / 2.4;
     if (hero.blink > 0) hero.blink--;
@@ -893,7 +893,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     // the slider, the window opens fully.
     const hx = hero.x + hero.dragX, hy = hero.y + hero.dragY - 7 - camY;
     // A cream panel fades him more than a dark one, so by day the window over text opens a little wider.
-    windowOpen += ((startsAtSlider && hero.t < 1e-4 ? 1 : day ? 0.62 : 0.5) - windowOpen) * 0.06;
+    windowOpen += ((waiting ? 1 : day ? 0.62 : 0.5) - windowOpen) * 0.06;
     const open = windowOpen.toFixed(3);
     // The window also widens while he waits, so his whole sprite sits in the clear middle.
     const radius = 15 + (windowOpen - 0.5) * 20;
