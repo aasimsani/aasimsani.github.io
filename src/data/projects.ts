@@ -73,4 +73,14 @@ export const projects: Project[] = [
       `An algorithm to find the upper bound on energy and cost savings when AgileConnects' IoT scheduling decides when AC units cycle on and off.`,
     ],
   },
+  {
+    title: "Pottery Stencil Maker",
+    logo: "/images/pottery-stencil.svg",
+    link: "/projects/pottery-stencil-maker/",
+    linkLabel: "Try it in your browser",
+    github: "aasimsani/pottery-stencil-maker",
+    paragraphs: [
+      `A browser app for designing underglaze stencils that fit a thrown piece. You measure the band you want to paint on a mug, pot, vase, bowl, or plate rim, layer patterns from open libraries or your own images onto it, and download an STL that fits. A print check flags plastic that's too thin, paint lines that would close up, and spans that would sag before you print.`,
+    ],
+  },
 ];
