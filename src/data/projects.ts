@@ -83,4 +83,14 @@ export const projects: Project[] = [
       `A browser app for designing underglaze stencils that fit a thrown piece. You measure the band you want to paint on a mug, pot, vase, bowl, or plate rim, layer patterns from open libraries or your own images onto it, and download an STL that fits. A print check flags plastic that's too thin, paint lines that would close up, and spans that would sag before you print.`,
     ],
   },
+  {
+    title: "Pottery Rib Maker",
+    logo: "/images/pottery-rib.svg",
+    link: "/projects/pottery-rib-maker/",
+    linkLabel: "Try it in your browser",
+    github: "aasimsani/pottery-rib-maker",
+    paragraphs: [
+      `A browser app for designing profile ribs to 3D print for the wheel. You draw the mug, pot, or bowl you want to throw by dragging points, and the rib's working edge becomes that pot's wall. A height scale and a rim line run up the rib, and the rib grows by your clay's shrinkage, so the pot leaves the kiln at the size you drew. A 3D view shows the rib against the pot on the wheel, and a print plate view shows the STL on the bed.`,
+    ],
+  },
 ];
