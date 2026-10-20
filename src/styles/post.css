@@ -1,0 +1,354 @@
+/* Shared styles for every blog post. PostLayout imports this file, so the
+   components in src/components/post/ and the markup a post slots in both
+   pick it up. Serious mode is the plain reading page. After hours keeps the
+   same text and adds the site's game markers: pixel type for chrome, stepped
+   corners, a night sky, lanterns that light as you finish each section, and a
+   dashed road between sections. It never adds a character. */
+
+.post {
+  --font-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 5.5rem 1.5rem 5rem;
+}
+
+/* ---------- header ---------- */
+.post-header { margin-bottom: 3.5rem; }
+.home-link {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.home-link:hover { color: var(--color-accent); }
+.post .kicker {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 2.2rem 0 0.8rem;
+}
+.post h1 {
+  font-size: clamp(2.5rem, 6.5vw, 3.6rem);
+  line-height: 1.06;
+  margin: 0 0 1.2rem;
+}
+.post .dek {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--color-text-soft);
+  max-width: 38rem;
+}
+.post .byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-top: 1.4rem;
+}
+.post .byline b { color: var(--color-text); font-weight: 500; }
+
+.read-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 70;
+}
+.read-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--color-accent);
+  transition: width 0.1s linear;
+}
+
+/* ---------- body text ---------- */
+.post-section + .post-section,
+.post .sources {
+  border-top: 1px solid var(--color-line);
+  margin-top: 3rem;
+  padding-top: 3rem;
+}
+.post .section-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
+}
+.post .section-head .lantern { width: 21px; height: 33px; flex: none; }
+.post .lantern .frame { fill: var(--color-muted); }
+.post .lantern .flame { fill: var(--color-accent); }
+.post .lantern .core { fill: var(--color-accent-strong); }
+.post .section-label {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 0.6rem;
+}
+.post h2 {
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  line-height: 1.15;
+  margin: 0;
+}
+.post h3 {
+  font-size: 1.35rem;
+  line-height: 1.25;
+  margin: 2.6rem 0 1rem;
+}
+.post .lede {
+  font-size: 1.18rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+.post ol { list-style: decimal; padding-left: 1.4rem; }
+.post ul { list-style: disc; padding-left: 1.4rem; }
+.post ol li, .post ul li { margin-bottom: 0.7rem; }
+.post sup a { text-decoration: none; font-family: var(--font-mono); font-size: 0.75em; }
+.post code { font-family: var(--font-mono); }
+.post .aside {
+  border-left: 3px solid var(--color-teal);
+  background: color-mix(in srgb, var(--color-teal) 7%, transparent);
+  padding: 0.9rem 1.1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-size: 0.94rem;
+  color: var(--color-text-soft);
+}
+.post .note { font-size: 0.82rem; color: var(--color-muted); margin-top: -1rem; }
+.post .cta { font-size: 1.15rem; color: var(--color-text); }
+
+/* ---------- panels: figures, reveals, case files, checklists ---------- */
+.post-panel {
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+}
+figure.post-panel {
+  margin: 2.2rem 0;
+  padding: 1.4rem 1.4rem 1rem;
+}
+.post .chart-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 1rem;
+}
+
+.reveal { margin: 1.5rem 0 0; }
+.reveal > summary {
+  cursor: pointer;
+  padding: 1rem 1.2rem;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  list-style: none;
+}
+.reveal > summary::-webkit-details-marker { display: none; }
+.reveal > summary::before { content: "▸ "; }
+.reveal[open] > summary::before { content: "▾ "; }
+.reveal-body { padding: 0 1.2rem 1.2rem; }
+
+.case-grid { display: flex; flex-direction: column; gap: 0.9rem; margin: 2rem 0; }
+.case { transition: border-color 0.15s ease; }
+.case[open], .case:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-line));
+}
+.case > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  list-style: none;
+}
+.case > summary::-webkit-details-marker { display: none; }
+.case-no {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+.case-name { font-size: 1.12rem; color: var(--color-text); }
+.case-body { padding: 0 1.2rem 1.2rem; }
+.case-facts {
+  display: grid;
+  gap: 0.4rem;
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border-left: 3px solid var(--color-line);
+  font-size: 0.88rem;
+}
+.case-facts > div { display: flex; gap: 0.6rem; }
+.case-facts dt {
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  min-width: 7.5rem;
+  padding-top: 0.15rem;
+}
+.case-facts dd { margin: 0; color: var(--color-text-soft); }
+.verdict {
+  margin-top: 0.6rem;
+  border-top: 1px dashed var(--color-line);
+  padding-top: 0.6rem;
+}
+.verdict > summary {
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.83rem;
+  color: var(--color-teal);
+  list-style: none;
+  padding: 0.2rem 0;
+}
+.verdict > summary::-webkit-details-marker { display: none; }
+.verdict > summary::before { content: "→ "; }
+.verdict p { margin: 0.6rem 0 0; font-size: 0.92rem; }
+
+.checklist {
+  margin: 2rem 0;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.ritual {
+  display: grid;
+  grid-template-columns: 1rem 1fr auto;
+  gap: 0.8rem;
+  align-items: start;
+  cursor: pointer;
+  font-size: 0.94rem;
+  color: var(--color-text-soft);
+}
+.ritual input {
+  margin-top: 0.3rem;
+  accent-color: var(--color-accent);
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+.ritual b { color: var(--color-text); }
+.ritual-tag {
+  width: 9rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--color-teal);
+  text-align: right;
+  padding-top: 0.2rem;
+}
+@media (max-width: 560px) {
+  .ritual { grid-template-columns: 1rem 1fr; }
+  .ritual-tag { grid-column: 2; width: auto; text-align: left; padding-top: 0; }
+}
+.ritual:has(input:checked) span { opacity: 0.55; }
+
+.post-btn {
+  align-self: flex-start;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--color-accent);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 50%, var(--color-line));
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.post-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.6rem;
+}
+
+.sources ol { padding-left: 1.2rem; }
+.sources li {
+  font-size: 0.88rem;
+  color: var(--color-text-soft);
+  margin-bottom: 0.6rem;
+}
+.sources .further {
+  font-size: 0.88rem;
+  color: var(--color-text-soft);
+  margin-top: 1.4rem;
+}
+
+@media (max-width: 560px) {
+  .case > summary { flex-direction: column; gap: 0.2rem; }
+  .case-facts dt { min-width: 6rem; }
+}
+
+/* ---------- After hours ---------- */
+.post-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 18%, var(--world-star) 99%, transparent),
+    radial-gradient(1px 1px at 38% 9%, var(--world-star) 99%, transparent),
+    radial-gradient(2px 2px at 71% 22%, var(--world-star) 99%, transparent),
+    radial-gradient(1px 1px at 86% 41%, var(--world-star) 99%, transparent),
+    radial-gradient(1px 1px at 22% 63%, var(--world-star) 99%, transparent),
+    radial-gradient(2px 2px at 93% 78%, var(--world-star) 99%, transparent),
+    radial-gradient(1px 1px at 6% 88%, var(--world-star) 99%, transparent),
+    linear-gradient(var(--world-sky-top), var(--world-sky-bottom));
+  opacity: 0.55;
+}
+
+[data-site-mode="afterhours"] .post-panel {
+  border: 0;
+  border-radius: 0;
+  clip-path: polygon(
+    0 6px, 6px 6px, 6px 0, calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px), calc(100% - 6px) 100%,
+    6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+}
+[data-site-mode="afterhours"] .case[open] > summary .case-name,
+[data-site-mode="afterhours"] .case:hover > summary .case-name { color: var(--color-accent-strong); }
+[data-site-mode="afterhours"] .post-btn { border-radius: 0; }
+[data-site-mode="afterhours"] .aside { border-radius: 0; }
+
+/* Each lantern stays dark until the reader finishes its section. */
+[data-site-mode="afterhours"] .section-head:not([data-cleared]) .lantern .flame,
+[data-site-mode="afterhours"] .section-head:not([data-cleared]) .lantern .core {
+  fill: var(--color-line);
+}
+[data-site-mode="afterhours"] .section-head[data-cleared] .section-label { color: var(--color-accent); }
+
+/* The hairline between sections becomes a dashed stretch of road. */
+[data-site-mode="afterhours"] .post-section + .post-section,
+.post .sources {
+  border-top: 0;
+  background: repeating-linear-gradient(90deg, var(--world-road-hi) 0 12px, transparent 12px 24px) top / 100% 4px no-repeat;
+}
+
+[data-site-mode="afterhours"] .read-progress { height: 6px; }
+[data-site-mode="afterhours"] .read-progress span {
+  background: repeating-linear-gradient(90deg, var(--color-accent) 0 8px, var(--color-accent-strong) 8px 16px);
+  transition: width 0.1s steps(3);
+}
+
+/* The homepage footer is the final boss's arena. A post has no boss, so the footer stays short. */
+[data-site-mode="afterhours"] .post-shell #footer {
+  min-height: 0;
+  padding-bottom: 7rem;
+}
+.post-shell #footer .kicker { display: none; }

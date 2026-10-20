@@ -2,11 +2,26 @@
 // The "choose your own adventure" control. It stays pinned to the bottom of
 // the screen, so switching between Serious and After hours is always one tap
 // away. First-time visitors get a speech bubble that explains which version
-// their clock picked and offers the other one.
+// their clock picked and offers the other one. Pages other than the
+// homepage can swap the wording, and {when} in a nudge becomes the visitor's
+// local day and time.
+interface Props {
+  prompt?: string;
+  seriousNudge?: string;
+  afterhoursNudge?: string;
+  playLabel?: string;
+}
+
+const {
+  prompt = "Choose your adventure",
+  seriousNudge = "It's {when} where you are, so you got Serious mode. After hours has sword fights, a keyboard-wielding thought leader and a final boss.",
+  afterhoursNudge = "It's {when} where you are, so you got After hours mode. Here on business? There's a Serious version too.",
+  playLabel = "Play After hours",
+} = Astro.props;
 ---
 
-<div class="adventure px-frame" role="group" aria-label="Choose your own adventure">
-  <span class="cyoa">Choose your adventure</span>
+<div class="adventure px-frame" role="group" aria-label={prompt}>
+  <span class="cyoa">{prompt}</span>
   <div class="options">
     <span class="pill" aria-hidden="true"></span>
     <button type="button" data-site="serious" aria-pressed="false">Serious</button>
@@ -14,7 +29,14 @@
   </div>
 </div>
 
-<div class="nudge px-frame" role="status" hidden>
+<div
+  class="nudge px-frame"
+  role="status"
+  hidden
+  data-serious={seriousNudge}
+  data-afterhours={afterhoursNudge}
+  data-play={playLabel}
+>
   <p class="nudge-text"></p>
   <div class="nudge-actions">
     <button type="button" class="go" data-nudge-go></button>
@@ -177,10 +199,8 @@
     const serious = current() === "serious";
     const text = nudge.querySelector<HTMLElement>(".nudge-text")!;
     const go = nudge.querySelector<HTMLButtonElement>("[data-nudge-go]")!;
-    text.textContent = serious
-      ? `It's ${when} where you are, so you got Serious mode. After hours has sword fights, a keyboard-wielding thought leader and a final boss.`
-      : `It's ${when} where you are, so you got After hours mode. Here on business? There's a Serious version too.`;
-    go.textContent = serious ? "Play After hours" : "Go Serious";
+    text.textContent = (serious ? nudge.dataset.serious : nudge.dataset.afterhours)!.replace("{when}", when);
+    go.textContent = serious ? nudge.dataset.play! : "Go Serious";
     go.onclick = () => choose(serious ? "afterhours" : "serious");
     nudge.hidden = false;
     if (!reduce) {

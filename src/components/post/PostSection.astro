@@ -1,0 +1,31 @@
+---
+// One numbered section of a post. Pass no, label and title for a headed
+// section, or leave them out for an opening section with no heading. In After
+// hours the heading carries the homepage's pixel lantern, and PostLayout
+// lights it once the reader scrolls past the section.
+import { lantern } from "../../data/lantern";
+
+interface Props {
+  id: string;
+  no?: string;
+  label?: string;
+  title?: string;
+}
+
+const { id, no, label, title } = Astro.props;
+---
+
+<section id={id} class="post-section">
+  {title && (
+    <div class="section-head">
+      <svg class="lantern afterhours-only" viewBox="0 0 7 11" shape-rendering="crispEdges" aria-hidden="true">
+        {lantern.map(([x, y, w, h, part]) => <rect x={x} y={y} width={w} height={h} class={part} />)}
+      </svg>
+      <div>
+        {label && <p class="section-label">{no ? `${no} · ${label}` : label}</p>}
+        <h2>{title}</h2>
+      </div>
+    </div>
+  )}
+  <slot />
+</section>

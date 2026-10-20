@@ -1,4 +1,4 @@
-// Public standalone page publisher — the vault's un-gated sibling.
+// Public standalone page publisher.
 //
 // Usage:   npm run publish -- <input.html> <slug> [--indexable]
 // Output:  public/p/<slug>.html  →  https://aasimsani.net/p/<slug>.html after deploy
@@ -7,9 +7,9 @@
 // noindex/nofollow and appears in no listing or sitemap. Pass --indexable to
 // let search engines index it.
 //
-// Input contract matches encrypt-page.mjs: an HTML *fragment* — <title> +
+// Input contract: an HTML *fragment* — <title> +
 // <style> blocks + body markup + optional <script>. The fragment is wrapped
-// in a full document verbatim (no encryption, no gate).
+// in a full document verbatim.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

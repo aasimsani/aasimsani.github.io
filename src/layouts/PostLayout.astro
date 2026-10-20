@@ -1,0 +1,89 @@
+---
+// The page frame for every blog post. It reads the post's metadata from
+// src/data/posts.ts, draws the header, the reading-progress bar, the share row
+// and the footer, and carries the site's Serious and After hours modes.
+// A post supplies its sections in the default slot and its source list in the
+// "sources" slot.
+import BaseLayout from "./BaseLayout.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import Footer from "../components/Footer.astro";
+import BlogAdventureSwitch from "../components/post/BlogAdventureSwitch.astro";
+import ShareRow from "../components/post/ShareRow.astro";
+import { posts } from "../data/posts";
+import { site } from "../data/site";
+import "../styles/post.css";
+
+interface Props {
+  slug: string;
+  kicker: string;
+  /** The on-page headline. It defaults to the title in posts.ts. */
+  headline?: string;
+  dek: string;
+  /** The text a share on X carries. It defaults to the post title. */
+  shareText?: string;
+}
+
+const { slug, kicker, headline, dek, shareText } = Astro.props;
+const post = posts.find((p) => p.slug === slug);
+if (!post) throw new Error(`No entry for "${slug}" in src/data/posts.ts`);
+const canonical = `${site.url}blog/${post.slug}/`;
+---
+
+<BaseLayout
+  title={`${post.title} · Aasim Sani`}
+  description={post.description}
+  ogType="article"
+  ogTitle={post.title}
+  ogImage={`${site.url.replace(/\/$/, "")}${post.ogImage}`}
+  canonical={canonical}
+  publishedTime={post.published}
+>
+  <div class="post-shell">
+    <div class="post-sky afterhours-only" aria-hidden="true"></div>
+    <ThemeToggle />
+    <div class="read-progress" aria-hidden="true"><span></span></div>
+
+    <main class="post">
+      <header class="post-header">
+        <a class="home-link" href="/blog/">&larr; Writing</a>
+        <p class="kicker">{kicker}</p>
+        <h1>{headline ?? post.title}</h1>
+        <p class="dek">{dek}</p>
+        <div class="byline">
+          <span><b>Aasim Sani</b></span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{post.displayDate}</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{post.readingTime}</span>
+        </div>
+      </header>
+
+      <slot />
+      <ShareRow url={canonical} text={shareText ?? post.title} />
+      <slot name="sources" />
+    </main>
+
+    <Footer />
+    <BlogAdventureSwitch />
+  </div>
+</BaseLayout>
+
+<script>
+  const bar = document.querySelector<HTMLElement>(".read-progress span");
+  const heads = Array.from(document.querySelectorAll<HTMLElement>(".post .section-head"));
+
+  // The progress bar tracks the scroll. Each section's lantern lights once the
+  // reader scrolls past the end of that section.
+  function onScroll() {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - innerHeight;
+    if (bar) bar.style.width = `${max > 0 ? (scrollY / max) * 100 : 0}%`;
+    const atEnd = innerHeight + scrollY >= doc.scrollHeight - 80;
+    for (const h of heads) {
+      const section = h.closest("section");
+      if (atEnd || (section && section.getBoundingClientRect().bottom < innerHeight * 0.9)) h.dataset.cleared = "";
+    }
+  }
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+</script>

@@ -11,6 +11,6 @@ dist/
 .serena/
 .playwright-mcp/
 
-# Vault plaintext sources + working drafts — NEVER commit (public/vault/ ciphertext is the publishable form)
+# Working drafts and old private sources. Never commit.
 private-src/
 drafts/

@@ -1,0 +1,56 @@
+---
+// A list of practices the reader can tick off and copy as Markdown. Ticks
+// persist per browser under storageKey, so give each post its own key. An
+// optional tag labels each item in a third column, such as the framework
+// idea the item comes from.
+interface Item {
+  key: string;
+  title: string;
+  body: string;
+  tag?: string;
+}
+
+interface Props {
+  items: Item[];
+  storageKey: string;
+  markdownTitle: string;
+}
+
+const { items, storageKey, markdownTitle } = Astro.props;
+const markdown = [`## ${markdownTitle}`, "", ...items.map((i) => `- [ ] ${i.title} ${i.body}${i.tag ? ` (${i.tag})` : ""}`)].join("\n");
+---
+
+<div class="checklist post-panel" data-storage-key={storageKey} data-markdown={markdown}>
+  {items.map((i) => (
+    <label class="ritual">
+      <input type="checkbox" data-key={i.key} />
+      <span><b>{i.title}</b> {i.body}</span>
+      {i.tag && <span class="ritual-tag">{i.tag}</span>}
+    </label>
+  ))}
+  <button type="button" class="post-btn" data-copy-checklist>Copy as markdown</button>
+</div>
+
+<script>
+  import { copyWithFeedback } from "./copy";
+
+  document.querySelectorAll<HTMLElement>(".checklist[data-storage-key]").forEach((list) => {
+    const key = list.dataset.storageKey!;
+    const boxes = list.querySelectorAll<HTMLInputElement>("input[type=checkbox]");
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) ?? "{}");
+      boxes.forEach((b) => (b.checked = !!saved[b.dataset.key!]));
+    } catch { /* storage blocked */ }
+    boxes.forEach((b) =>
+      b.addEventListener("change", () => {
+        const state: Record<string, boolean> = {};
+        boxes.forEach((x) => (state[x.dataset.key!] = x.checked));
+        try { localStorage.setItem(key, JSON.stringify(state)); } catch { /* storage blocked */ }
+      })
+    );
+    list.querySelector<HTMLElement>("[data-copy-checklist]")?.addEventListener("click", (e) => {
+      const md = `${list.dataset.markdown}\n\n(from ${location.origin}${location.pathname})`;
+      copyWithFeedback(md, e.currentTarget as HTMLElement);
+    });
+  });
+</script>
