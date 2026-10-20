@@ -437,24 +437,18 @@ compiler checks it.</Fragment>
       </div>
 
       <p>
-        I could keep going. The quieter internal misses tell the same story
-        with lower stakes. A bulk backfill burned an entire third-party API
-        quota in one run, because nobody had modeled what a batch does to a
-        service that had only ever been called one row at a time. CI caught
-        it, and no customer ever knew. A CopyCat build server slowly filled
-        its disk and died on the morning of an investor call. An Orai feature
-        sat dead for three or four months until a customer&rsquo;s email told
-        us. Once you have the lens, you stop seeing bad luck and start seeing
-        one mechanism, over and over.
+        I could keep going. A backfill burned a whole third-party API quota in
+        one run. A CopyCat build server filled its disk and died on the
+        morning of an investor call. An Orai feature sat dead for months until
+        a customer emailed us. Once you have the lens, you stop seeing bad
+        luck and start seeing one mechanism.
       </p>
       <p>
-        This isn&rsquo;t a junior-engineer problem. In one of these files, a
-        teammate explicitly warned someone about a crash-causing null, and
-        they waved it off because they were heads-down on a migration. That
-        someone was a founder. The crash came the next morning, and the
-        apology came with it. Seniority doesn&rsquo;t buy you out of the
-        attention budget. Senior people usually carry more load, and more load
-        makes you blinder.
+        Seniority doesn&rsquo;t protect you either. In one of these files, a
+        founder waved off a teammate&rsquo;s warning about a crash-causing
+        null, because they were heads-down on a migration. The crash came the
+        next morning. Senior people carry more load, and more load makes you
+        blinder.
       </p>
     </PostSection>
     <PostSection id="channels" no="03" label="The taxonomy" title="Two channels of blindness">
