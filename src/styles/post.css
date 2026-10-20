@@ -119,6 +119,7 @@
   font-size: 0.94rem;
   color: var(--color-text-soft);
 }
+.post .note { font-size: 0.82rem; color: var(--color-muted); margin-top: -1rem; }
 .post .cta { font-size: 1.15rem; color: var(--color-text); }
 
 /* ---------- panels: figures, reveals, case files, checklists ---------- */
@@ -221,9 +222,10 @@ figure.post-panel {
   gap: 1rem;
 }
 .ritual {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1rem 1fr auto;
   gap: 0.8rem;
-  align-items: flex-start;
+  align-items: start;
   cursor: pointer;
   font-size: 0.94rem;
   color: var(--color-text-soft);
@@ -236,6 +238,19 @@ figure.post-panel {
   flex-shrink: 0;
 }
 .ritual b { color: var(--color-text); }
+.ritual-tag {
+  width: 9rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--color-teal);
+  text-align: right;
+  padding-top: 0.2rem;
+}
+@media (max-width: 560px) {
+  .ritual { grid-template-columns: 1rem 1fr; }
+  .ritual-tag { grid-column: 2; width: auto; text-align: left; padding-top: 0; }
+}
 .ritual:has(input:checked) span { opacity: 0.55; }
 
 .post-btn {
