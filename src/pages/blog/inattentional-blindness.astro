@@ -1,47 +1,54 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import ThemeToggle from "../../components/ThemeToggle.astro";
-import Footer from "../../components/Footer.astro";
-import { posts } from "../../data/posts";
-import { site } from "../../data/site";
+import PostLayout from "../../layouts/PostLayout.astro";
+import PostSection from "../../components/post/PostSection.astro";
+import Reveal from "../../components/post/Reveal.astro";
+import CaseFile from "../../components/post/CaseFile.astro";
+import Checklist from "../../components/post/Checklist.astro";
+import Sources from "../../components/post/Sources.astro";
 
-const post = posts.find((p) => p.slug === "inattentional-blindness")!;
-const canonical = `${site.url}blog/${post.slug}/`;
+const rituals = [
+  {
+    "key": "done-paragraph",
+    "title": "Write one paragraph on what “done” means before anyone writes code.",
+    "body": "The standard holder edits it. It takes ten minutes and stops most drift before it starts."
+  },
+  {
+    "key": "ugly-demo",
+    "title": "Show the ugly version at 30%.",
+    "body": "Demo the real thing mid-flight, not slides. AI tooling has made this nearly free, because a rough but working version now takes hours instead of days. If you catch drift at 30%, it costs a conversation. At 100%, it costs a rewrite."
+  },
+  {
+    "key": "unintended-review",
+    "title": "Review for the unintended, not just the incorrect.",
+    "body": "Ask “what else does this change?” in every review, and pair it with its falsification twin, “what should be true for this to fail?” Diffs lie by omission."
+  },
+  {
+    "key": "absence-alerts",
+    "title": "Alert on absence and on surprising presence, not just on errors.",
+    "body": "Silence is a failure mode, and so is a number where none should be. If data stops arriving, or starts arriving where it shouldn’t, something should scream."
+  },
+  {
+    "key": "attention-rca",
+    "title": "Root-cause with the attention question.",
+    "body": "Don’t ask “who missed it?” Ask “what were we staring at when we missed it, and who was positioned to see it?” Then fix the positioning, not the person."
+  },
+  {
+    "key": "fix-pattern",
+    "title": "Fix the pattern, not the instance.",
+    "body": "When a blind spot bites once, ask where else the same assumption lives before it bites there too."
+  }
+];
 ---
 
-<BaseLayout
-  title={`${post.title} · Aasim Sani`}
-  description={post.description}
-  ogType="article"
-  ogTitle={post.title}
-  ogImage={`${site.url.replace(/\/$/, "")}${post.ogImage}`}
-  canonical={canonical}
-  publishedTime={post.published}
+<PostLayout
+  slug="inattentional-blindness"
+  kicker="Inattentional blindness · root-caused"
+  headline="Your startup isn’t slow. It’s blind."
+  dek="Good engineers miss obvious things, the misses compound into slow roadmaps, and a two-person structure catches what one pair of eyes can’t."
+  shareText="Your startup isn't slow. It's blind. — on inattentional blindness in engineering teams"
 >
-  <ThemeToggle />
-  <div class="read-progress" aria-hidden="true"><span></span></div>
 
-  <main class="post">
-    <header class="post-header">
-      <a class="home-link" href="/blog/">&larr; Writing</a>
-      <p class="kicker">Inattentional blindness &middot; root-caused</p>
-      <h1>Your startup isn&rsquo;t slow. It&rsquo;s blind.</h1>
-      <p class="dek">
-        Good engineers miss obvious things, the misses compound into slow
-        roadmaps, and a two-person structure catches what one pair of eyes
-        can&rsquo;t.
-      </p>
-      <div class="byline">
-        <span><b>Aasim Sani</b></span>
-        <span aria-hidden="true">&middot;</span>
-        <span>{post.displayDate}</span>
-        <span aria-hidden="true">&middot;</span>
-        <span>{post.readingTime}</span>
-      </div>
-    </header>
-
-    <!-- ============ 0 · The demo ============ -->
-    <section id="demo">
+    <PostSection id="demo">
       <p class="lede">
         Before I argue anything, review a pull request with me.
       </p>
@@ -54,7 +61,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
         the end.
       </p>
 
-      <figure class="diff" aria-label="A code diff renaming user_items to digest_items">
+      <figure class="diff post-panel" aria-label="A code diff renaming user_items to digest_items">
         <div class="diff-title"><span class="diff-file">notifications/digest.py</span><span class="diff-stat">+6 &minus;7</span></div>
         <pre><code><span class="dl ctx">  def send_weekly_digest(user, stories):</span>
 <span class="dl del">-     user_items = []</span>
@@ -75,9 +82,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
 <span class="dl add">+     return DigestReceipt(digest_items)</span></code></pre>
       </figure>
 
-      <details class="reveal">
-        <summary>Lock in your answer. Was the rename complete?</summary>
-        <div class="reveal-body">
+      <Reveal summary="Lock in your answer. Was the rename complete?">
           <p>
             <b>Yes. All six occurrences were renamed, perfectly.</b> And if
             that&rsquo;s what you checked, you almost certainly sailed past the
@@ -98,16 +103,9 @@ const canonical = `${site.url}blog/${post.slug}/`;
             was going to test you, and you still felt the pull to stop looking
             once the sixth rename checked out.
           </p>
-        </div>
-      </details>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 1 · The science ============ -->
-    <section id="science">
-      <p class="section-label">01 &middot; The gorilla, twice</p>
-      <h2>Looking is not seeing</h2>
+      </Reveal>
+    </PostSection>
+    <PostSection id="science" no="01" label="The gorilla, twice" title="Looking is not seeing">
       <p class="gorilla-ink">
         In 1999, Daniel Simons and Christopher Chabris asked people to watch a
         video of two teams passing basketballs and count the passes made by the
@@ -123,22 +121,22 @@ const canonical = `${site.url}blog/${post.slug}/`;
         looked <em>directly at it</em>.<sup><a href="#src-2">2</a></sup>
       </p>
 
-      <figure class="chart" role="img" aria-label="Bar chart: about 50% of untrained viewers miss the gorilla in the basketball video; 83% of expert radiologists missed it in CT scans.">
+      <figure class="chart post-panel" role="img" aria-label="Bar chart: about 50% of untrained viewers miss the gorilla in the basketball video; 83% of expert radiologists missed it in CT scans.">
         <figcaption class="chart-title">Who misses the gorilla?</figcaption>
         <svg viewBox="0 0 640 190" xmlns="http://www.w3.org/2000/svg">
-          <g font-family="var(--font-mono)" font-size="13">
+          <g font-family="var(--font-ui)" font-size="13">
             <!-- row 1 -->
-            <text x="0" y="34" fill="var(--color-ink-soft)">Untrained viewers, basketball video</text>
-            <rect x="0" y="44" width="560" height="14" rx="4" fill="var(--color-fog)"></rect>
-            <rect x="0" y="44" width="280" height="14" rx="4" fill="var(--color-terracotta)"></rect>
-            <text x="292" y="56" fill="var(--color-ink)" font-weight="500">~50% miss it</text>
+            <text x="0" y="34" fill="var(--color-text-soft)">Untrained viewers, basketball video</text>
+            <rect x="0" y="44" width="560" height="14" rx="4" fill="var(--color-line)"></rect>
+            <rect x="0" y="44" width="280" height="14" rx="4" fill="var(--color-accent)"></rect>
+            <text x="292" y="56" fill="var(--color-text)" font-weight="500">~50% miss it</text>
             <!-- row 2 -->
-            <text x="0" y="104" fill="var(--color-ink-soft)">Expert radiologists, CT lung scans</text>
-            <rect x="0" y="114" width="560" height="14" rx="4" fill="var(--color-fog)"></rect>
-            <rect x="0" y="114" width="465" height="14" rx="4" fill="var(--color-terracotta)"></rect>
-            <text x="477" y="126" fill="var(--color-ink)" font-weight="500">83%</text>
+            <text x="0" y="104" fill="var(--color-text-soft)">Expert radiologists, CT lung scans</text>
+            <rect x="0" y="114" width="560" height="14" rx="4" fill="var(--color-line)"></rect>
+            <rect x="0" y="114" width="465" height="14" rx="4" fill="var(--color-accent)"></rect>
+            <text x="477" y="126" fill="var(--color-text)" font-weight="500">83%</text>
             <!-- annotation -->
-            <text x="0" y="172" fill="var(--color-stone)" font-size="12.5">Most radiologists who missed it looked directly at it (eye-tracking).</text>
+            <text x="0" y="172" fill="var(--color-muted)" font-size="12.5">Most radiologists who missed it looked directly at it (eye-tracking).</text>
           </g>
         </svg>
       </figure>
@@ -192,7 +190,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
       </p>
       </div>
 
-      <figure class="load-demo" aria-label="Interactive demo: increasing cognitive load narrows what you can see in a code file.">
+      <figure class="load-demo post-panel" aria-label="Interactive demo: increasing cognitive load narrows what you can see in a code file.">
         <figcaption class="chart-title">Attention is a budget. Feel it.</figcaption>
         <div class="load-controls">
           <label for="loadSlider">Deadline pressure</label>
@@ -225,14 +223,8 @@ const canonical = `${site.url}blog/${post.slug}/`;
         to do. A sprint is a selective-attention test that runs eight hours a
         day. The gorilla is whatever your task template doesn&rsquo;t match.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 2 · Case files ============ -->
-    <section id="cases">
-      <p class="section-label">02 &middot; The case files</p>
-      <h2>Root-causing a decade of misses</h2>
+    </PostSection>
+    <PostSection id="cases" no="02" label="The case files" title="Root-causing a decade of misses">
       <p class="lede">
         I&rsquo;ve been root-causing engineering incidents for a decade. I did
         it at Orai, an AI speech coach with over a million users, then at
@@ -251,245 +243,197 @@ const canonical = `${site.url}blog/${post.slug}/`;
       </p>
 
       <div class="case-grid">
-        <details class="case">
-          <summary>
-            <span class="case-no">01</span>
-            <span class="case-name">A settings update quietly wiped the pricing rules</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              An engineer changed how an integration wrote one configuration
-              setting, and the change was reviewed for what it was
-              <em>supposed</em> to do, which was to write the new setting.
-              Nobody saw that it also wiped an adjacent set of pricing rules.
-              Documents went out the door calculated without them.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>the intended change</dd></div>
-              <div><dt>Invisible</dt><dd>the unintended one, in the same diff</dd></div>
-              <div><dt>Seen first by</dt><dd>the customer</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A technical peer.</b> The author reviewed their own diff and saw what they
+        <CaseFile
+          no="01"
+          name="A settings update quietly wiped the pricing rules"
+          staring="the intended change"
+          invisible="the unintended one, in the same diff"
+          seenBy="the customer"
+          catcher="A technical peer."
+        >
+          <p>
+                An engineer changed how an integration wrote one configuration
+                setting, and the change was reviewed for what it was
+                <em>supposed</em> to do, which was to write the new setting.
+                Nobody saw that it also wiped an adjacent set of pricing rules.
+                Documents went out the door calculated without them.
+              </p>
+          <Fragment slot="verdict">The author reviewed their own diff and saw what they
 meant, not what it did. A second engineer who asks &ldquo;what else does this
 change?&rdquo; instead of &ldquo;does it do the thing?&rdquo; runs a different template. This
-is the demo you just did, in production.</p>
-            </details>
-          </div>
-        </details>
+is the demo you just did, in production.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">02</span>
-            <span class="case-name">A pipeline lost weeks of records without one error</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              A refactor changed a file-naming convention inside a data
-              ingestion pipeline. Nothing errored. The pipeline just stopped
-              ingesting one class of records, tens of thousands of them, for
-              weeks. Reports built on that data quietly dropped to zero, and
-              nobody inside the company noticed until the downstream numbers
-              looked absurd enough that someone went digging.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>errors and red dashboards</dd></div>
-              <div><dt>Invisible</dt><dd>the records that never arrived</dd></div>
-              <div><dt>Seen first by</dt><dd>a human squinting at a suspicious total</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A standard holder.</b> An alert only fires on the silence an engineer
+        <CaseFile
+          no="02"
+          name="A pipeline lost weeks of records without one error"
+          staring="errors and red dashboards"
+          invisible="the records that never arrived"
+          seenBy="a human squinting at a suspicious total"
+          catcher="A standard holder."
+        >
+          <p>
+                A refactor changed a file-naming convention inside a data
+                ingestion pipeline. Nothing errored. The pipeline just stopped
+                ingesting one class of records, tens of thousands of them, for
+                weeks. Reports built on that data quietly dropped to zero, and
+                nobody inside the company noticed until the downstream numbers
+                looked absurd enough that someone went digging.
+              </p>
+          <Fragment slot="verdict">An alert only fires on the silence an engineer
 thought to predict. But anyone who owned the standard &ldquo;this account produces
 roughly this volume every month&rdquo; would have flagged a zero month in minutes.
 Monitoring watches for what we expect to break, and standards watch for what
-must stay true.</p>
-            </details>
-          </div>
-        </details>
+must stay true.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">03</span>
-            <span class="case-name">A release broke the app for every logged-out user</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              A release broke the app, but only for logged-out users. Every
-              internal tester, every QA pass and every Friday demo ran logged
-              in. The team tested the happy path to death. Nobody inside the
-              company ever walked the logged-out path, so nobody saw it break
-              until outside users hit it.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>the path we demo</dd></div>
-              <div><dt>Invisible</dt><dd>the path we never personally walk</dd></div>
-              <div><dt>Seen first by</dt><dd>strangers</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A technical peer, barely.</b> A reviewer or QA partner who checks the
+        <CaseFile
+          no="03"
+          name="A release broke the app for every logged-out user"
+          staring="the path we demo"
+          invisible="the path we never personally walk"
+          seenBy="strangers"
+          catcher="A technical peer, barely."
+        >
+          <p>
+                A release broke the app, but only for logged-out users. Every
+                internal tester, every QA pass and every Friday demo ran logged
+                in. The team tested the happy path to death. Nobody inside the
+                company ever walked the logged-out path, so nobody saw it break
+                until outside users hit it.
+              </p>
+          <Fragment slot="verdict">A reviewer or QA partner who checks the
 unglamorous states, like logged out, empty and erroring, covers exactly the
 paths an excited author skips. Demo pressure aims everyone&rsquo;s attention at the
-same pixels.</p>
-            </details>
-          </div>
-        </details>
+same pixels.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">04</span>
-            <span class="case-name">A trailing space crashed the rules engine</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              A backend rules engine crashed in production. After hours of
-              debugging, the team traced it to <code>"PREMIUM
-              SUPPORT&nbsp;"</code> failing to match <code>"PREMIUM
-              SUPPORT"</code>, because one reference table had a trailing
-              space. Engineers stared <em>at the string</em> again and again
-              and saw two equal values, because they expected the values to be
-              equal.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>the logic around the data</dd></div>
-              <div><dt>Invisible</dt><dd>a literally invisible character</dd></div>
-              <div><dt>Seen first by</dt><dd>whoever finally diffed the bytes</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A technical peer.</b> Honestly, this one is the radiology study again. You
+        <CaseFile
+          no="04"
+          name="A trailing space crashed the rules engine"
+          staring="the logic around the data"
+          invisible="a literally invisible character"
+          seenBy="whoever finally diffed the bytes"
+          catcher="A technical peer."
+        >
+          <p>
+                A backend rules engine crashed in production. After hours of
+                debugging, the team traced it to <code>"PREMIUM
+                SUPPORT&nbsp;"</code> failing to match <code>"PREMIUM
+                SUPPORT"</code>, because one reference table had a trailing
+                space. Engineers stared <em>at the string</em> again and again
+                and saw two equal values, because they expected the values to be
+                equal.
+              </p>
+          <Fragment slot="verdict">Honestly, this one is the radiology study again. You
 can look straight at a defect and not see it. Looking harder doesn&rsquo;t fix that.
 Fresh eyes run a different template, and a different template sees a
-different gorilla.</p>
-            </details>
-          </div>
-        </details>
+different gorilla.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">05</span>
-            <span class="case-name">A correct fix put the books out of balance</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              Engineering found a metering bug and fixed it properly, then
-              carefully recalculated the affected historical usage. To
-              engineering, done meant the numbers were now mathematically
-              right. To finance, done meant the books matched what customers
-              were <em>actually charged</em>. The recalculated numbers flowed
-              into the books, and now the two disagreed. Nobody was wrong
-              inside their own frame, but nobody had held the two frames up
-              against each other.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>making the math right</dd></div>
-              <div><dt>Invisible</dt><dd>what &ldquo;right&rdquo; means downstream</dd></div>
-              <div><dt>Seen first by</dt><dd>the finance team, at close</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A standard holder.</b> Code review can&rsquo;t catch correct code that&rsquo;s aimed at
+        <CaseFile
+          no="05"
+          name="A correct fix put the books out of balance"
+          staring="making the math right"
+          invisible="what “right” means downstream"
+          seenBy="the finance team, at close"
+          catcher="A standard holder."
+        >
+          <p>
+                Engineering found a metering bug and fixed it properly, then
+                carefully recalculated the affected historical usage. To
+                engineering, done meant the numbers were now mathematically
+                right. To finance, done meant the books matched what customers
+                were <em>actually charged</em>. The recalculated numbers flowed
+                into the books, and now the two disagreed. Nobody was wrong
+                inside their own frame, but nobody had held the two frames up
+                against each other.
+              </p>
+          <Fragment slot="verdict">Code review can&rsquo;t catch correct code that&rsquo;s aimed at
 the wrong definition of correct. The person who owns the standard, &ldquo;the books
 match the charges, always,&rdquo; would have caught this in the one-sentence plan,
-before anyone wrote a line.</p>
-            </details>
-          </div>
-        </details>
+before anyone wrote a line.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">06</span>
-            <span class="case-name">Nobody knew the customer ran a second tool</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              Mid-incident, the team discovered that the customer had been
-              running a second tool alongside theirs the entire time, doing
-              the same job, with all the double-processing risk that implies.
-              No engineer&rsquo;s checklist asked about it, because it
-              isn&rsquo;t an engineering question. It&rsquo;s a question about
-              the customer&rsquo;s world, and nobody who knew that world was
-              in the loop.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>our system&rsquo;s behavior</dd></div>
-              <div><dt>Invisible</dt><dd>the customer&rsquo;s world around it</dd></div>
-              <div><dt>Seen first by</dt><dd>incident responders, too late</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A standard holder.</b> Domain context is a form of attention. A
+        <CaseFile
+          no="06"
+          name="Nobody knew the customer ran a second tool"
+          staring="our system’s behavior"
+          invisible="the customer’s world around it"
+          seenBy="incident responders, too late"
+          catcher="A standard holder."
+        >
+          <p>
+                Mid-incident, the team discovered that the customer had been
+                running a second tool alongside theirs the entire time, doing
+                the same job, with all the double-processing risk that implies.
+                No engineer&rsquo;s checklist asked about it, because it
+                isn&rsquo;t an engineering question. It&rsquo;s a question about
+                the customer&rsquo;s world, and nobody who knew that world was
+                in the loop.
+              </p>
+          <Fragment slot="verdict">Domain context is a form of attention. A
 non-technical partner in ops, sales or customer success knows how the customer
-actually works, and engineering&rsquo;s task template will never include that.</p>
-            </details>
-          </div>
-        </details>
+actually works, and engineering&rsquo;s task template will never include that.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">07</span>
-            <span class="case-name">Two vendor switches, one caught in hours, one by angry users</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              At Orai we switched speech-transcription vendors. The first
-              time, a teammate tested the output that same day and noticed
-              that a quality metric had flatlined at zero, because the new
-              vendor didn&rsquo;t return a confidence field the old one did.
-              We rolled back within hours. Two months later we switched again,
-              and this time nobody listed what else the old vendor had been
-              quietly providing. It turned out to be punctuation, which fed
-              our pause and sentence-length detection. Users started hearing
-              that their sentences were &ldquo;too long&rdquo; no matter how
-              they spoke. We found out from a cluster of angry app-store
-              reviews.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>the migration going green</dd></div>
-              <div><dt>Invisible</dt><dd>the fields the old vendor supplied for free</dd></div>
-              <div><dt>Seen first by</dt><dd>a teammate within hours the first time, app-store reviews the second</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A technical peer.</b> This pair of incidents is the cleanest A/B test I
+        <CaseFile
+          no="07"
+          name="Two vendor switches, one caught in hours, one by angry users"
+          staring="the migration going green"
+          invisible="the fields the old vendor supplied for free"
+          seenBy="a teammate within hours the first time, app-store reviews the second"
+          catcher="A technical peer."
+        >
+          <p>
+                At Orai we switched speech-transcription vendors. The first
+                time, a teammate tested the output that same day and noticed
+                that a quality metric had flatlined at zero, because the new
+                vendor didn&rsquo;t return a confidence field the old one did.
+                We rolled back within hours. Two months later we switched again,
+                and this time nobody listed what else the old vendor had been
+                quietly providing. It turned out to be punctuation, which fed
+                our pause and sentence-length detection. Users started hearing
+                that their sentences were &ldquo;too long&rdquo; no matter how
+                they spoke. We found out from a cluster of angry app-store
+                reviews.
+              </p>
+          <Fragment slot="verdict">This pair of incidents is the cleanest A/B test I
 have. It was the same team, the same integration and the same class of bug.
 When a second person watched the output, we caught the miss in hours. When
 nobody did, customers caught it. Skill didn&rsquo;t change between the two
-switches. Coverage did.</p>
-            </details>
-          </div>
-        </details>
+switches. Coverage did.</Fragment>
+        </CaseFile>
 
-        <details class="case">
-          <summary>
-            <span class="case-no">08</span>
-            <span class="case-name">Previews rendered wrong for a year behind a good demo</span>
-          </summary>
-          <div class="case-body">
-            <p>
-              At CopyCat we generated working code from Figma designs.
-              Eventually someone ran a fidelity audit that hunted for gaps
-              instead of confirming the demo, and it found three problems. A
-              missing <code>&lt;!DOCTYPE html&gt;</code> had silently dropped
-              every preview into the browser&rsquo;s quirks mode. Text wrapped
-              a few pixels off on real designs. And an old positioning
-              &ldquo;fix&rdquo; had solved the one visible bad case while
-              quietly mis-positioning elements on designs we never tested. The
-              engineer who wrote that fix explained it honestly. They
-              hadn&rsquo;t known the CSS precedence rule, so they wrote the
-              fix for the failure in front of them, &ldquo;nothing specific to
-              a failure condition.&rdquo; Every one of these bugs had been
-              there since the first implementation, and none of them showed
-              up, because our test designs never exercised them.
-            </p>
-            <dl class="case-facts">
-              <div><dt>Staring at</dt><dd>the demo files we always tested with</dd></div>
-              <div><dt>Invisible</dt><dd>everything those files didn&rsquo;t exercise</dd></div>
-              <div><dt>Seen first by</dt><dd>the first person who hunted for gaps instead of confirmation</dd></div>
-            </dl>
-            <details class="verdict"><summary>Who was positioned to catch it?</summary>
-              <p><b>A standard holder.</b> Engineering kept confirming that the code ran. It
+        <CaseFile
+          no="08"
+          name="Previews rendered wrong for a year behind a good demo"
+          staring="the demo files we always tested with"
+          invisible="everything those files didn’t exercise"
+          seenBy="the first person who hunted for gaps instead of confirmation"
+          catcher="A standard holder."
+        >
+          <p>
+                At CopyCat we generated working code from Figma designs.
+                Eventually someone ran a fidelity audit that hunted for gaps
+                instead of confirming the demo, and it found three problems. A
+                missing <code>&lt;!DOCTYPE html&gt;</code> had silently dropped
+                every preview into the browser&rsquo;s quirks mode. Text wrapped
+                a few pixels off on real designs. And an old positioning
+                &ldquo;fix&rdquo; had solved the one visible bad case while
+                quietly mis-positioning elements on designs we never tested. The
+                engineer who wrote that fix explained it honestly. They
+                hadn&rsquo;t known the CSS precedence rule, so they wrote the
+                fix for the failure in front of them, &ldquo;nothing specific to
+                a failure condition.&rdquo; Every one of these bugs had been
+                there since the first implementation, and none of them showed
+                up, because our test designs never exercised them.
+              </p>
+          <Fragment slot="verdict">Engineering kept confirming that the code ran. It
 took someone whose standard was &ldquo;pixel-true to the design&rdquo; to see what had
 been wrong the whole time. That&rsquo;s a designer&rsquo;s definition of correct, and no
-compiler checks it.</p>
-            </details>
-          </div>
-        </details>
+compiler checks it.</Fragment>
+        </CaseFile>
       </div>
 
       <p>
@@ -512,49 +456,43 @@ compiler checks it.</p>
         attention budget. Senior people usually carry more load, and more load
         makes you blinder.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 3 · Two channels ============ -->
-    <section id="channels">
-      <p class="section-label">03 &middot; The taxonomy</p>
-      <h2>Two channels of blindness</h2>
+    </PostSection>
+    <PostSection id="channels" no="03" label="The taxonomy" title="Two channels of blindness">
       <p>
         Sort every case file above, and every escaped defect you&rsquo;ve
         root-caused, and each one rides one of two channels.
       </p>
 
-      <figure class="diagram" role="img" aria-label="Diagram: a developer at full attentional load produces misses through two channels — technical (code diverges from intent) and alignment (intent diverges from need) — both shipping and being found late.">
-        <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)">
+      <figure class="diagram post-panel" role="img" aria-label="Diagram: a developer at full attentional load produces misses through two channels — technical (code diverges from intent) and alignment (intent diverges from need) — both shipping and being found late.">
+        <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-stone)" stroke-width="1.6"/>
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-muted)" stroke-width="1.6"/>
             </marker>
           </defs>
           <!-- developer node -->
-          <rect x="10" y="110" width="180" height="80" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-fog)" stroke-width="1.5"/>
-          <text x="100" y="143" text-anchor="middle" fill="var(--color-ink)" font-size="13.5" font-weight="500">One developer</text>
-          <text x="100" y="163" text-anchor="middle" fill="var(--color-stone)" font-size="11.5">at full attentional load</text>
+          <rect x="10" y="110" width="180" height="80" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-width="1.5"/>
+          <text x="100" y="143" text-anchor="middle" fill="var(--color-text)" font-size="13.5" font-weight="500">One developer</text>
+          <text x="100" y="163" text-anchor="middle" fill="var(--color-muted)" font-size="11.5">at full attentional load</text>
           <!-- channel 1 -->
-          <line x1="190" y1="130" x2="268" y2="72" stroke="var(--color-stone)" stroke-width="1.5" marker-end="url(#arr)"/>
-          <rect x="272" y="30" width="230" height="84" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-terracotta)" stroke-width="1.5"/>
-          <text x="387" y="58" text-anchor="middle" fill="var(--color-terracotta)" font-size="11" letter-spacing="1.5">CHANNEL 1 · TECHNICAL</text>
-          <text x="387" y="80" text-anchor="middle" fill="var(--color-ink)" font-size="13">code &ne; intent</text>
-          <text x="387" y="99" text-anchor="middle" fill="var(--color-stone)" font-size="11">you can&rsquo;t proofread your own model</text>
+          <line x1="190" y1="130" x2="268" y2="72" stroke="var(--color-muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="272" y="30" width="230" height="84" rx="10" fill="var(--color-surface)" stroke="var(--color-accent)" stroke-width="1.5"/>
+          <text x="387" y="58" text-anchor="middle" fill="var(--color-accent)" font-size="11" letter-spacing="1.5">CHANNEL 1 · TECHNICAL</text>
+          <text x="387" y="80" text-anchor="middle" fill="var(--color-text)" font-size="13">code &ne; intent</text>
+          <text x="387" y="99" text-anchor="middle" fill="var(--color-muted)" font-size="11">you can&rsquo;t proofread your own model</text>
           <!-- channel 2 -->
-          <line x1="190" y1="170" x2="268" y2="228" stroke="var(--color-stone)" stroke-width="1.5" marker-end="url(#arr)"/>
-          <rect x="272" y="186" width="230" height="84" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-sage-dim)" stroke-width="1.5"/>
-          <text x="387" y="214" text-anchor="middle" fill="var(--color-sage-dim)" font-size="11" letter-spacing="1.5">CHANNEL 2 · ALIGNMENT</text>
-          <text x="387" y="236" text-anchor="middle" fill="var(--color-ink)" font-size="13">intent &ne; need</text>
-          <text x="387" y="255" text-anchor="middle" fill="var(--color-stone)" font-size="11">correctly built, correctly wrong</text>
+          <line x1="190" y1="170" x2="268" y2="228" stroke="var(--color-muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="272" y="186" width="230" height="84" rx="10" fill="var(--color-surface)" stroke="var(--color-teal)" stroke-width="1.5"/>
+          <text x="387" y="214" text-anchor="middle" fill="var(--color-teal)" font-size="11" letter-spacing="1.5">CHANNEL 2 · ALIGNMENT</text>
+          <text x="387" y="236" text-anchor="middle" fill="var(--color-text)" font-size="13">intent &ne; need</text>
+          <text x="387" y="255" text-anchor="middle" fill="var(--color-muted)" font-size="11">correctly built, correctly wrong</text>
           <!-- converge -->
-          <line x1="502" y1="72" x2="580" y2="132" stroke="var(--color-stone)" stroke-width="1.5" marker-end="url(#arr)"/>
-          <line x1="502" y1="228" x2="580" y2="168" stroke="var(--color-stone)" stroke-width="1.5" marker-end="url(#arr)"/>
-          <rect x="584" y="118" width="88" height="64" rx="10" fill="var(--color-terracotta)" opacity="0.14"/>
-          <rect x="584" y="118" width="88" height="64" rx="10" fill="none" stroke="var(--color-terracotta)" stroke-width="1.5"/>
-          <text x="628" y="145" text-anchor="middle" fill="var(--color-ink)" font-size="12" font-weight="500">shipped,</text>
-          <text x="628" y="163" text-anchor="middle" fill="var(--color-ink)" font-size="12" font-weight="500">found late</text>
+          <line x1="502" y1="72" x2="580" y2="132" stroke="var(--color-muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="502" y1="228" x2="580" y2="168" stroke="var(--color-muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+          <rect x="584" y="118" width="88" height="64" rx="10" fill="var(--color-accent)" opacity="0.14"/>
+          <rect x="584" y="118" width="88" height="64" rx="10" fill="none" stroke="var(--color-accent)" stroke-width="1.5"/>
+          <text x="628" y="145" text-anchor="middle" fill="var(--color-text)" font-size="12" font-weight="500">shipped,</text>
+          <text x="628" y="163" text-anchor="middle" fill="var(--color-text)" font-size="12" font-weight="500">found late</text>
         </svg>
       </figure>
 
@@ -588,54 +526,48 @@ compiler checks it.</p>
         character flaw. It&rsquo;s the radiology result again. The better you
         are at the primary task, the more of the budget it takes.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 4 · The slowdown ============ -->
-    <section id="slowdown">
-      <p class="section-label">04 &middot; The bill</p>
-      <h2>How blindness becomes slowness</h2>
+    </PostSection>
+    <PostSection id="slowdown" no="04" label="The bill" title="How blindness becomes slowness">
       <p>
         Postmortems file these incidents under <em>quality</em>. The real bill
         is <em>speed</em>, and it compounds.
       </p>
 
-      <figure class="diagram" role="img" aria-label="Diagram of the slowdown loop: a miss ships, is found late, triggers interrupt-driven rework, which raises work-in-progress and context switching, which raises attentional load, which produces more misses.">
-        <svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)">
+      <figure class="diagram post-panel" role="img" aria-label="Diagram of the slowdown loop: a miss ships, is found late, triggers interrupt-driven rework, which raises work-in-progress and context switching, which raises attentional load, which produces more misses.">
+        <svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <defs>
             <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-terracotta)" stroke-width="1.6"/>
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-accent)" stroke-width="1.6"/>
             </marker>
           </defs>
           <!-- 5 nodes around an ellipse, arrows clockwise -->
           <g font-size="12">
-            <rect x="255" y="16" width="170" height="52" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-fog)" stroke-width="1.5"/>
-            <text x="340" y="38" text-anchor="middle" fill="var(--color-ink)" font-weight="500">a miss ships</text>
-            <text x="340" y="56" text-anchor="middle" fill="var(--color-stone)" font-size="11">(either channel)</text>
+            <rect x="255" y="16" width="170" height="52" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-width="1.5"/>
+            <text x="340" y="38" text-anchor="middle" fill="var(--color-text)" font-weight="500">a miss ships</text>
+            <text x="340" y="56" text-anchor="middle" fill="var(--color-muted)" font-size="11">(either channel)</text>
 
-            <rect x="490" y="105" width="180" height="52" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-fog)" stroke-width="1.5"/>
-            <text x="580" y="127" text-anchor="middle" fill="var(--color-ink)" font-weight="500">found late</text>
-            <text x="580" y="145" text-anchor="middle" fill="var(--color-stone)" font-size="11">by a customer, not a test</text>
+            <rect x="490" y="105" width="180" height="52" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-width="1.5"/>
+            <text x="580" y="127" text-anchor="middle" fill="var(--color-text)" font-weight="500">found late</text>
+            <text x="580" y="145" text-anchor="middle" fill="var(--color-muted)" font-size="11">by a customer, not a test</text>
 
-            <rect x="440" y="255" width="230" height="66" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-fog)" stroke-width="1.5"/>
-            <text x="555" y="279" text-anchor="middle" fill="var(--color-ink)" font-weight="500">interrupt-driven rework</text>
-            <text x="555" y="297" text-anchor="middle" fill="var(--color-stone)" font-size="11">incident channel &middot; damage audit</text>
-            <text x="555" y="312" text-anchor="middle" fill="var(--color-stone)" font-size="11">customer trust repair</text>
+            <rect x="440" y="255" width="230" height="66" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-width="1.5"/>
+            <text x="555" y="279" text-anchor="middle" fill="var(--color-text)" font-weight="500">interrupt-driven rework</text>
+            <text x="555" y="297" text-anchor="middle" fill="var(--color-muted)" font-size="11">incident channel &middot; damage audit</text>
+            <text x="555" y="312" text-anchor="middle" fill="var(--color-muted)" font-size="11">customer trust repair</text>
 
-            <rect x="30" y="255" width="220" height="66" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-fog)" stroke-width="1.5"/>
-            <text x="140" y="283" text-anchor="middle" fill="var(--color-ink)" font-weight="500">WIP &amp; context-switching rise</text>
-            <text x="140" y="301" text-anchor="middle" fill="var(--color-stone)" font-size="11">the roadmap waits</text>
+            <rect x="30" y="255" width="220" height="66" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-width="1.5"/>
+            <text x="140" y="283" text-anchor="middle" fill="var(--color-text)" font-weight="500">WIP &amp; context-switching rise</text>
+            <text x="140" y="301" text-anchor="middle" fill="var(--color-muted)" font-size="11">the roadmap waits</text>
 
-            <rect x="15" y="105" width="185" height="52" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-terracotta)" stroke-width="1.5"/>
-            <text x="107" y="127" text-anchor="middle" fill="var(--color-ink)" font-weight="500">attentional load rises</text>
-            <text x="107" y="145" text-anchor="middle" fill="var(--color-terracotta)" font-size="11">blindness increases</text>
+            <rect x="15" y="105" width="185" height="52" rx="10" fill="var(--color-surface)" stroke="var(--color-accent)" stroke-width="1.5"/>
+            <text x="107" y="127" text-anchor="middle" fill="var(--color-text)" font-weight="500">attentional load rises</text>
+            <text x="107" y="145" text-anchor="middle" fill="var(--color-accent)" font-size="11">blindness increases</text>
           </g>
-          <path d="M 428 60 Q 520 70 566 100" fill="none" stroke="var(--color-terracotta)" stroke-width="1.6" marker-end="url(#arr2)"/>
-          <path d="M 585 160 Q 600 210 575 250" fill="none" stroke="var(--color-terracotta)" stroke-width="1.6" marker-end="url(#arr2)"/>
-          <path d="M 436 290 Q 345 305 256 289" fill="none" stroke="var(--color-terracotta)" stroke-width="1.6" marker-end="url(#arr2)"/>
-          <path d="M 120 250 Q 95 210 105 162" fill="none" stroke="var(--color-terracotta)" stroke-width="1.6" marker-end="url(#arr2)"/>
-          <path d="M 130 100 Q 175 55 250 42" fill="none" stroke="var(--color-terracotta)" stroke-width="1.6" marker-end="url(#arr2)"/>
+          <path d="M 428 60 Q 520 70 566 100" fill="none" stroke="var(--color-accent)" stroke-width="1.6" marker-end="url(#arr2)"/>
+          <path d="M 585 160 Q 600 210 575 250" fill="none" stroke="var(--color-accent)" stroke-width="1.6" marker-end="url(#arr2)"/>
+          <path d="M 436 290 Q 345 305 256 289" fill="none" stroke="var(--color-accent)" stroke-width="1.6" marker-end="url(#arr2)"/>
+          <path d="M 120 250 Q 95 210 105 162" fill="none" stroke="var(--color-accent)" stroke-width="1.6" marker-end="url(#arr2)"/>
+          <path d="M 130 100 Q 175 55 250 42" fill="none" stroke="var(--color-accent)" stroke-width="1.6" marker-end="url(#arr2)"/>
         </svg>
       </figure>
 
@@ -673,14 +605,8 @@ compiler checks it.</p>
         pixels every Friday. And nobody remembers past gorillas, because the
         company is too young to have <b>institutional memory</b>.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 5 · The triad ============ -->
-    <section id="triad">
-      <p class="section-label">05 &middot; The fix</p>
-      <h2>One developer, two watchers</h2>
+    </PostSection>
+    <PostSection id="triad" no="05" label="The fix" title="One developer, two watchers">
       <p class="lede">
         A decade of case files, at Orai, again at CopyCat and again now,
         pushed me to one conclusion. <b>A developer is high-performance only
@@ -688,33 +614,33 @@ compiler checks it.</p>
         non-technical standard holder keeps the work aimed.
       </p>
 
-      <figure class="diagram" role="img" aria-label="Triangle diagram: a developer supported by a technical peer watching channel 1 (technical misses) and a standard holder watching channel 2 (alignment misses).">
-        <svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)">
+      <figure class="diagram post-panel" role="img" aria-label="Triangle diagram: a developer supported by a technical peer watching channel 1 (technical misses) and a standard holder watching channel 2 (alignment misses).">
+        <svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <!-- triangle edges -->
-          <line x1="340" y1="66" x2="150" y2="240" stroke="var(--color-fog)" stroke-width="1.5"/>
-          <line x1="340" y1="66" x2="530" y2="240" stroke="var(--color-fog)" stroke-width="1.5"/>
-          <line x1="150" y1="240" x2="530" y2="240" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <line x1="340" y1="66" x2="150" y2="240" stroke="var(--color-line)" stroke-width="1.5"/>
+          <line x1="340" y1="66" x2="530" y2="240" stroke="var(--color-line)" stroke-width="1.5"/>
+          <line x1="150" y1="240" x2="530" y2="240" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="5 5"/>
           <!-- developer -->
-          <rect x="255" y="18" width="170" height="56" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-ink-soft)" stroke-width="1.5"/>
-          <text x="340" y="42" text-anchor="middle" fill="var(--color-ink)" font-size="13.5" font-weight="500">the developer</text>
-          <text x="340" y="61" text-anchor="middle" fill="var(--color-stone)" font-size="11">budget spent on building</text>
+          <rect x="255" y="18" width="170" height="56" rx="10" fill="var(--color-surface)" stroke="var(--color-text-soft)" stroke-width="1.5"/>
+          <text x="340" y="42" text-anchor="middle" fill="var(--color-text)" font-size="13.5" font-weight="500">the developer</text>
+          <text x="340" y="61" text-anchor="middle" fill="var(--color-muted)" font-size="11">budget spent on building</text>
           <!-- peer -->
-          <rect x="40" y="240" width="230" height="72" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-terracotta)" stroke-width="1.5"/>
-          <text x="155" y="264" text-anchor="middle" fill="var(--color-terracotta)" font-size="11" letter-spacing="1.5">TECHNICAL PEER</text>
-          <text x="155" y="284" text-anchor="middle" fill="var(--color-ink)" font-size="12">&ldquo;what does this change</text>
-          <text x="155" y="300" text-anchor="middle" fill="var(--color-ink)" font-size="12">that you didn&rsquo;t intend?&rdquo;</text>
+          <rect x="40" y="240" width="230" height="72" rx="10" fill="var(--color-surface)" stroke="var(--color-accent)" stroke-width="1.5"/>
+          <text x="155" y="264" text-anchor="middle" fill="var(--color-accent)" font-size="11" letter-spacing="1.5">TECHNICAL PEER</text>
+          <text x="155" y="284" text-anchor="middle" fill="var(--color-text)" font-size="12">&ldquo;what does this change</text>
+          <text x="155" y="300" text-anchor="middle" fill="var(--color-text)" font-size="12">that you didn&rsquo;t intend?&rdquo;</text>
           <!-- standard holder -->
-          <rect x="410" y="240" width="240" height="72" rx="10" fill="var(--color-cream-soft)" stroke="var(--color-sage-dim)" stroke-width="1.5"/>
-          <text x="530" y="264" text-anchor="middle" fill="var(--color-sage-dim)" font-size="11" letter-spacing="1.5">STANDARD HOLDER</text>
-          <text x="530" y="284" text-anchor="middle" fill="var(--color-ink)" font-size="12">&ldquo;is this the thing</text>
-          <text x="530" y="300" text-anchor="middle" fill="var(--color-ink)" font-size="12">we actually needed?&rdquo;</text>
+          <rect x="410" y="240" width="240" height="72" rx="10" fill="var(--color-surface)" stroke="var(--color-teal)" stroke-width="1.5"/>
+          <text x="530" y="264" text-anchor="middle" fill="var(--color-teal)" font-size="11" letter-spacing="1.5">STANDARD HOLDER</text>
+          <text x="530" y="284" text-anchor="middle" fill="var(--color-text)" font-size="12">&ldquo;is this the thing</text>
+          <text x="530" y="300" text-anchor="middle" fill="var(--color-text)" font-size="12">we actually needed?&rdquo;</text>
           <!-- channel tags beside the edges -->
-          <rect x="52" y="152" width="158" height="40" rx="10" fill="var(--color-terracotta)" opacity="0.12"/>
-          <text x="131" y="169" text-anchor="middle" fill="var(--color-terracotta)" font-size="10.5">covers channel 1</text>
-          <text x="131" y="184" text-anchor="middle" fill="var(--color-stone)" font-size="10.5">review &middot; pairing</text>
-          <rect x="470" y="152" width="170" height="40" rx="10" fill="var(--color-sage-dim)" opacity="0.14"/>
-          <text x="555" y="169" text-anchor="middle" fill="var(--color-sage-dim)" font-size="10.5">covers channel 2</text>
-          <text x="555" y="184" text-anchor="middle" fill="var(--color-stone)" font-size="10.5">demos &middot; definition of done</text>
+          <rect x="52" y="152" width="158" height="40" rx="10" fill="var(--color-accent)" opacity="0.12"/>
+          <text x="131" y="169" text-anchor="middle" fill="var(--color-accent)" font-size="10.5">covers channel 1</text>
+          <text x="131" y="184" text-anchor="middle" fill="var(--color-muted)" font-size="10.5">review &middot; pairing</text>
+          <rect x="470" y="152" width="170" height="40" rx="10" fill="var(--color-teal)" opacity="0.14"/>
+          <text x="555" y="169" text-anchor="middle" fill="var(--color-teal)" font-size="10.5">covers channel 2</text>
+          <text x="555" y="184" text-anchor="middle" fill="var(--color-muted)" font-size="10.5">demos &middot; definition of done</text>
         </svg>
       </figure>
 
@@ -803,124 +729,124 @@ compiler checks it.</p>
         that actually ran.
       </p>
 
-      <figure class="triad-fig" role="img" aria-label="Nine real triad configurations from Orai and CopyCat, each a triangle of builder, technical peer, and standard holder played by different people.">
+      <figure class="triad-fig post-panel" role="img" aria-label="Nine real triad configurations from Orai and CopyCat, each a triangle of builder, technical peer, and standard holder played by different people.">
         <figcaption class="chart-title">The same triangle, recast per problem</figcaption>
         <div class="triad-grid">
           <div class="mini-triad"><span class="mt-co">Orai</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">CTO</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">me &mdash; COO</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">CTO</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">me &mdash; COO</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">Orai</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">me &mdash; coding</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">CEO</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">me &mdash; coding</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">CEO</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">Orai</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">CTO</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">designer</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">CTO</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">designer</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">Orai</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">dev peer</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">designer</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">dev peer</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">designer</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">Orai</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">tech lead</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">PM</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">tech lead</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">PM</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">CopyCat</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">CTO</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">PM</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">CTO</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">PM</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">CopyCat</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">CTO</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">designer</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">CTO</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">designer</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">CopyCat</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">ML engineer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">CTO</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">marketer</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">ML engineer</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">CTO</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">marketer</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">CopyCat</span>
-            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-mono)" font-size="11.5">
-              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5"/>
-              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-fog)" stroke-width="1.5" stroke-dasharray="4 4"/>
-              <circle cx="110" cy="36" r="5" fill="var(--color-ink-soft)"/>
-              <circle cx="34" cy="122" r="5" fill="var(--color-terracotta)"/>
-              <circle cx="186" cy="122" r="5" fill="var(--color-sage-dim)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-ink)">me &mdash; CAIO</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-ink-soft)">developer</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-ink-soft)">PM</text>
+            <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
+              <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="110" y1="36" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
+              <line x1="34" y1="122" x2="186" y2="122" stroke="var(--color-line)" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
+              <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
+              <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">me &mdash; CAIO</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">developer</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">PM</text>
             </svg>
           </div>
         </div>
@@ -993,14 +919,8 @@ compiler checks it.</p>
         the same hours through the stagnant stretch and through the sprint.
         Effort was never the variable. Structure was.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 6 · The automation objection ============ -->
-    <section id="automation">
-      <p class="section-label">06 &middot; The objection</p>
-      <h2>&ldquo;Shouldn&rsquo;t a machine be watching this?&rdquo;</h2>
+    </PostSection>
+    <PostSection id="automation" no="06" label="The objection" title="“Shouldn’t a machine be watching this?”">
       <p class="lede">
         The sharpest response to a draft of this essay came from an engineer
         I trust, and it deserves to be answered at full strength.
@@ -1085,14 +1005,8 @@ compiler checks it.</p>
         We&rsquo;re blind to our blindness, and admitting that is where every
         real process, human or machine, begins.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 7 · Relentless alignment ============ -->
-    <section id="practice">
-      <p class="section-label">07 &middot; The practice</p>
-      <h2>Relentless alignment</h2>
+    </PostSection>
+    <PostSection id="practice" no="07" label="The practice" title="Relentless alignment">
       <p>
         The triangle only works if its three people talk often. Alignment
         isn&rsquo;t a kickoff meeting, and it decays under load like
@@ -1100,27 +1014,11 @@ compiler checks it.</p>
         rhythm of small, boring, cheap corrections. Steal this:
       </p>
 
-      <div class="checklist" id="ritualChecklist">
-        <label class="ritual"><input type="checkbox" data-key="done-paragraph" />
-          <span><b>Write one paragraph on what &ldquo;done&rdquo; means before anyone writes code.</b> The standard holder edits it. It takes ten minutes and stops most drift before it starts.</span>
-        </label>
-        <label class="ritual"><input type="checkbox" data-key="ugly-demo" />
-          <span><b>Show the ugly version at 30%.</b> Demo the real thing mid-flight, not slides. AI tooling has made this nearly free, because a rough but working version now takes hours instead of days. If you catch drift at 30%, it costs a conversation. At 100%, it costs a rewrite.</span>
-        </label>
-        <label class="ritual"><input type="checkbox" data-key="unintended-review" />
-          <span><b>Review for the unintended, not just the incorrect.</b> Ask &ldquo;what else does this change?&rdquo; in every review, and pair it with its falsification twin, &ldquo;what should be true for this to fail?&rdquo; Diffs lie by omission.</span>
-        </label>
-        <label class="ritual"><input type="checkbox" data-key="absence-alerts" />
-          <span><b>Alert on absence and on surprising presence, not just on errors.</b> Silence is a failure mode, and so is a number where none should be. If data stops arriving, or starts arriving where it shouldn&rsquo;t, something should scream.</span>
-        </label>
-        <label class="ritual"><input type="checkbox" data-key="attention-rca" />
-          <span><b>Root-cause with the attention question.</b> Don&rsquo;t ask &ldquo;who missed it?&rdquo; Ask &ldquo;what were we staring at when we missed it, and who was positioned to see it?&rdquo; Then fix the positioning, not the person.</span>
-        </label>
-        <label class="ritual"><input type="checkbox" data-key="fix-pattern" />
-          <span><b>Fix the pattern, not the instance.</b> When a blind spot bites once, ask where else the same assumption lives before it bites there too.</span>
-        </label>
-        <button type="button" class="copy-btn" id="copyChecklist">Copy as markdown</button>
-      </div>
+      <Checklist
+        storageKey="ib-post-rituals.v1"
+        markdownTitle="Relentless alignment — the rhythm"
+        items={rituals}
+      />
 
       <p>
         Each of these costs minutes, and that&rsquo;s the point. A correction
@@ -1131,14 +1029,8 @@ compiler checks it.</p>
         because without them the boat doesn&rsquo;t hold a straight line. It
         arrives at the wrong port.
       </p>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ 8 · Close ============ -->
-    <section id="close">
-      <p class="section-label">08 &middot; The point</p>
-      <h2>You can&rsquo;t out-focus blindness</h2>
+    </PostSection>
+    <PostSection id="close" no="08" label="The point" title="You can’t out-focus blindness">
       <p>
         Focus is not the cure for inattentional blindness. Focus is the
         <em>cause</em>. Effort spends the same budget, and so does caring.
@@ -1163,20 +1055,8 @@ compiler checks it.</p>
         If this matches your experience, or you have a counterexample, I want
         to hear it.
       </p>
-
-      <div class="share-row" aria-label="Share this essay">
-        <a class="share-btn" id="shareLinkedIn" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonical)}`} target="_blank" rel="noopener">Share on LinkedIn</a>
-        <a class="share-btn" id="shareX" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Your startup isn't slow. It's blind. — on inattentional blindness in engineering teams")}&url=${encodeURIComponent(canonical)}`} target="_blank" rel="noopener">Post on X</a>
-        <button type="button" class="share-btn" id="copyLink" data-url={canonical}>Copy link</button>
-      </div>
-    </section>
-
-    <hr class="hairline" />
-
-    <!-- ============ Sources ============ -->
-    <section id="sources" class="sources">
-      <p class="section-label">Sources</p>
-      <ol>
+    </PostSection>
+    <Sources slot="sources">
         <li id="src-1">Simons, D. J., &amp; Chabris, C. F. (1999). <a href="https://doi.org/10.1068/p281059" target="_blank" rel="noopener">Gorillas in our midst: sustained inattentional blindness for dynamic events</a>. <i>Perception, 28</i>(9), 1059&ndash;1074.</li>
         <li id="src-2">Drew, T., V&otilde;, M. L.-H., &amp; Wolfe, J. M. (2013). <a href="https://doi.org/10.1177/0956797613479386" target="_blank" rel="noopener">The invisible gorilla strikes again: sustained inattentional blindness in expert observers</a>. <i>Psychological Science, 24</i>(9), 1848&ndash;1853.</li>
         <li id="src-3">Lavie, N. (2005). <a href="https://doi.org/10.1016/j.tics.2004.12.004" target="_blank" rel="noopener">Distracted and confused?: selective attention under load</a>. <i>Trends in Cognitive Sciences, 9</i>(2), 75&ndash;82.</li>
@@ -1185,123 +1065,28 @@ compiler checks it.</p>
         <li id="src-6">Boehm, B., &amp; Basili, V. R. (2001). <a href="https://doi.org/10.1109/2.962984" target="_blank" rel="noopener">Software defect reduction top 10 list</a>. <i>IEEE Computer, 34</i>(1), 135&ndash;137.</li>
         <li id="src-7">Kahneman, D. (2011). <a href="https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow" target="_blank" rel="noopener"><i>Thinking, Fast and Slow</i></a>. Farrar, Straus and Giroux &mdash; ch. 1 discusses the gorilla experiment directly.</li>
         <li id="src-8">Buolamwini, J., &amp; Gebru, T. (2018). <a href="https://proceedings.mlr.press/v81/buolamwini18a.html" target="_blank" rel="noopener">Gender Shades: intersectional accuracy disparities in commercial gender classification</a>. <i>Proceedings of Machine Learning Research, 81</i>, 77&ndash;91.</li>
-      </ol>
-      <p class="further">
+      <Fragment slot="further">
         Further reading on the same idea from the practitioner side:
         <a href="https://medium.com/scrumtale/how-to-cope-with-inattentional-blindness-in-software-development-caa3053b59e2" target="_blank" rel="noopener">How to cope with inattentional blindness in software development</a> and
         <a href="https://www.linkedin.com/pulse/inattentional-blindness-why-your-developer-might-respond-banitaba-k2vjc/" target="_blank" rel="noopener">Inattentional blindness: why your developer might respond &ldquo;it works on my machine&rdquo;</a>.
-      </p>
-    </section>
-  </main>
+      </Fragment>
+    </Sources>
+</PostLayout>
 
-  <Footer />
-</BaseLayout>
 
 <style>
-  .post {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 5.5rem 1.5rem 5rem;
-  }
-  .post-header { margin-bottom: 3.5rem; }
-  .home-link {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--color-stone);
-    text-decoration: none;
-  }
-  .home-link:hover { color: var(--color-terracotta); }
-  .kicker {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-terracotta);
-    margin: 2.2rem 0 0.8rem;
-  }
-  h1 {
-    font-size: clamp(2.5rem, 6.5vw, 3.6rem);
-    line-height: 1.06;
-    margin: 0 0 1.2rem;
-  }
-  .dek {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    line-height: 1.5;
-    color: var(--color-ink-soft);
-    max-width: 38rem;
-  }
-  .byline {
-    display: flex;
-    gap: 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    color: var(--color-stone);
-    margin-top: 1.4rem;
-  }
-  .byline b { color: var(--color-ink); font-weight: 500; }
-
-  .read-progress {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    z-index: 70;
-    background: transparent;
-  }
-  .read-progress span {
-    display: block;
-    height: 100%;
-    width: 0;
-    background: var(--color-terracotta);
-    transition: width 0.1s linear;
-  }
-
-  section { margin: 0; }
-  .section-label {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-stone);
-    margin-bottom: 0.6rem;
-  }
-  h2 {
-    font-size: clamp(1.7rem, 4vw, 2.2rem);
-    line-height: 1.15;
-    margin: 0 0 1.2rem;
-  }
-  h3 {
-    font-size: 1.35rem;
-    line-height: 1.25;
-    margin: 2.6rem 0 1rem;
-  }
-  .lede {
-    font-family: var(--font-display);
-    font-size: 1.18rem;
-    line-height: 1.55;
-    color: var(--color-ink);
-  }
-  ol li, ul li { margin-bottom: 0.7rem; }
-  sup a { text-decoration: none; font-family: var(--font-mono); font-size: 0.75em; }
-
   /* ---------- diff demo ---------- */
-  .diff {
-    margin: 2rem 0 1.5rem;
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    overflow: hidden;
-    background: var(--color-cream-soft);
-  }
+  .diff { padding: 0; overflow: hidden; margin: 2rem 0 1.5rem; }
   .diff-title {
     display: flex;
     justify-content: space-between;
     padding: 0.6rem 1rem;
     font-family: var(--font-mono);
     font-size: 0.8rem;
-    color: var(--color-stone);
-    border-bottom: 1px solid var(--color-fog);
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-line);
   }
-  .diff-stat { color: var(--color-sage-dim); }
+  .diff-stat { color: var(--color-teal); }
   .diff pre {
     margin: 0;
     padding: 0.9rem 0;
@@ -1309,60 +1094,26 @@ compiler checks it.</p>
     font-size: 0.82rem;
     line-height: 1.6;
   }
-  .diff code { color: var(--color-ink-soft); font-size: 1em; }
+  .diff code { color: var(--color-text-soft); font-size: 1em; }
   .dl { display: block; padding: 0 1rem; white-space: pre; }
-  .dl.add { background: color-mix(in srgb, var(--color-sage) 14%, transparent); color: var(--color-ink); }
-  .dl.del { background: color-mix(in srgb, var(--color-terracotta) 11%, transparent); color: var(--color-ink-soft); }
-
-  .reveal {
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    background: var(--color-cream-soft);
-    margin: 1.5rem 0 0;
-  }
-  .reveal summary {
-    cursor: pointer;
-    padding: 1rem 1.2rem;
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    color: var(--color-terracotta);
-    list-style: none;
-  }
-  .reveal summary::-webkit-details-marker { display: none; }
-  .reveal summary::before { content: "▸ "; }
-  .reveal[open] summary::before { content: "▾ "; }
-  .reveal-body { padding: 0 1.2rem 1.2rem; }
+  .dl.add { background: color-mix(in srgb, var(--color-teal) 14%, transparent); color: var(--color-text); }
+  .dl.del { background: color-mix(in srgb, var(--color-accent) 11%, transparent); color: var(--color-text-soft); }
   .reveal-snippet {
-    background: color-mix(in srgb, var(--color-terracotta) 10%, transparent);
-    border-left: 3px solid var(--color-terracotta);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    border-left: 3px solid var(--color-accent);
     padding: 0.7rem 1rem;
     border-radius: 0 0.5rem 0.5rem 0;
     font-size: 0.82rem;
     overflow-x: auto;
   }
-  .reveal-snippet code { color: var(--color-ink); }
+  .reveal-snippet code { color: var(--color-text); }
 
-  /* ---------- chart ---------- */
-  .chart, .diagram, .load-demo {
-    margin: 2.2rem 0;
-    padding: 1.4rem 1.4rem 1rem;
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    background: var(--color-cream-soft);
-  }
+  /* ---------- charts and diagrams ---------- */
   .chart, .diagram { overflow-x: auto; }
   .chart svg, .diagram svg { width: 100%; height: auto; display: block; }
-  /* Keep diagram text legible on phones: min canvas width + in-card horizontal scroll */
+  /* Diagram text stays legible on phones, because the canvas keeps a minimum width and scrolls inside its card. */
   .diagram svg { min-width: 560px; }
   .chart svg { min-width: 460px; }
-  .chart-title {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-stone);
-    margin-bottom: 1rem;
-  }
 
   /* ---------- load demo ---------- */
   .load-controls {
@@ -1370,25 +1121,22 @@ compiler checks it.</p>
     align-items: center;
     gap: 0.9rem;
     margin-bottom: 1rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.82rem;
-    color: var(--color-ink-soft);
+    color: var(--color-text-soft);
   }
-  .load-controls input[type="range"] {
-    flex: 1;
-    accent-color: var(--color-terracotta);
-  }
-  .load-readout { color: var(--color-terracotta); min-width: 3ch; }
+  .load-controls input[type="range"] { flex: 1; accent-color: var(--color-accent); }
+  .load-readout { color: var(--color-accent); min-width: 3ch; }
   .load-code {
     margin: 0;
     padding: 1rem;
     border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--color-ink) 5%, var(--color-cream));
+    background: color-mix(in srgb, var(--color-text) 5%, var(--color-bg));
     overflow-x: auto;
     font-size: 0.8rem;
     line-height: 1.65;
   }
-  .load-code code { color: var(--color-ink-soft); font-size: 1em; }
+  .load-code code { color: var(--color-text-soft); font-size: 1em; }
   .cl {
     display: block;
     white-space: pre;
@@ -1396,90 +1144,9 @@ compiler checks it.</p>
     opacity: calc(1 - var(--load) * var(--d) * 0.16);
     transition: filter 0.2s ease, opacity 0.2s ease;
   }
-  .load-caption {
-    font-size: 0.9rem;
-    color: var(--color-ink-soft);
-    margin: 1rem 0 0.4rem;
-  }
+  .load-caption { font-size: 0.9rem; color: var(--color-text-soft); margin: 1rem 0 0.4rem; }
 
-  /* ---------- case files ---------- */
-  .case-grid { display: flex; flex-direction: column; gap: 0.9rem; margin: 2rem 0; }
-  .case {
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    background: var(--color-cream-soft);
-    transition: border-color 0.15s ease;
-  }
-  .case[open], .case:hover {
-    border-color: color-mix(in srgb, var(--color-terracotta) 40%, var(--color-fog));
-  }
-  .case summary {
-    cursor: pointer;
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 1rem 1.2rem;
-    list-style: none;
-  }
-  .case summary::-webkit-details-marker { display: none; }
-  .case-no {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-terracotta);
-    flex-shrink: 0;
-  }
-  .case-name {
-    font-family: var(--font-display);
-    font-size: 1.12rem;
-    color: var(--color-ink);
-  }
-  .case-body { padding: 0 1.2rem 1.2rem; }
-  .case-facts {
-    display: grid;
-    gap: 0.4rem;
-    margin: 1rem 0;
-    padding: 0.9rem 1rem;
-    border-left: 3px solid var(--color-fog);
-    font-size: 0.88rem;
-  }
-  .case-facts > div { display: flex; gap: 0.6rem; }
-  .case-facts dt {
-    font-family: var(--font-mono);
-    font-size: 0.74rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-stone);
-    min-width: 7.5rem;
-    padding-top: 0.15rem;
-  }
-  .case-facts dd { margin: 0; color: var(--color-ink-soft); }
-  .verdict {
-    margin-top: 0.6rem;
-    border-top: 1px dashed var(--color-fog);
-    padding-top: 0.6rem;
-  }
-  .verdict summary {
-    cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.83rem;
-    color: var(--color-sage-dim);
-    list-style: none;
-    padding: 0.2rem 0;
-  }
-  .verdict summary::-webkit-details-marker { display: none; }
-  .verdict summary::before { content: "→ "; }
-  .verdict p { margin: 0.6rem 0 0; font-size: 0.92rem; }
-
-  /* ---------- triad shapes grid ---------- */
-  .triad-fig {
-    margin: 2.2rem 0;
-    padding: 1.4rem 1.4rem 1rem;
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    background: var(--color-cream-soft);
-  }
+  /* ---------- triad casts ---------- */
   .triad-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -1487,26 +1154,26 @@ compiler checks it.</p>
   }
   .mini-triad {
     position: relative;
-    border: 1px solid var(--color-fog);
+    border: 1px solid var(--color-line);
     border-radius: 0.6rem;
-    background: var(--color-cream);
+    background: var(--color-bg);
     padding: 1.3rem 0.4rem 0.2rem;
   }
   .mini-triad .mt-co {
     position: absolute;
     top: 0.5rem;
     left: 0.7rem;
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-stone);
+    color: var(--color-muted);
   }
   .mini-triad svg { width: 100%; height: auto; display: block; }
   .triad-legend {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.75rem;
-    color: var(--color-ink-soft);
+    color: var(--color-text-soft);
     margin: 1rem 0 0.3rem;
   }
   .dot {
@@ -1517,117 +1184,27 @@ compiler checks it.</p>
     margin-right: 5px;
     vertical-align: baseline;
   }
-  .dot-b { background: var(--color-ink-soft); }
-  .dot-p { background: var(--color-terracotta); }
-  .dot-s { background: var(--color-sage-dim); }
+  .dot-b { background: var(--color-text-soft); }
+  .dot-p { background: var(--color-accent); }
+  .dot-s { background: var(--color-teal); }
 
-  .aside {
-    border-left: 3px solid var(--color-sage);
-    background: color-mix(in srgb, var(--color-sage) 7%, transparent);
-    padding: 0.9rem 1.1rem;
-    border-radius: 0 0.5rem 0.5rem 0;
-    font-size: 0.94rem;
-    color: var(--color-ink-soft);
-  }
-
-  /* ---------- checklist ---------- */
-  .checklist {
-    margin: 2rem 0;
-    padding: 1.4rem;
-    border: 1px solid var(--color-fog);
-    border-radius: 0.75rem;
-    background: var(--color-cream-soft);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .ritual {
-    display: flex;
-    gap: 0.8rem;
-    align-items: flex-start;
-    cursor: pointer;
-    font-size: 0.94rem;
-    color: var(--color-ink-soft);
-  }
-  .ritual input {
-    margin-top: 0.3rem;
-    accent-color: var(--color-terracotta);
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
-  }
-  .ritual b { color: var(--color-ink); }
-  .ritual:has(input:checked) span { opacity: 0.55; }
-  .copy-btn, .share-btn {
-    align-self: flex-start;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    color: var(--color-terracotta);
-    background: transparent;
-    border: 1px solid color-mix(in srgb, var(--color-terracotta) 50%, var(--color-fog));
-    border-radius: 999px;
-    padding: 0.45rem 1rem;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-  .copy-btn:hover, .share-btn:hover {
-    background: var(--color-terracotta);
-    color: var(--color-cream);
-  }
-
-  /* ---------- close / share ---------- */
-  .cta {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    color: var(--color-ink);
-  }
-  .share-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.7rem;
-    margin-top: 1.6rem;
-  }
-
-  /* ---------- sources ---------- */
-  .sources ol { padding-left: 1.2rem; }
-  .sources li {
-    font-size: 0.88rem;
-    color: var(--color-ink-soft);
-    margin-bottom: 0.6rem;
-  }
-  .further {
-    font-size: 0.88rem;
-    color: var(--color-ink-soft);
-    margin-top: 1.4rem;
-  }
-
-  @media (max-width: 560px) {
-    .case summary { flex-direction: column; gap: 0.2rem; }
-    .case-facts dt { min-width: 6rem; }
-  }
   /* Hidden gorillas. The silhouette is painted through the glyphs with
      background-clip: text, and browsers without it show plain paragraphs.
-     --gorilla-size is the silhouette's height as a share of the block. */
+     --gorilla-size is the silhouette's height as a share of the block.
+     Night ember is the default theme, and dawn applies under data-theme="light". */
   .gorilla-ink {
-    --gorilla-svg: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23a55539%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
-    --gorilla-svg-ink: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%232a2520%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
+    --gorilla-svg: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23ff9a3c%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
+    --gorilla-svg-ink: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23ece4d4%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
   }
-  :global([data-theme="dark"]) .gorilla-ink {
-    --gorilla-svg: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23e08a6b%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
-    --gorilla-svg-ink: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23f1e6d3%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
-  }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme="light"])) .gorilla-ink {
-      --gorilla-svg: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23e08a6b%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
-      --gorilla-svg-ink: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23f1e6d3%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
-    }
+  :global([data-theme="light"]) .gorilla-ink {
+    --gorilla-svg: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%23a13d14%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
+    --gorilla-svg-ink: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2034.8%2030.0%22%20preserveAspectRatio%3D%22xMidYMid%20meet%22%3E%3Cmask%20id%3D%22m%22%3E%3Cg%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%222.9%22%20rx%3D%222.9%22%20ry%3D%221.9%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%226.0%22%20rx%3D%224.7%22%20ry%3D%224.3%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%229.6%22%20rx%3D%226.8%22%20ry%3D%223.2%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2212.2%22%20rx%3D%2211.2%22%20ry%3D%223.4%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2216.8%22%20rx%3D%228.6%22%20ry%3D%226.6%22%20fill%3D%22%23fff%22%2F%3E%3Cellipse%20cx%3D%2217.4%22%20cy%3D%2221.2%22%20rx%3D%226.6%22%20ry%3D%224.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%228.2%22%20y1%3D%2212.2%22%20x2%3D%224.499999999999998%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%224.499999999999998%22%20y1%3D%2219.6%22%20x2%3D%223.8999999999999986%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%223.8999999999999986%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2213.799999999999999%22%20y1%3D%2222.6%22%20x2%3D%2212.599999999999998%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2211.999999999999998%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2226.599999999999998%22%20y1%3D%2212.2%22%20x2%3D%2230.299999999999997%22%20y2%3D%2219.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%225.2%22%20stroke-linecap%3D%22round%22%2F%3E%3Cline%20x1%3D%2230.299999999999997%22%20y1%3D%2219.6%22%20x2%3D%2230.9%22%20y2%3D%2226.0%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.6%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2230.9%22%20cy%3D%2227.4%22%20rx%3D%223.0%22%20ry%3D%221.8%22%20fill%3D%22%23fff%22%2F%3E%3Cline%20x1%3D%2221.0%22%20y1%3D%2222.6%22%20x2%3D%2222.2%22%20y2%3D%2227.6%22%20stroke%3D%22%23fff%22%20stroke-width%3D%224.8%22%20stroke-linecap%3D%22round%22%2F%3E%3Cellipse%20cx%3D%2222.799999999999997%22%20cy%3D%2228.6%22%20rx%3D%223.2%22%20ry%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fg%3E%3Cg%3E%3Cellipse%20cx%3D%2215.7%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3Cellipse%20cx%3D%2219.099999999999998%22%20cy%3D%225.8%22%20rx%3D%220.6%22%20ry%3D%220.6%22%20fill%3D%22%23000%22%2F%3E%3C%2Fg%3E%3C%2Fmask%3E%3Crect%20width%3D%2234.8%22%20height%3D%2230.0%22%20fill%3D%22%231d1a2b%22%20mask%3D%22url%28%23m%29%22%2F%3E%3C%2Fsvg%3E");
   }
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .gorilla-ink {
       --gorilla-size: 72%;
       background-image: var(--gorilla-svg);
-      background-color: var(--color-ink);
+      background-color: var(--color-text);
       background-repeat: no-repeat;
       background-position: center;
       background-size: auto var(--gorilla-size);
@@ -1638,25 +1215,14 @@ compiler checks it.</p>
     .gorilla-ink--inverse {
       --gorilla-size: 86%;
       background-image: var(--gorilla-svg-ink);
-      background-color: var(--color-ink-soft);
+      background-color: var(--color-text-soft);
     }
     .gorilla-ink a, .gorilla-ink sup { color: inherit; }
   }
 </style>
 
 <script>
-  // Reading progress bar
-  const bar = document.querySelector<HTMLElement>(".read-progress span");
-  function paintProgress() {
-    if (!bar) return;
-    const doc = document.documentElement;
-    const max = doc.scrollHeight - window.innerHeight;
-    bar.style.width = `${max > 0 ? (window.scrollY / max) * 100 : 0}%`;
-  }
-  window.addEventListener("scroll", paintProgress, { passive: true });
-  paintProgress();
-
-  // Attention-load slider
+  // The attention-load slider blurs the periphery of the code sample as the load rises.
   const slider = document.getElementById("loadSlider") as HTMLInputElement | null;
   const codePanel = document.getElementById("loadCode");
   const readout = document.getElementById("loadReadout");
@@ -1664,56 +1230,5 @@ compiler checks it.</p>
     const v = Number(slider.value);
     codePanel?.style.setProperty("--load", String(v / 100));
     if (readout) readout.textContent = `${v}%`;
-  });
-
-  // Checklist persistence (survives reload)
-  const CHECK_KEY = "ib-post-rituals.v1";
-  const boxes = document.querySelectorAll<HTMLInputElement>("#ritualChecklist input[type=checkbox]");
-  try {
-    const saved = JSON.parse(localStorage.getItem(CHECK_KEY) ?? "{}");
-    boxes.forEach((b) => { if (saved[b.dataset.key!]) b.checked = true; });
-  } catch { /* ignore */ }
-  boxes.forEach((b) =>
-    b.addEventListener("change", () => {
-      const state: Record<string, boolean> = {};
-      boxes.forEach((x) => { state[x.dataset.key!] = x.checked; });
-      try { localStorage.setItem(CHECK_KEY, JSON.stringify(state)); } catch { /* ignore */ }
-    })
-  );
-
-  // Copy checklist as markdown
-  function flashCopied(btn: HTMLElement, label: string) {
-    const prev = btn.textContent;
-    btn.textContent = label;
-    setTimeout(() => { btn.textContent = prev; }, 1400);
-  }
-  async function copyText(text: string, btn: HTMLElement) {
-    try {
-      await navigator.clipboard.writeText(text);
-      flashCopied(btn, "Copied ✓");
-    } catch {
-      flashCopied(btn, "Copy failed");
-    }
-  }
-  document.getElementById("copyChecklist")?.addEventListener("click", (e) => {
-    const md = [
-      "## Relentless alignment — the rhythm",
-      "",
-      "- [ ] Write one paragraph on what \"done\" means before anyone writes code. The standard holder edits it.",
-      "- [ ] Show the ugly version at 30%. Drift caught at 30% costs a conversation; at 100% it costs a rewrite.",
-      "- [ ] Review for the unintended, not just the incorrect. Ask \"what else does this change?\" and \"what should be true for this to fail?\"",
-      "- [ ] Alert on absence and on surprising presence, not just on errors.",
-      "- [ ] Root-cause with the attention question: what were we staring at, and who was positioned to see it?",
-      "- [ ] Fix the pattern, not the instance.",
-      "",
-      `(from ${location.origin}/blog/inattentional-blindness/)`,
-    ].join("\n");
-    copyText(md, e.currentTarget as HTMLElement);
-  });
-
-  // Copy link
-  document.getElementById("copyLink")?.addEventListener("click", (e) => {
-    const btn = e.currentTarget as HTMLElement;
-    copyText(btn.dataset.url ?? location.href, btn);
   });
 </script>

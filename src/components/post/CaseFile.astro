@@ -1,0 +1,36 @@
+---
+// One incident in a case-file grid. The default slot holds the story. The
+// facts say what the team stared at, what stayed invisible, and who saw it
+// first. The verdict opens with the catcher in bold and continues with the
+// "verdict" slot. Wrap a run of these in <div class="case-grid">.
+interface Props {
+  no: string;
+  name: string;
+  staring: string;
+  invisible: string;
+  seenBy: string;
+  catcher: string;
+  question?: string;
+}
+
+const { no, name, staring, invisible, seenBy, catcher, question = "Who was positioned to catch it?" } = Astro.props;
+---
+
+<details class="case post-panel">
+  <summary>
+    <span class="case-no">{no}</span>
+    <span class="case-name">{name}</span>
+  </summary>
+  <div class="case-body">
+    <slot />
+    <dl class="case-facts">
+      <div><dt>Staring at</dt><dd>{staring}</dd></div>
+      <div><dt>Invisible</dt><dd>{invisible}</dd></div>
+      <div><dt>Seen first by</dt><dd>{seenBy}</dd></div>
+    </dl>
+    <details class="verdict">
+      <summary>{question}</summary>
+      <p><b>{catcher}</b> <slot name="verdict" /></p>
+    </details>
+  </div>
+</details>

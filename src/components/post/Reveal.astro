@@ -1,0 +1,13 @@
+---
+// A question the reader answers before opening the explanation.
+interface Props {
+  summary: string;
+}
+
+const { summary } = Astro.props;
+---
+
+<details class="reveal post-panel">
+  <summary>{summary}</summary>
+  <div class="reveal-body"><slot /></div>
+</details>

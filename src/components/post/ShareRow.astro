@@ -1,0 +1,22 @@
+---
+interface Props {
+  url: string;
+  text: string;
+}
+
+const { url, text } = Astro.props;
+---
+
+<div class="share-row" aria-label="Share this post">
+  <a class="post-btn" href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`} target="_blank" rel="noopener">Share on LinkedIn</a>
+  <a class="post-btn" href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`} target="_blank" rel="noopener">Post on X</a>
+  <button type="button" class="post-btn" data-copy-link={url}>Copy link</button>
+</div>
+
+<script>
+  import { copyWithFeedback } from "./copy";
+
+  document.querySelectorAll<HTMLElement>("[data-copy-link]").forEach((btn) =>
+    btn.addEventListener("click", () => copyWithFeedback(btn.dataset.copyLink ?? location.href, btn))
+  );
+</script>

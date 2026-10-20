@@ -1,0 +1,11 @@
+---
+// The numbered source list. Give each <li> an id of src-N so in-text
+// citations can link to it with <sup><a href="#src-N">N</a></sup>.
+// Optional practitioner links go in the "further" slot.
+---
+
+<section id="sources" class="sources post-section">
+  <p class="section-label">Sources</p>
+  <ol><slot /></ol>
+  {Astro.slots.has("further") && <p class="further"><slot name="further" /></p>}
+</section>
