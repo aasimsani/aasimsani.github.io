@@ -160,32 +160,34 @@ const canonical = `${site.url}blog/${post.slug}/`;
       </ol>
       <div class="gorilla-ink gorilla-ink--inverse">
       <p>
-        The mechanism is well studied. Attention is a finite budget, not a
-        virtue: the harder the primary task, the less capacity remains for
-        anything else &mdash; including things that are large, unusual, and
-        directly in view.<sup><a href="#src-3">3</a></sup> Under high
-        perceptual load, unexpected things don&rsquo;t register dimly.
-        They don&rsquo;t register at all. The effect shows up wherever
-        inspection work meets pressure: one <i>Safety Science</i> study of 53
-        construction supervisors attributed roughly <b>half of their missed
-        hazards</b> to inattentional blindness &mdash; not ignorance, not
-        negligence, attention.<sup><a href="#src-4">4</a></sup>
+        <b>Hard work doesn&rsquo;t protect you either.</b> Attention is a
+        finite budget, not a virtue. The harder the primary task, the less
+        capacity is left for anything else, even for things that are large,
+        unusual and directly in view.<sup><a href="#src-3">3</a></sup> Under
+        high perceptual load, an unexpected object doesn&rsquo;t register
+        dimly. It doesn&rsquo;t register at all.
       </p>
       <p>
-        Daniel Kahneman spends the opening of <i>Thinking, Fast and Slow</i>
-        on this exact experiment and lands on nine words that should be
-        stenciled onto every code-review tool: <b>&ldquo;we can be blind to
-        the obvious, and we are also blind to our
-        blindness.&rdquo;</b><sup><a href="#src-7">7</a></sup> His frame
-        explains why. Fast, automatic System&nbsp;1 does the
-        pattern-matching; slow, deliberate System&nbsp;2 does the verifying
-        &mdash; and System&nbsp;2 is famously lazy, rationing itself hardest
-        exactly when load is highest. A reviewer skimming a diff at
-        5&nbsp;p.m. isn&rsquo;t verifying. They&rsquo;re pattern-matching for
-        the shapes they expect &mdash; and, Kahneman again, <em>what you see
-        is all there is</em>: System&nbsp;1 builds a coherent story from
-        what&rsquo;s in front of it and never, ever flags what&rsquo;s
-        missing.
+        In 1980, NASA put eight airline pilots in a Boeing&nbsp;727 simulator
+        and had them land in low visibility with a head-up display, which
+        projects flight data onto the windscreen. On one approach, a plane
+        pulled onto the runway in front of them. <b>Two of the eight never saw
+        it</b> and kept landing.<sup><a href="#src-4">4</a></sup> They
+        weren&rsquo;t flying badly. With the display, they held the glide path
+        better than without it. Their attention was locked onto the symbols,
+        and the symbols said everything was fine.
+      </p>
+      <p>
+        Daniel Kahneman describes the gorilla study in the first chapter of
+        <i>Thinking, Fast and Slow</i>, and he draws a line from it that
+        belongs on every code-review tool: <b>&ldquo;we can be blind to the
+        obvious, and we are also blind to our
+        blindness.&rdquo;</b><sup><a href="#src-7">7</a></sup> A reviewer
+        skimming a diff at 5&nbsp;p.m. isn&rsquo;t verifying. They&rsquo;re
+        matching the diff against the shapes they expect. Kahneman calls the
+        trap <em>what you see is all there is</em>. The fast, automatic part
+        of the mind builds a coherent story from what&rsquo;s in front of it,
+        and it never flags what&rsquo;s missing.
       </p>
       </div>
 
@@ -1154,7 +1156,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
         <li id="src-1">Simons, D. J., &amp; Chabris, C. F. (1999). <a href="https://doi.org/10.1068/p281059" target="_blank" rel="noopener">Gorillas in our midst: sustained inattentional blindness for dynamic events</a>. <i>Perception, 28</i>(9), 1059&ndash;1074.</li>
         <li id="src-2">Drew, T., V&otilde;, M. L.-H., &amp; Wolfe, J. M. (2013). <a href="https://doi.org/10.1177/0956797613479386" target="_blank" rel="noopener">The invisible gorilla strikes again: sustained inattentional blindness in expert observers</a>. <i>Psychological Science, 24</i>(9), 1848&ndash;1853.</li>
         <li id="src-3">Lavie, N. (2005). <a href="https://doi.org/10.1016/j.tics.2004.12.004" target="_blank" rel="noopener">Distracted and confused?: selective attention under load</a>. <i>Trends in Cognitive Sciences, 9</i>(2), 75&ndash;82.</li>
-        <li id="src-4"><a href="https://www.sciencedirect.com/science/article/abs/pii/S0925753521003611" target="_blank" rel="noopener">Exploring inattentional blindness in failure of safety risk perception: focusing on safety knowledge in the construction industry</a>. <i>Safety Science</i> (2021).</li>
+        <li id="src-4">Fischer, E., Haines, R. F., &amp; Price, T. A. (1980). <a href="https://ntrs.nasa.gov/citations/19810005125" target="_blank" rel="noopener">Cognitive issues in head-up displays</a>. NASA Technical Paper 1711, Ames Research Center.</li>
         <li id="src-5">Cohen, J. (2006). <a href="https://static1.smartbear.co/support/media/resources/cc/book/code-review-cisco-case-study.pdf" target="_blank" rel="noopener">Best kept secrets of peer code review: the Cisco case study</a> &mdash; 2,500 reviews, 3.2M LOC over 10 months. See also Fagan, M. E. (1976). <a href="https://doi.org/10.1147/sj.153.0182" target="_blank" rel="noopener">Design and code inspections to reduce errors in program development</a>. <i>IBM Systems Journal, 15</i>(3).</li>
         <li id="src-6">Boehm, B., &amp; Basili, V. R. (2001). <a href="https://doi.org/10.1109/2.962984" target="_blank" rel="noopener">Software defect reduction top 10 list</a>. <i>IEEE Computer, 34</i>(1), 135&ndash;137.</li>
         <li id="src-7">Kahneman, D. (2011). <a href="https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow" target="_blank" rel="noopener"><i>Thinking, Fast and Slow</i></a>. Farrar, Straus and Giroux &mdash; ch. 1 discusses the gorilla experiment directly.</li>
