@@ -3,6 +3,7 @@ export const bio = {
     nameFirst: "Aasim",
     nameLast: "Sani",
     cta: [
+      { label: "Blog", href: "/blog/" },
       { label: "Resume", href: "/resume.pdf" },
       { label: "Email", href: "mailto:aasimsani05@gmail.com" },
     ],
