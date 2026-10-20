@@ -1,7 +1,6 @@
 ---
-// The bar that stays pinned to the top of every blog page. It links home, to
-// the blog index and to the resume, and leaves room on the right for the
-// fixed theme toggle. PostLayout slots its reading-progress bar in, so the
+// The bar that stays pinned to the top of every blog page. It links home and
+// to the blog index, and leaves room on the right for the fixed theme toggle. PostLayout slots its reading-progress bar in, so the
 // bar runs along the nav's bottom edge.
 interface Props {
   current?: "blog" | "post";
@@ -11,8 +10,6 @@ const { current = "post" } = Astro.props;
 const links = [
   { label: "Home", href: "/" },
   { label: "Blog", href: "/blog/", current: current === "blog" },
-  { label: "Resume", href: "/resume.pdf" },
-  { label: "Email", href: "mailto:aasimsani05@gmail.com" },
 ];
 ---
 
