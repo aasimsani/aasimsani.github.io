@@ -1,0 +1,85 @@
+---
+// The bar that stays pinned to the top of every blog page. It links home, to
+// the blog index and to the resume, and leaves room on the right for the
+// fixed theme toggle. PostLayout slots its reading-progress bar in, so the
+// bar runs along the nav's bottom edge.
+interface Props {
+  current?: "blog" | "post";
+}
+
+const { current = "post" } = Astro.props;
+const links = [
+  { label: "Home", href: "/" },
+  { label: "Blog", href: "/blog/", current: current === "blog" },
+  { label: "Resume", href: "/resume.pdf" },
+  { label: "Email", href: "mailto:aasimsani05@gmail.com" },
+];
+---
+
+<header class="blog-nav">
+  <nav class="bar" aria-label="Site">
+    <a class="name" href="/">Aasim Sani</a>
+    <div class="links">
+      {links.map((l) => (
+        <a class="link" href={l.href} aria-current={l.current ? "page" : undefined}>{l.label}</a>
+      ))}
+    </div>
+  </nav>
+  <slot />
+</header>
+
+<style>
+  .blog-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--color-bg);
+    border-bottom: 2px solid var(--color-line);
+  }
+  .bar {
+    max-width: 960px;
+    margin: 0 auto;
+    min-height: 4.75rem;
+    padding: 0 5rem 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .name {
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+  }
+  .link {
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    color: var(--color-muted);
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+    transition: color 0.12s steps(2), background-color 0.12s steps(2);
+  }
+  .link[aria-current="page"] {
+    color: var(--color-accent);
+  }
+  .name:hover,
+  .name:focus-visible {
+    color: var(--color-accent);
+  }
+  .link:hover,
+  .link:focus-visible {
+    color: var(--color-bg);
+    background: var(--color-accent);
+  }
+  @media (max-width: 560px) {
+    .bar { padding-left: 1rem; padding-right: 4.25rem; }
+    .name { display: none; }
+  }
+</style>
