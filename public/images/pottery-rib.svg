@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<!-- A profile rib against the pot it throws, with the height scale on its back edge, in the app's teal, clay, and paper colours. -->
+<rect width="100" height="100" fill="#2f6f73"/>
+<path d="M14 12H40V70C36 72 30 76 26 88H14Z" fill="#e8dcc8"/>
+<path d="M40 12H74V88H26C30 76 36 72 40 70Z" fill="#fbf8f3"/>
+<circle cx="52" cy="32" r="6" fill="#2f6f73"/>
+<g fill="#2f6f73"><rect x="69" y="78.1" width="5" height="1.8"/><rect x="65" y="71.1" width="9" height="1.8"/><rect x="69" y="64.1" width="5" height="1.8"/><rect x="65" y="57.1" width="9" height="1.8"/><rect x="69" y="50.1" width="5" height="1.8"/><rect x="65" y="43.1" width="9" height="1.8"/><rect x="69" y="36.1" width="5" height="1.8"/><rect x="65" y="29.1" width="9" height="1.8"/><rect x="69" y="22.1" width="5" height="1.8"/><rect x="65" y="15.1" width="9" height="1.8"/></g>
+</svg>

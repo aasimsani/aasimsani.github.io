@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="awardsandinvolvements section-anchor" id="awards">
   <div class="container">
-    <SectionHeader title="Awards and Involvements" glyph="trophy" />
+    <SectionHeader title="Awards and Involvements" />
     <div class="grid">
       {awards.map((a) => (
         <article class="card">
@@ -23,7 +23,7 @@ import SectionHeader from "./SectionHeader.astro";
 <style>
   .awardsandinvolvements {
     padding: 5rem 1.5rem;
-    background: var(--color-cream-soft);
+    background: transparent;
   }
   .container {
     max-width: 1000px;
@@ -47,7 +47,7 @@ import SectionHeader from "./SectionHeader.astro";
   }
   p {
     font-size: 1rem;
-    color: var(--color-ink-soft);
+    color: var(--color-text-soft);
     margin: 0;
   }
 </style>

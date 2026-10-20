@@ -1,65 +1,96 @@
 @import "tailwindcss";
 
 @theme {
-  /* Light mode defaults — Warm Garden cream */
-  --color-cream: #fdf8f0;          /* main bg */
-  --color-cream-soft: #f6efe1;     /* elevated surface */
-  --color-ink: #2a2520;            /* primary text */
-  --color-ink-soft: #4a4339;       /* secondary text */
-  --color-terracotta: #c46a4d;     /* accent */
-  --color-terracotta-dim: #a55539;
-  --color-sage: #7a9b6e;
-  --color-sage-dim: #5f7d54;
-  --color-fog: #e6dfd2;            /* hairlines */
-  --color-stone: #8b7f6e;          /* muted */
-  --color-paper: #f5ecdb;          /* parchment for logo mats */
-  --color-placeholder: #f1e6d3;    /* failed-image fallback bg */
+  /* Night ember is the default world. Dawn applies only when the reader picks light. */
+  --color-bg: #0d1024;
+  --color-surface: #151935;
+  --color-text: #ece4d4;
+  --color-text-soft: #bdb4cc;
+  --color-muted: #9690b0;
+  --color-accent: #ff9a3c;
+  --color-accent-strong: #ffbe73;
+  --color-teal: #5fd8c6;
+  --color-teal-strong: #8fe6d8;
+  --color-line: #262b4d;
+  --color-paper: #ece4d4;
+  --color-placeholder: #0a0c1c;
 
-  --font-display: "Fraunces", "Georgia", serif;
-  --font-body: "Inter", "Helvetica Neue", sans-serif;
-  --font-mono: "JetBrains Mono", "Menlo", monospace;
+  --font-display: "Geist", "Helvetica Neue", sans-serif;
+  --font-body: "Geist", "Helvetica Neue", sans-serif;
+  --font-ui: "Silkscreen", "Geist Mono", monospace;
 }
 
-/* Dark mode — explicit toggle */
-[data-theme="dark"] {
-  --color-cream: #181410;
-  --color-cream-soft: #221c16;
-  --color-ink: #f1e6d3;
-  --color-ink-soft: #c7baa3;
-  --color-terracotta: #e08a6b;
-  --color-terracotta-dim: #c46a4d;
-  --color-sage: #a4c193;
-  --color-sage-dim: #7a9b6e;
-  --color-fog: #3a302a;
-  --color-stone: #8a7d6c;
-  --color-paper: #f5ecdb;
-  --color-placeholder: #0f0c09;
+/* The pixel world reads these, so the background and the page can't drift apart. */
+:root {
+  color-scheme: dark;
+  --world-sky-top: #0b0f24;
+  --world-sky-bottom: #2b1740;
+  --world-star: #cfd8ff;
+  --world-far: #151b39;
+  --world-rock: #1f2a4d;
+  --world-rock-hi: #34446f;
+  --world-road-hi: #9a7050;
+  --world-road: #5e4033;
+  --world-road-lo: #1c1220;
+  --world-lantern: #ffb347;
+  --world-glow: 255, 170, 80;
+  --world-moon: #e9e4ff;
+  --world-window: #ffbf5e;
+  --world-grass: #3f6e5a;
+  --world-grass-hi: #6fae7f;
+  --world-fx: #ffffff;
+  /* Sky tints for the hype slider: touch grass, normal, hireable, thought leader, agree?. */
+  --hype-tint-0: #1f6b46;
+  --hype-tint-1: #0b0f24;
+  --hype-tint-2: #0a4a8c;
+  --hype-tint-3: #0a66c2;
+  --hype-tint-4: #b0247a;
 }
 
-/* System pref dark when no explicit theme is chosen */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-cream: #181410;
-    --color-cream-soft: #221c16;
-    --color-ink: #f1e6d3;
-    --color-ink-soft: #c7baa3;
-    --color-terracotta: #e08a6b;
-    --color-terracotta-dim: #c46a4d;
-    --color-sage: #a4c193;
-    --color-sage-dim: #7a9b6e;
-    --color-fog: #3a302a;
-    --color-stone: #8a7d6c;
-    --color-placeholder: #0f0c09;
-  }
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #efe9e1;
+  --color-surface: #e5dccf;
+  --color-text: #1d1a2b;
+  --color-text-soft: #45405a;
+  --color-muted: #615b72;
+  --color-accent: #a13d14;
+  --color-accent-strong: #7f2f0f;
+  --color-teal: #17675d;
+  --color-teal-strong: #0f4f47;
+  --color-line: #d4cabb;
+  --color-paper: #f7f2ea;
+  --color-placeholder: #e5dccf;
+
+  --world-sky-top: #9db2d6;
+  --world-sky-bottom: #f1c7a6;
+  --world-star: #ffffff;
+  --world-far: #b7aec6;
+  --world-rock: #8f88a8;
+  --world-rock-hi: #b9b2cf;
+  --world-road-hi: #c99a72;
+  --world-road: #8a6248;
+  --world-road-lo: #5b4038;
+  --world-lantern: #ffd08a;
+  --world-glow: 255, 200, 140;
+  --world-moon: #fff3df;
+  --world-window: #ffe3b0;
+  --world-grass: #5f8f6a;
+  --world-grass-hi: #8fc392;
+  --world-fx: #1d1a2b;
+  --hype-tint-0: #9fd6a8;
+  --hype-tint-1: #9db2d6;
+  --hype-tint-2: #8fbbe8;
+  --hype-tint-3: #5f9fe0;
+  --hype-tint-4: #f29ac8;
 }
 
 html {
-  background: var(--color-cream);
-  color: var(--color-ink);
+  background: var(--color-bg);
+  color: var(--color-text);
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
   font-size: 17.5px;
-  color-scheme: light dark;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
@@ -76,42 +107,52 @@ body {
 
 h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-feature-settings: "ss01";
-  letter-spacing: -0.01em;
-  color: var(--color-ink);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+/* Stepped corners are the one ornament. Controls, panels and the pixel world all share them. */
+.px-frame {
+  --step: 4px;
+  clip-path: polygon(
+    0 var(--step), var(--step) var(--step), var(--step) 0,
+    calc(100% - var(--step)) 0, calc(100% - var(--step)) var(--step), 100% var(--step),
+    100% calc(100% - var(--step)), calc(100% - var(--step)) calc(100% - var(--step)), calc(100% - var(--step)) 100%,
+    var(--step) 100%, var(--step) calc(100% - var(--step)), 0 calc(100% - var(--step))
+  );
 }
 
 p { margin-bottom: 1rem; }
 
 a {
-  color: var(--color-terracotta);
+  color: var(--color-accent);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  text-decoration-color: color-mix(in srgb, var(--color-terracotta) 40%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
   transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
 
 a:hover {
-  color: var(--color-terracotta-dim);
-  text-decoration-color: var(--color-terracotta);
+  color: var(--color-accent-strong);
+  text-decoration-color: var(--color-accent);
 }
 
 ::selection {
-  background: var(--color-terracotta);
-  color: var(--color-cream);
+  background: var(--color-accent);
+  color: var(--color-bg);
 }
 
 .codeText, code {
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: 0.9em;
-  color: var(--color-sage);
+  color: var(--color-teal);
 }
 
 .hairline {
   border: 0;
-  border-top: 1px solid var(--color-fog);
+  border-top: 1px solid var(--color-line);
   margin: 3rem 0;
 }
 
@@ -119,8 +160,8 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  color: var(--color-stone);
-  font-family: var(--font-mono);
+  color: var(--color-muted);
+  font-family: var(--font-ui);
   font-size: 0.85rem;
 }
 
@@ -202,4 +243,46 @@ a.logo-mark {
   aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 0.5rem;
+}
+
+/* The pixel-block wipe used by the theme toggle and the adventure switch. */
+.pixel-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  pointer-events: none;
+}
+.pixel-wipe i {
+  display: block;
+  background: var(--color-surface);
+  transform: scale(0);
+}
+
+/* Serious mode is the plain site. After hours adds the game. */
+/* Without JS no mode is set, so the game UI stays hidden and the plain site shows. */
+:root:not([data-site-mode="afterhours"]) .afterhours-only {
+  display: none !important;
+}
+[data-site-mode="afterhours"] .serious-only {
+  display: none !important;
+}
+
+/* Serious mode drops every game marker: no pixel type, no stepped corners. */
+[data-site-mode="serious"] {
+  --font-ui: "Geist", "Helvetica Neue", sans-serif;
+}
+[data-site-mode="serious"] .px-frame {
+  clip-path: none;
+  border-radius: 8px;
+}
+
+/* After hours opens a tall gap above every section, where the road crosses and a mini-boss waits. */
+[data-site-mode="afterhours"] body > section[id] {
+  padding-top: 14rem !important;
+}
+
+/* Room at the end of the page so the pinned adventure switch never covers the last lines. */
+body {
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
 }

@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="research section-anchor" id="research">
   <div class="container">
-    <SectionHeader title="Research" glyph="book" />
+    <SectionHeader title="Research" />
     <div class="entries">
       {research.map((r) => (
         <article class="entry">
@@ -19,7 +19,7 @@ import SectionHeader from "./SectionHeader.astro";
           <div class="body">
             <h3>{r.title}</h3>
             {r.link && r.linkLabel && (
-              <h5 class="link"><a href={r.link}>{r.linkLabel}</a></h5>
+              <p class="link"><a href={r.link}>{r.linkLabel}</a></p>
             )}
             {r.paragraphs.map((p) => <p set:html={p}></p>)}
           </div>
@@ -32,7 +32,7 @@ import SectionHeader from "./SectionHeader.astro";
 <style>
   .research {
     padding: 5rem 1.5rem;
-    background: var(--color-cream);
+    background: transparent;
   }
   .container {
     max-width: 760px;
@@ -57,8 +57,8 @@ import SectionHeader from "./SectionHeader.astro";
     font-weight: 500;
     margin: 0 0 0.5rem;
   }
-  h5.link {
-    font-family: var(--font-mono);
+  p.link {
+    font-family: var(--font-ui);
     font-size: 0.9rem;
     font-weight: 400;
     margin: 0 0 1rem;

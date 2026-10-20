@@ -13,7 +13,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     title: "MeowLearning",
-    logo: "/images/meowlearning.png",
+    logo: "/images/meowlearning.webp",
     link: "https://github.com/aasimsani/meow-learning",
     linkLabel: "See on Github",
     github: "aasimsani/meow-learning",
@@ -23,7 +23,7 @@ export const projects: Project[] = [
   },
   {
     title: "Artificial Manga Panel Dataset",
-    logo: "/images/ampd.png",
+    logo: "/images/ampd.webp",
     link: "https://github.com/aasimsani/artificial_manga_panel_dataset",
     linkLabel: "See on Github",
     github: "aasimsani/artificial_manga_panel_dataset",
@@ -33,7 +33,7 @@ export const projects: Project[] = [
   },
   {
     title: "Second Brain Slipbox",
-    logo: "/images/secondbrain.png",
+    logo: "/images/secondbrain.webp",
     link: "https://www.linkedin.com/posts/aasimsani_secondbrain-slipbox-knowledge-activity-6962170106504167424-_HKW/",
     linkLabel: "Sneak a peek of my second brain",
     paragraphs: [
@@ -56,7 +56,7 @@ export const projects: Project[] = [
   },
   {
     title: "ML Project Template",
-    logo: "/images/copycat.png",
+    logo: "/images/copycat.webp",
     link: "https://github.com/aasimsani/ml_project_template",
     linkLabel: "See on Github",
     github: "aasimsani/ml_project_template",
@@ -66,11 +66,31 @@ export const projects: Project[] = [
   },
   {
     title: "Agile Connects",
-    logo: "/images/agileconnects.png",
+    logo: "/images/agileconnects.webp",
     link: "https://www.agileconnects.com/",
     extraHeadline: "Energy savings algorithm development",
     paragraphs: [
       `An algorithm to find the upper bound on energy and cost savings when AgileConnects' IoT scheduling decides when AC units cycle on and off.`,
+    ],
+  },
+  {
+    title: "Pottery Stencil Maker",
+    logo: "/images/pottery-stencil.svg",
+    link: "/projects/pottery-stencil-maker/",
+    linkLabel: "Try it in your browser",
+    github: "aasimsani/pottery-stencil-maker",
+    paragraphs: [
+      `A browser app for designing underglaze stencils that fit a thrown piece. You measure the band you want to paint on a mug, pot, vase, bowl, or plate rim, layer patterns from open libraries or your own images onto it, and download an STL that fits. A print check flags plastic that's too thin, paint lines that would close up, and spans that would sag before you print.`,
+    ],
+  },
+  {
+    title: "Pottery Rib Maker",
+    logo: "/images/pottery-rib.svg",
+    link: "/projects/pottery-rib-maker/",
+    linkLabel: "Try it in your browser",
+    github: "aasimsani/pottery-rib-maker",
+    paragraphs: [
+      `A browser app for designing profile ribs to 3D print for the wheel. You draw the mug, pot, or bowl you want to throw by dragging points, and the rib's working edge becomes that pot's wall. A height scale and a rim line run up the rib, and the rib grows by your clay's shrinkage, so the pot leaves the kiln at the size you drew. A 3D view shows the rib against the pot on the wheel, and a print plate view shows the STL on the bed.`,
     ],
   },
 ];

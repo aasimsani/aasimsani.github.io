@@ -2,6 +2,13 @@
 import { bio } from "../data/bio";
 import { icons } from "./icons";
 
+const label: Record<string, string> = {
+  "envelope-square": "Email",
+  "linkedin-square": "LinkedIn",
+  "github-square": "GitHub",
+  "twitter-square": "X (Twitter)",
+};
+const year = new Date().getFullYear();
 const iconKey: Record<string, string> = {
   "envelope-square": "envelope",
   "linkedin-square": "linkedin",
@@ -12,22 +19,87 @@ const iconKey: Record<string, string> = {
 
 <footer id="footer">
   <div class="wrap">
+    <div class="cta">
+      <p class="kicker afterhours-only">
+        <span class="locked">The final boss is guarding my inbox. (It's unlocked anyway.)</span>
+        <span class="unlocked">PR closed. Inbox unlocked.</span>
+      </p>
+      <a class="mail px-frame" href="mailto:aasimsani05@gmail.com">aasimsani05@gmail.com</a>
+    </div>
     <div class="socials">
       {bio.footer.socials.map((s) => (
-        <a href={s.href} target="_blank" rel="noopener" aria-label={s.icon}>
+        <a href={s.href} target="_blank" rel="noopener" aria-label={label[s.icon]}>
           <span set:html={icons[iconKey[s.icon]]}></span>
         </a>
       ))}
     </div>
-    <p class="copy">{bio.footer.copyright}</p>
+    <p class="copy">© {year} {bio.footer.copyright}</p>
   </div>
 </footer>
 
 <style>
   footer {
     padding: 4rem 1.5rem 3rem;
-    background: var(--color-cream);
-    border-top: 1px solid var(--color-fog);
+    background: transparent;
+    border-top: 1px solid var(--color-line);
+  }
+  /* After hours turns the footer into the final boss's arena, so the links sit at the bottom of a tall clearing. */
+  :global([data-site-mode="afterhours"]) footer {
+    min-height: 82vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    border-top: 0;
+    padding-bottom: 7rem;
+  }
+  .cta {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    margin-bottom: 2.5rem;
+  }
+  .kicker {
+    margin: 0;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+  .kicker .unlocked,
+  footer[data-unlocked] .kicker .locked {
+    display: none;
+  }
+  footer[data-unlocked] .kicker .unlocked {
+    display: inline;
+    color: var(--color-accent);
+  }
+  .mail {
+    display: inline-block;
+    padding: 0.9rem 1.4rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background-color 0.12s steps(2), color 0.12s steps(2);
+  }
+  .mail:hover,
+  .mail:focus-visible,
+  footer[data-unlocked] .mail {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+  footer[data-unlocked] .mail {
+    animation: unlocked 1.2s steps(2) infinite;
+  }
+  @keyframes unlocked {
+    50% {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 40%, transparent);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    footer[data-unlocked] .mail {
+      animation: none;
+    }
   }
   .wrap {
     max-width: 720px;
@@ -41,12 +113,12 @@ const iconKey: Record<string, string> = {
     margin-bottom: 1.5rem;
   }
   .socials a {
-    color: var(--color-ink-soft);
+    color: var(--color-text-soft);
     transition: color 0.15s ease, transform 0.15s ease;
     display: inline-flex;
   }
   .socials a:hover {
-    color: var(--color-terracotta);
+    color: var(--color-accent);
     transform: translateY(-2px);
   }
   .socials :global(svg) {
@@ -54,9 +126,9 @@ const iconKey: Record<string, string> = {
     height: 28px;
   }
   .copy {
-    font-family: var(--font-mono);
+    font-family: var(--font-ui);
     font-size: 0.82rem;
-    color: var(--color-stone);
+    color: var(--color-muted);
     margin: 0;
   }
 </style>
