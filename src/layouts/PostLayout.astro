@@ -9,6 +9,7 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 import Footer from "../components/Footer.astro";
 import BlogAdventureSwitch from "../components/post/BlogAdventureSwitch.astro";
 import ShareRow from "../components/post/ShareRow.astro";
+import BlogNav from "../components/post/BlogNav.astro";
 import { posts } from "../data/posts";
 import { site } from "../data/site";
 import "../styles/post.css";
@@ -41,11 +42,12 @@ const canonical = `${site.url}blog/${post.slug}/`;
   <div class="post-shell">
     <div class="post-sky afterhours-only" aria-hidden="true"></div>
     <ThemeToggle />
-    <div class="read-progress" aria-hidden="true"><span></span></div>
+    <BlogNav>
+      <div class="read-progress" aria-hidden="true"><span></span></div>
+    </BlogNav>
 
     <main class="post">
       <header class="post-header">
-        <a class="home-link" href="/blog/">&larr; Writing</a>
         <p class="kicker">{kicker}</p>
         <h1>{headline ?? post.title}</h1>
         <p class="dek">{dek}</p>

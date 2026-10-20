@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import ThemeToggle from "../../components/ThemeToggle.astro";
 import Footer from "../../components/Footer.astro";
 import BlogAdventureSwitch from "../../components/post/BlogAdventureSwitch.astro";
+import BlogNav from "../../components/post/BlogNav.astro";
 import { posts } from "../../data/posts";
 import { site } from "../../data/site";
 
@@ -17,9 +18,9 @@ const sorted = [...posts].sort((a, b) => b.published.localeCompare(a.published))
   canonical={`${site.url}blog/`}
 >
   <ThemeToggle />
+  <BlogNav current="blog" />
   <main class="blog-index">
     <header>
-      <a class="home-link" href="/">&larr; aasimsani.net</a>
       <h1>Writing</h1>
       <p class="tagline">Essays on engineering, startups, and how teams actually ship.</p>
     </header>
@@ -48,21 +49,12 @@ const sorted = [...posts].sort((a, b) => b.published.localeCompare(a.published))
   .blog-index {
     max-width: 720px;
     margin: 0 auto;
-    padding: 6rem 1.5rem 5rem;
+    padding: 3rem 1.5rem 5rem;
     min-height: 70vh;
-  }
-  .home-link {
-    font-family: var(--font-ui);
-    font-size: 0.85rem;
-    color: var(--color-muted);
-    text-decoration: none;
-  }
-  .home-link:hover {
-    color: var(--color-accent);
   }
   h1 {
     font-size: clamp(2.4rem, 6vw, 3.4rem);
-    margin: 1.2rem 0 0.4rem;
+    margin: 0 0 0.4rem;
   }
   .tagline {
     color: var(--color-text-soft);
