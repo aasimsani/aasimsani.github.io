@@ -24,7 +24,7 @@ from pathlib import Path
 # Each provider reads every post in one voice. A Fish voice id is the end of the
 # voice's URL on fish.audio (fish.audio/m/<id>). An ElevenLabs voice id is on the
 # voice's page in the ElevenLabs voice library.
-ELEVENLABS_VOICE_ID = ""
+ELEVENLABS_VOICE_ID = "UgBBYS2sOqTuMpoF3BR0"
 FISH_VOICE_ID = ""
 
 ELEVENLABS_MODEL = "eleven_v4"
@@ -146,8 +146,8 @@ def fish(text: str, key: str, out: Path) -> None:
 
 
 PROVIDERS = {
-    "elevenlabs": (elevenlabs, "ELEVENLABS_API_KEY", "ELEVENLABS_VOICE_ID", lambda: ELEVENLABS_VOICE_ID),
-    "fish": (fish, "FISH_API_KEY", "FISH_VOICE_ID", lambda: FISH_VOICE_ID),
+    "elevenlabs": (elevenlabs, ("ELEVENLABS_API_KEY", "ELEVEN_LABS_API_KEY"), "ELEVENLABS_VOICE_ID", lambda: ELEVENLABS_VOICE_ID),
+    "fish": (fish, ("FISH_API_KEY",), "FISH_VOICE_ID", lambda: FISH_VOICE_ID),
 }
 
 
@@ -158,10 +158,10 @@ def main() -> None:
     parser.add_argument("sections", nargs="*", help="sections to render again")
     args = parser.parse_args()
 
-    render, key_name, voice_name, voice = PROVIDERS[args.provider]
-    key = os.environ.get(key_name)
+    render, key_names, voice_name, voice = PROVIDERS[args.provider]
+    key = next((os.environ[name] for name in key_names if os.environ.get(name)), None)
     if not key:
-        sys.exit(f"set {key_name} to your API key")
+        sys.exit(f"set {key_names[0]} to your API key")
     if not voice():
         sys.exit(f"set {voice_name} in scripts/narrate.py to the voice you picked")
 
