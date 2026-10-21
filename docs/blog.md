@@ -129,7 +129,7 @@ same tagged script:
 
 | Provider | Model | Cost of a 32,000-character essay |
 |---|---|---|
-| ElevenLabs (default) | Eleven v4 | About 32,000 credits at one credit per character, more than the Starter plan's 30,000 a month |
+| ElevenLabs (default) | Eleven v4 | About 12,000 credits, measured on the first essay, which fits in the Starter plan's 30,000 a month |
 | Fish Audio (`--provider fish`) | Drama 3 | About $0.48, at $15 per million characters |
 
 ### Writing the script

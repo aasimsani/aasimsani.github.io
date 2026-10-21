@@ -21,5 +21,6 @@ export const posts: Post[] = [
     displayDate: "October 20, 2026",
     readingTime: "23 min read",
     ogImage: "/images/blog/inattentional-blindness-og.png?v=2",
+    audio: "/audio/blog/inattentional-blindness.mp3",
   },
 ];
