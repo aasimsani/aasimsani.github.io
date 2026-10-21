@@ -7,6 +7,23 @@ npm run dev       # local dev server
 npm run build     # production build into dist/
 ```
 
+## PR previews
+
+Cloudflare Workers Builds builds every pull request and comments with a
+preview URL. `wrangler.jsonc` points the Worker at `dist/`. The production
+site still deploys to GitHub Pages from `master`, so Cloudflare only hosts
+previews.
+
+The Worker is connected to this repo in the Cloudflare dashboard under
+Workers & Pages → `aasimsani-net` → Settings → Builds, with these settings:
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
+| Non-production branch deploy command | `npx wrangler versions upload` |
+| Production branch | `master` |
+
 ## Content tooling
 
 Two ways to put a document on the site:
