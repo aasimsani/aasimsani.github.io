@@ -7,22 +7,21 @@ The script is written in Drama 3's cue syntax, and narrate.py rewrites it for
 ElevenLabs. docs/blog.md lists the cues.
 Point cues in square brackets land where they sit, like [pause] or [wry]. Paired
 tags wrap the words they change, like <emphasis>six</emphasis> or <slow>...</slow>.
-Code, file names and figures are rewritten as speech, because the listener can't
-see the page.
+When a passage needs the listener's eyes, such as the diff in the opening demo,
+the script asks them to pause and look at the page instead of reading code aloud.
 -->
 
 ## demo
 Your startup isn't slow. It's blind. [pause] An essay by Aasim Sani.
 [long pause]
 Before I argue anything, review a pull request with me.
-A teammate renamed a variable, user items, to digest items, in the weekly email module. Your job is the usual one. Confirm the rename is complete. There are <emphasis>six</emphasis> occurrences of the old name, so check every one. Take it as seriously as you would at work, because there's a question at the end.
-[pause] Here's the diff, line by line.
-[brisk, matter-of-fact, like reading code aloud] User items equals an empty list becomes digest items equals an empty list. For each story, user items dot append becomes digest items dot append. If the user's language isn't English, user items equals translate user items becomes digest items equals translate digest items. Two lines are removed: if user dot unsubscribed, return None. Mailer dot queue, with user items, becomes mailer dot queue, with digest items. And return digest receipt of user items becomes return digest receipt of digest items.
+A teammate renamed a variable in the weekly email module. Your job is the usual one. Confirm the rename is complete. There are <emphasis>six</emphasis> occurrences of the old name, so check every one. Take it as seriously as you would at work, because there's a question at the end.
+This part only works with your eyes. [pause] So pause the audio now, and review the diff just below this player. Come back when you've decided whether the rename is complete.
 [long pause]
 Lock in your answer. [pause] Was the rename complete?
 [long pause]
-Yes. All six occurrences were renamed, perfectly. And if that's what you checked, you almost certainly sailed past the two lines in the middle that have nothing to do with the rename. [pause] If user dot unsubscribed, return None.
-This diff also <emphasis>deletes the unsubscribe guard</emphasis>. Everyone who opted out starts getting emailed again. The deletion isn't hidden. It sits in plain sight, unpaired, in the middle of the diff. But your task was to find user items and digest items pairs, so your attention ran that template, and a deletion outside it didn't register.
+Yes. All six occurrences were renamed, perfectly. And if that's what you checked, you almost certainly sailed past the two lines in the middle that have nothing to do with the rename.
+This diff also <emphasis>deletes the unsubscribe guard</emphasis>, the check that skips anyone who opted out. Everyone who opted out starts getting emailed again. The deletion isn't hidden. It sits in plain sight, unpaired, in the middle of the diff. But your task was to find the renamed pairs, so your attention ran that template, and a deletion outside it didn't register.
 If you caught it, notice that you were primed. You knew this essay was going to test you, and you still felt the pull to stop looking once the sixth rename checked out.
 
 ## science
@@ -37,7 +36,7 @@ And hard work doesn't protect you either. Attention is a finite budget, not a vi
 In 1980, NASA put eight airline pilots in a Boeing 727 simulator and had them land in low visibility with a head-up display, which projects flight data onto the windscreen. On one approach, a plane pulled onto the runway in front of them. Two of the eight never saw it, and kept landing. They weren't flying badly. With the display, they held the glide path better than without it. Their attention was locked onto the symbols, and the symbols said everything was fine.
 Daniel Kahneman describes the gorilla study in the first chapter of Thinking, Fast and Slow, and he draws a line from it that belongs on every code review tool. [pause] [quoting, measured] "We can be blind to the obvious, and we are also blind to our blindness."
 A reviewer skimming a diff at five p.m. isn't verifying. They're matching the diff against the shapes they expect. Kahneman calls the trap "what you see is all there is." The fast, automatic part of the mind builds a coherent story from what's in front of it, and it never flags what's missing.
-On the page there's a small demo here, a code file that blurs as you raise a deadline-pressure slider. The function kills any worker that hasn't finished something in ten minutes. The comment at the bottom says the nightly reconciliation jobs run for hours without finishing anything. Under pressure, that comment is the first thing to fade.
+There's a small demo here that only works on the page. If you can, pause the audio, drag the deadline-pressure slider in this section, and watch which lines blur first.
 The lines you're editing stay sharp. The comment that invalidates your whole approach sits in the periphery, and load deletes the periphery first. Load doesn't make you sloppier. [pause] It makes you <emphasis>narrower</emphasis>.
 Now describe a startup engineer's day in these terms. A high-load primary task, ship the feature. Time pressure. Constant context switching. And a strong prior about what the code is supposed to do. A sprint is a selective-attention test that runs eight hours a day. The gorilla is whatever your task template doesn't match.
 
@@ -160,4 +159,4 @@ In practice that's one developer, a technical peer who asks whether the code doe
 [long pause]
 <slow>The gorilla is already in your codebase. It's in mine.</slow> [pause] The question is whether anyone on your team is positioned to see it, or whether your customers are doing that job for you.
 [long pause]
-If this matches your experience, or you have a counterexample, I want to hear it. The sources, the checklist and the figures are on the page, at aasimsani dot net.
+If this matches your experience, or you have a counterexample, I want to hear it. The sources, the checklist and the figures are all on the page.

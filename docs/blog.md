@@ -139,9 +139,10 @@ starts a section, and the ids match the post's `PostSection` ids.
 `<!-- comments -->` never reach the model. A listener can't see the page, so
 the script rewrites it for the ear:
 
-- Spell out code and file names as speech, such as "user items" for
-  `user_items`. Never leave a `<` in the text, because Drama 3 reads it as a
-  tag.
+- Never read code aloud, because it comes out garbled. When the listener has
+  to see code to follow along, such as the diff in the opening demo, ask them
+  to pause and review it on the page. Name a file or variable only in plain
+  words, and never leave a `<` in the text, because Drama 3 reads it as a tag.
 - Describe each figure or interactive demo in a sentence or two, and say that
   the full version is on the page.
 - Announce each section as "Part one. The gorilla, twice. Looking is not
