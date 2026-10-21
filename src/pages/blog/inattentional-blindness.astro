@@ -57,7 +57,7 @@ const rituals = [
   kicker="Inattentional blindness · root-caused"
   headline="Your startup isn’t slow. It’s blind."
   dek="Good engineers miss obvious things, the misses compound into slow roadmaps, and a two-person structure catches what one pair of eyes can’t."
-  shareText="Your startup isn't slow. It's blind. — on inattentional blindness in engineering teams"
+  shareText="Your startup isn't slow. It's blind. An essay on inattentional blindness in engineering teams."
 >
 
     <PostSection id="demo">
@@ -209,7 +209,7 @@ const rituals = [
           <input id="loadSlider" type="range" min="0" max="100" value="55" />
           <span class="load-readout" id="loadReadout">55%</span>
         </div>
-        <pre class="load-code" id="loadCode" style="--load:0.55"><code><span class="cl" style="--d:4"># worker liveness check &mdash; restarts stuck workers</span>
+        <pre class="load-code" id="loadCode" style="--load:0.55"><code><span class="cl" style="--d:4"># worker liveness check: restarts stuck workers</span>
 <span class="cl" style="--d:3">RECENT = timedelta(minutes=10)</span>
 <span class="cl" style="--d:2"></span>
 <span class="cl" style="--d:1">def health_check(worker):</span>
@@ -487,7 +487,7 @@ compiler checks it.</Fragment>
         root-caused, and each one rides one of two channels.
       </p>
 
-      <figure class="diagram post-panel" role="img" aria-label="Diagram: a developer at full attentional load produces misses through two channels — technical (code diverges from intent) and alignment (intent diverges from reality) — both shipping and being found late.">
+      <figure class="diagram post-panel" role="img" aria-label="Diagram: a developer at full attentional load produces misses through two channels: technical (code diverges from intent) and alignment (intent diverges from reality). Misses from both channels ship and are found late.">
         <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -765,7 +765,7 @@ compiler checks it.</Fragment>
               <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
               <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
               <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">CTO</text>
-              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">me &mdash; COO</text>
+              <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">me (COO)</text>
             </svg>
           </div>
           <div class="mini-triad"><span class="mt-co">Orai</span>
@@ -777,7 +777,7 @@ compiler checks it.</Fragment>
               <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
               <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
               <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">developer</text>
-              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">me &mdash; coding</text>
+              <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">me (coding)</text>
               <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">CEO</text>
             </svg>
           </div>
@@ -867,7 +867,7 @@ compiler checks it.</Fragment>
               <circle cx="110" cy="36" r="5" fill="var(--color-text-soft)"/>
               <circle cx="34" cy="122" r="5" fill="var(--color-accent)"/>
               <circle cx="186" cy="122" r="5" fill="var(--color-teal)"/>
-              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">me &mdash; CAIO</text>
+              <text x="110" y="22" text-anchor="middle" fill="var(--color-text)">me (CAIO)</text>
               <text x="10" y="142" text-anchor="start" fill="var(--color-text-soft)">developer</text>
               <text x="210" y="142" text-anchor="end" fill="var(--color-text-soft)">PM</text>
             </svg>
@@ -1008,7 +1008,7 @@ compiler checks it.</Fragment>
 
       <Checklist
         storageKey="ib-post-rituals.v1"
-        markdownTitle="Relentless alignment — the rhythm"
+        markdownTitle="Relentless alignment: the rhythm"
         items={rituals}
       />
       <p class="note">The gap labels follow Bungay&rsquo;s three gaps.<sup><a href="#src-10">10</a></sup></p>
@@ -1052,9 +1052,9 @@ compiler checks it.</Fragment>
         <li id="src-2">Drew, T., V&otilde;, M. L.-H., &amp; Wolfe, J. M. (2013). <a href="https://doi.org/10.1177/0956797613479386" target="_blank" rel="noopener">The invisible gorilla strikes again: sustained inattentional blindness in expert observers</a>. <i>Psychological Science, 24</i>(9), 1848&ndash;1853.</li>
         <li id="src-3">Lavie, N. (2005). <a href="https://doi.org/10.1016/j.tics.2004.12.004" target="_blank" rel="noopener">Distracted and confused?: selective attention under load</a>. <i>Trends in Cognitive Sciences, 9</i>(2), 75&ndash;82.</li>
         <li id="src-4">Fischer, E., Haines, R. F., &amp; Price, T. A. (1980). <a href="https://ntrs.nasa.gov/citations/19810005125" target="_blank" rel="noopener">Cognitive issues in head-up displays</a>. NASA Technical Paper 1711, Ames Research Center.</li>
-        <li id="src-5">Cohen, J. (2006). <a href="https://static1.smartbear.co/support/media/resources/cc/book/code-review-cisco-case-study.pdf" target="_blank" rel="noopener">Best kept secrets of peer code review: the Cisco case study</a> &mdash; 2,500 reviews, 3.2M LOC over 10 months. See also Fagan, M. E. (1976). <a href="https://doi.org/10.1147/sj.153.0182" target="_blank" rel="noopener">Design and code inspections to reduce errors in program development</a>. <i>IBM Systems Journal, 15</i>(3).</li>
+        <li id="src-5">Cohen, J. (2006). <a href="https://static1.smartbear.co/support/media/resources/cc/book/code-review-cisco-case-study.pdf" target="_blank" rel="noopener">Best kept secrets of peer code review: the Cisco case study</a>, covering 2,500 reviews and 3.2M LOC over 10 months. See also Fagan, M. E. (1976). <a href="https://doi.org/10.1147/sj.153.0182" target="_blank" rel="noopener">Design and code inspections to reduce errors in program development</a>. <i>IBM Systems Journal, 15</i>(3).</li>
         <li id="src-6">Boehm, B., &amp; Basili, V. R. (2001). <a href="https://doi.org/10.1109/2.962984" target="_blank" rel="noopener">Software defect reduction top 10 list</a>. <i>IEEE Computer, 34</i>(1), 135&ndash;137.</li>
-        <li id="src-7">Kahneman, D. (2011). <a href="https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow" target="_blank" rel="noopener"><i>Thinking, Fast and Slow</i></a>. Farrar, Straus and Giroux &mdash; ch. 1 discusses the gorilla experiment directly.</li>
+        <li id="src-7">Kahneman, D. (2011). <a href="https://en.wikipedia.org/wiki/Thinking,_Fast_and_Slow" target="_blank" rel="noopener"><i>Thinking, Fast and Slow</i></a>. Farrar, Straus and Giroux. Chapter 1 discusses the gorilla experiment directly.</li>
         <li id="src-8">Buolamwini, J., &amp; Gebru, T. (2018). <a href="https://proceedings.mlr.press/v81/buolamwini18a.html" target="_blank" rel="noopener">Gender Shades: intersectional accuracy disparities in commercial gender classification</a>. <i>Proceedings of Machine Learning Research, 81</i>, 77&ndash;91.</li>
         <li id="src-9">Haley, T. J. (1996). <a href="https://ieeexplore.ieee.org/document/542291" target="_blank" rel="noopener">Software process improvement at Raytheon</a>. <i>IEEE Software, 13</i>(6), 23&ndash;31.</li>
         <li id="src-10">Bungay, S. (2010). <a href="https://www.goodreads.com/work/editions/14867496-the-art-of-action-how-leaders-close-the-gaps-between-plans-actions-and" target="_blank" rel="noopener"><i>The Art of Action: How Leaders Close the Gaps between Plans, Actions and Results</i></a>. Nicholas Brealey. ISBN 978-1-85788-559-0.</li>
