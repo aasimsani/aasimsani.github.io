@@ -35,7 +35,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Keep search engines off the preview
-        run: printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > dist/_headers
+        run: |
+          printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > dist/_headers
       - name: Upload preview
         run: |
           $WRANGLER versions upload --preview-alias "$ALIAS" | tee upload.log
