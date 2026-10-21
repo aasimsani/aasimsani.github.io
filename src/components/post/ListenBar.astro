@@ -1,0 +1,50 @@
+---
+// The "Listen" bar under a post's byline. PostLayout renders it when the post's
+// entry in posts.ts has an audio path. The narration is an AI voice, so the
+// bar says so.
+interface Props {
+  src: string;
+}
+
+const { src } = Astro.props;
+---
+
+<div class="listen post-panel" data-listen>
+  <audio src={src} preload="metadata"></audio>
+  <button type="button" class="post-btn listen-play" data-play aria-label="Play narration">Listen</button>
+  <input class="listen-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek" data-seek />
+  <span class="listen-time" data-time>0:00</span>
+  <button type="button" class="post-btn listen-rate" data-rate aria-label="Playback speed">1×</button>
+  <p class="listen-note">Narrated by an AI voice.</p>
+</div>
+
+<script>
+  const RATES = [1, 1.25, 1.5, 2];
+  const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+  document.querySelectorAll<HTMLElement>("[data-listen]").forEach((bar) => {
+    const audio = bar.querySelector("audio")!;
+    const play = bar.querySelector<HTMLButtonElement>("[data-play]")!;
+    const seek = bar.querySelector<HTMLInputElement>("[data-seek]")!;
+    const time = bar.querySelector<HTMLElement>("[data-time]")!;
+    const rate = bar.querySelector<HTMLButtonElement>("[data-rate]")!;
+
+    const show = () => {
+      const total = audio.duration || 0;
+      time.textContent = total ? `${clock(audio.currentTime)} / ${clock(total)}` : clock(audio.currentTime);
+      if (total) seek.value = String((audio.currentTime / total) * 100);
+    };
+    audio.addEventListener("loadedmetadata", show);
+    audio.addEventListener("timeupdate", show);
+    audio.addEventListener("play", () => { play.textContent = "Pause"; play.setAttribute("aria-label", "Pause narration"); });
+    audio.addEventListener("pause", () => { play.textContent = "Listen"; play.setAttribute("aria-label", "Play narration"); });
+    play.addEventListener("click", () => (audio.paused ? audio.play() : audio.pause()));
+    seek.addEventListener("input", () => {
+      if (audio.duration) audio.currentTime = (Number(seek.value) / 100) * audio.duration;
+    });
+    rate.addEventListener("click", () => {
+      audio.playbackRate = RATES[(RATES.indexOf(audio.playbackRate) + 1) % RATES.length];
+      rate.textContent = `${audio.playbackRate}×`;
+    });
+  });
+</script>

@@ -1,0 +1,162 @@
+<!--
+Narration script for /blog/inattentional-blindness/. scripts/narrate.py renders
+each "## <section-id>" block as its own take, so one section can be re-rendered
+without touching the rest. The ids match the PostSection ids on the page.
+
+The script is written in Drama 3's cue syntax, and narrate.py rewrites it for
+ElevenLabs. docs/blog.md lists the cues.
+Point cues in square brackets land where they sit, like [pause] or [wry]. Paired
+tags wrap the words they change, like <emphasis>six</emphasis> or <slow>...</slow>.
+When a passage needs the listener's eyes, such as the diff in the opening demo,
+the script asks them to pause and look at the page instead of reading code aloud.
+-->
+
+## demo
+Your startup isn't slow. It's blind. [pause] An essay by Aasim Sani.
+[long pause]
+Before I argue anything, review a pull request with me.
+A teammate renamed a variable in the weekly email module. Your job is the usual one. Confirm the rename is complete. There are <emphasis>six</emphasis> occurrences of the old name, so check every one. Take it as seriously as you would at work, because there's a question at the end.
+This part only works with your eyes. [pause] So pause the audio now, and review the diff just below this player. Come back when you've decided whether the rename is complete.
+[long pause]
+Lock in your answer. [pause] Was the rename complete?
+[long pause]
+Yes. All six occurrences were renamed, perfectly. And if that's what you checked, you almost certainly sailed past the two lines in the middle that have nothing to do with the rename.
+This diff also <emphasis>deletes the unsubscribe guard</emphasis>, the check that skips anyone who opted out. Everyone who opted out starts getting emailed again. The deletion isn't hidden. It sits in plain sight, unpaired, in the middle of the diff. But your task was to find the renamed pairs, so your attention ran that template, and a deletion outside it didn't register.
+If you caught it, notice that you were primed. You knew this essay was going to test you, and you still felt the pull to stop looking once the sixth rename checked out.
+
+## science
+Part one. The gorilla, twice. [pause] Looking is not seeing.
+[pause]
+In 1999, Daniel Simons and Christopher Chabris asked people to watch a video of two teams passing basketballs, and count the passes made by the team in white. Halfway through, a person in a gorilla suit walks into the middle of the frame, thumps their chest, and walks off. It's on screen for nine seconds. [pause] About half the viewers never see it.
+The follow-up is the one that should worry engineers. In 2013, Trafton Drew and colleagues embedded a gorilla into CT scans, about 48 times the size of a typical lung nodule, and asked 24 expert radiologists to hunt for nodules. <slow>Twenty of the 24 never saw it.</slow> Eye-tracking showed that most of the radiologists who missed it looked directly at it.
+Two details make this finding hard to shrug off.
+First, expertise doesn't protect you. These were trained specialists doing the inspection they do every day. Their training didn't widen what they saw. It tightened the template they searched with, so anything off the template had less chance to register.
+Second, misses aren't laziness. The eye-tracking data rules out the comforting story that people miss things because they didn't look. You can point your eyes at the bug [pause] and still not see the bug.
+And hard work doesn't protect you either. Attention is a finite budget, not a virtue. The harder the primary task, the less capacity is left for anything else, even for things that are large, unusual and directly in view. Under high perceptual load, an unexpected object doesn't register dimly. <emphasis>It doesn't register at all.</emphasis>
+In 1980, NASA put eight airline pilots in a Boeing 727 simulator and had them land in low visibility with a head-up display, which projects flight data onto the windscreen. On one approach, a plane pulled onto the runway in front of them. Two of the eight never saw it, and kept landing. They weren't flying badly. With the display, they held the glide path better than without it. Their attention was locked onto the symbols, and the symbols said everything was fine.
+Daniel Kahneman describes the gorilla study in the first chapter of Thinking, Fast and Slow, and he draws a line from it that belongs on every code review tool. [pause] [quoting, measured] "We can be blind to the obvious, and we are also blind to our blindness."
+A reviewer skimming a diff at five p.m. isn't verifying. They're matching the diff against the shapes they expect. Kahneman calls the trap "what you see is all there is." The fast, automatic part of the mind builds a coherent story from what's in front of it, and it never flags what's missing.
+There's a small demo here that only works on the page. If you can, pause the audio, drag the deadline-pressure slider in this section, and watch which lines blur first.
+The lines you're editing stay sharp. The comment that invalidates your whole approach sits in the periphery, and load deletes the periphery first. Load doesn't make you sloppier. [pause] It makes you <emphasis>narrower</emphasis>.
+Now describe a startup engineer's day in these terms. A high-load primary task, ship the feature. Time pressure. Constant context switching. And a strong prior about what the code is supposed to do. A sprint is a selective-attention test that runs eight hours a day. The gorilla is whatever your task template doesn't match.
+
+## cases
+Part two. The case files. [pause] Root-causing a decade of misses.
+[pause]
+I've seen the same failure again and again over the past decade, at Orai, at CopyCat and on teams I've compared notes with, long before AI started writing the code. The files below are composites. Every mechanism is real, but I changed the details so none of them trace back to one company.
+None of these came from incompetence. In every one, an attention system ran exactly as designed and pointed at the wrong thing. As you hear each one, ask yourself who was positioned to see it coming.
+Every verdict names one of two people. A technical peer is a second engineer who reads your diff and asks what else it changes. A standard holder owns what "done" and "correct" mean for the work, and they're usually not an engineer. A PM, an ops lead or a finance owner judges the result, never the code.
+[long pause]
+Case one. A settings update quietly wiped a customer's discounts.
+A customer asked for one small change. Their invoices should show prices in euros as well as dollars. An engineer updated the integration that writes the customer's billing settings, checked that the euro prices appeared, and opened a pull request. The reviewer checked the same thing. Nobody noticed that the update rewrote the whole settings object instead of one field, so it also wiped the customer's volume discounts. For three weeks every invoice went out at list price, until the customer's biggest account disputed a bill.
+They were staring at the intended change. The unintended one, in the same diff, was invisible. The customer saw it first.
+Who was positioned to catch it? [pause] A technical peer. The author reviewed their own diff and saw what they meant, not what it did. A second engineer who asks "what else does this change?" instead of "does it do the thing?" runs a different template. This is the demo you just did, in production.
+[long pause]
+Case two. A pipeline lost weeks of records without one error.
+A refactor renamed the files a vendor dropped into storage. An underscore in each file name became a hyphen. The ingestion job still looked for underscores. It found no files, and it reported success, because zero files isn't an error. For six weeks one region's orders never arrived. Every dashboard stayed green, since nothing had failed. The monthly revenue report showed that region at exactly zero, and a sales lead asked whether the whole region had churned.
+They were staring at errors and red dashboards. The records that never arrived were invisible. A sales lead, staring at a zero, saw it first.
+Who was positioned to catch it? [pause] A standard holder. An alert only fires on the silence an engineer thought to predict. But anyone who owned the standard, "this region sends roughly this many orders every week," would have flagged the first empty week. Monitoring watches for what we expect to break, and standards watch for what must stay true.
+[long pause]
+Case three. A release broke the app for every logged-out user.
+A release moved the cookie banner into a component that read the user's profile. Logged-in users had a profile, so the page rendered. Logged-out visitors didn't, so the page crashed before it drew anything. Every engineer, every QA pass and every Friday demo ran logged in, because that's how everyone inside the company uses the product. The first report came from a prospect who clicked through to the pricing page from a sales email.
+They were staring at the path we demo. The path we never personally walk was invisible.
+Who was positioned to catch it? [pause] A technical peer, [wry] barely. A reviewer or QA partner who checks the unglamorous states, like logged out, empty and erroring, covers exactly the paths an excited author skips. Demo pressure aims everyone's attention at the same pixels.
+[long pause]
+Case four. A trailing space crashed the rules engine.
+A rules engine matched each customer's plan name against a lookup table to decide their support tier. One afternoon it started crashing on a single account. Engineers printed the two values side by side, "premium support" and "premium support", and read them as equal for hours. Someone had pasted a trailing space into the table. The hunt ended when an engineer compared the lengths, and got sixteen and fifteen.
+They were staring at the logic around the data. A literally invisible character was the bug.
+Who was positioned to catch it? [pause] A technical peer. Honestly, this one is the radiology study again. You can look straight at a defect and not see it. Looking harder doesn't fix that. Fresh eyes run a different template, and a different template sees a different gorilla.
+[long pause]
+Case five. A correct fix put the books out of balance.
+A usage meter double-counted API calls that retried after a timeout. Engineering fixed the meter, and then did the careful thing. They recalculated six months of historical usage, so every number in the system would be correct. But customers had already paid invoices built on the old numbers. The recalculation quietly rewrote the usage behind invoices that finance had already closed, so the books no longer matched the money in the bank. Engineering was right that the old numbers were wrong. Finance was right that you can't change what a customer was charged by editing history. Nobody had asked finance before the backfill ran.
+Who was positioned to catch it? [pause] A standard holder. Code review can't catch correct code that's aimed at the wrong definition of correct. The person who owns the standard, "the books match the charges, always," would have caught this in the one-sentence plan, before anyone wrote a line.
+[long pause]
+Case six. Nobody knew the customer ran a second tool.
+A customer reported duplicate entries in their accounting system, and the team spent two days hunting a bug in its own sync. The sync was fine. A year earlier, the customer's ops team had connected a second tool that pushed the same records, and both tools had been writing side by side ever since. No engineer had asked what else touched that account, because that isn't an engineering question. Anyone in customer success could have answered it on one call.
+Who was positioned to catch it? [pause] A standard holder. Domain context is a form of attention. A non-technical partner in ops, sales or customer success knows how the customer actually works, and engineering's task template will never include that.
+[long pause]
+Case seven. Two vendor switches. One caught in hours, one by angry users.
+At Orai we switched speech-transcription vendors. The first time, a teammate tested the output that same day and noticed that a quality metric had flatlined at zero, because the new vendor didn't return a confidence field the old one did. We rolled back within hours. Two months later we switched again, and this time nobody listed what else the old vendor had been quietly providing. It turned out to be punctuation, which fed our pause and sentence-length detection. Users started hearing that their sentences were "too long" no matter how they spoke. We found out from a cluster of angry app-store reviews.
+Who was positioned to catch it? [pause] A technical peer. This pair of incidents is the cleanest A/B test I have. It was the same team, the same integration and the same class of bug. When a second person watched the output, we caught the miss in hours. When nobody did, customers caught it. Skill didn't change between the two switches. <emphasis>Coverage did.</emphasis>
+[long pause]
+Case eight. Previews rendered wrong for a year, behind a good demo.
+At CopyCat we turned Figma designs into working code, and for a year the demo looked right. Then someone ran a fidelity audit that hunted for gaps instead of confirming the demo. The first gap was a missing doctype line at the top of every preview, which dropped them all into the browser's quirks mode. The second was text that wrapped a few pixels off on real designs. The third was an old positioning "fix" that solved the one bad case anyone had seen, and quietly mis-positioned elements on designs nobody had tested. The engineer who wrote it explained it honestly. They hadn't known the CSS precedence rule, so they fixed the failure in front of them, "nothing specific to a failure condition." All three bugs had been there since the first implementation. Our test designs never exercised them, so the demo never showed them.
+Who was positioned to catch it? [pause] A standard holder. Engineering kept confirming that the code ran. It took someone whose standard was "pixel-true to the design" to see what had been wrong the whole time. That's a designer's definition of correct, and no compiler checks it.
+[long pause]
+I could keep going. A backfill burned a whole third-party API quota in one run. A CopyCat build server filled its disk and died on the morning of an investor call. An Orai feature sat dead for months until a customer emailed us. Once you have the lens, you stop seeing bad luck, and start seeing one mechanism.
+Seniority doesn't protect you either. In one of these files, a founder waved off a teammate's warning about a crash-causing null, because they were heads-down on a migration. The crash came the next morning. Senior people carry more load, and more load makes you blinder.
+
+## channels
+Part three. The taxonomy. [pause] Two channels of blindness.
+[pause]
+Sort every case file above, and every escaped defect you've root-caused, and each one rides one of two channels.
+Channel one. [pause] The code drifts from your intent. You can't proofread your own change, because you read what you meant instead of what you wrote. Copywriters solved this with a copy chief, and a code reviewer is yours. The deleted unsubscribe guard in the demo rode this channel. So did a settings update that was meant to add euro prices, and also wiped a customer's discounts.
+Channel two. [pause] Your intent drifts from reality. You built your reading of the request on assumptions about the need, the data, the vendors and the customer's setup. Each assumption drifts a little with every decision you make alone. Code review can't catch this, because the code is correct. [pause] It's just <emphasis>correctly wrong</emphasis>. A careful billing fix that rewrote invoices finance had already closed rode this channel. So did a "sync bug" that turned out to be the customer's own second tool, writing the same records.
+You could split these further, into data drift, vendor drift, untested paths and a dozen more. Every split still comes down to one of two questions. Does the code do what I meant? [pause] Is what I meant still true out there? A second engineer can answer the first by reading the diff. The second needs someone who lives outside the code.
+One person can't watch both channels, because watching spends the same attention that writing the code does. The better you are at the work, the less is left over.
+
+## slowdown
+Part four. The bill. [pause] How blindness becomes slowness.
+[pause]
+Postmortems file these incidents under quality. The bigger cost is <emphasis>speed</emphasis>.
+At Orai we once switched speech-to-text vendors, and the new one didn't send punctuation. Our app used punctuation to measure sentence length, so it started telling every user their sentences were too long. The fix was one missing field and a few hours of work. The cost was the weeks around it. We answered angry app-store reviews, cleared the support queue, and won back users we'd told to shorten sentences that were fine. All of that work arrived as interruptions, so the roadmap stalled while the team was busier than ever. Busier people carry more load, and more load is how the next miss ships. That's the loop. A miss ships, it's found late, the rework interrupts everyone, the load goes up, and the next miss ships.
+Nobody tickets this work. No one files a ticket for calming an angry product reviewer or winning back a user, so it never shows up in a sprint, a velocity chart or a postmortem. At a startup it lands on whoever is closest. With no support team to absorb it, that's usually an engineer or a founder, and the roadmap pays for it without anyone seeing the bill.
+The case files follow the same pattern. Three out of four took a day or two to fix once someone looked. What cost months was the stretch before anyone did.
+Boehm and Basili put avoidable rework at forty to fifty percent of the effort on a typical software project. Raytheon measured its own. Rework was eating about forty percent of total project cost, so the company built an improvement push around inspections, where a second reader checks each design and change. Rework fell to about twenty percent. On a ten-person team, that's the difference between four people redoing work, and two.
+Early-stage teams pay the most, because the habits that make them fast are the same ones that raise the load. Each system has one owner, so nobody looks twice. Everyone switches context all day. The Friday demo points every pair of eyes at the same screen. And the company is too young to remember the last time this happened.
+
+## triad
+Part five. The fix. [pause] One developer, two watchers.
+[pause]
+A developer does their best work inside a triangle. A technical peer checks that the code does what the developer meant. A standard holder checks that what they meant is still what's needed. The developer builds.
+The technical peer doesn't ask whether the code is good. They ask, [pause] what does this change do that you didn't intend? They bring attention you've already spent. In the demo at the top, they're the one who spots the deleted unsubscribe check while you count renames. Inspection research has found the same thing for fifty years. A second reader catches defects the author can't, because the author reads their own intent. Reviewers have a budget too. In Cisco's study of 2,500 reviews, reviewers who went faster than about 400 lines an hour found far fewer defects. At one company I've watched, an engineer publicly called the team's best reviewer "the single largest multiplier to my personal productivity."
+Worried a second reviewer slows you down? In the radiology study, every radiologist who spotted the gorilla also found the nodule on that same slice. Noticing the odd thing didn't cost them the main job. It only costs you when one person under load has to do both. A reviewer of this draft asked how much slower a second pair of eyes makes things. The study didn't time it, but the review data says the slower pace is what makes reviews work.
+The standard holder is usually a PM, an ops lead, a domain expert or a founder. They never read the diff, and that's why they help. They look at the invoice instead of the code that makes it, so a wrong total jumps out at them that an engineer would scroll past. They ask, [pause] is this the thing we needed? And they ask it early and often. They also decide whose definition of correct wins when two teams disagree. When engineering recalculated invoices that finance had already closed, one question to finance would have stopped it.
+This is also the engineering case for diverse teams. People who trained the same way share a template, so they miss the same things. The twenty radiologists didn't miss twenty different things. [pause] They all missed the same gorilla. Facial analysis gave the most public example. In 2018, commercial systems misclassified darker-skinned women up to 34.7 percent of the time, and lighter-skinned men less than one percent of the time. Their benchmarks were roughly four-fifths lighter-skinned faces, and the teams that built and tested them didn't notice. Joy Buolamwini, an MIT grad student the systems kept failing on, did. A team that all looks, trains and thinks alike is one attention system with extra keyboards.
+None of this means "add process." It's two working relationships. It also matches one of the oldest findings in software engineering. A problem found after delivery can cost a hundred times more to fix than one caught in requirements or design. The triangle moves the catch earlier. Talent doesn't fix attention. <emphasis>Coverage does.</emphasis>
+As the company grows, the triangle's conversations should start leaving documents behind. The standard holder's idea of done becomes a PRD. The peer's review moves before the code, into an RFC. Settled decisions go into ADRs, so the next engineer knows why the system looks the way it does. That's process, but it grows out of the triangle. It doesn't replace it.
+[long pause]
+What it looks like when it works.
+The triangle doesn't need a reorg, because it's a rotation, not a hire. People swap corners by problem, not by title. At Orai I was the standard holder as COO on some problems, and the technical peer on others, and our CEO or CTO took whichever corner I wasn't in. On the page there's a grid of nine casts that actually ran, five at Orai and four at CopyCat, each the same triangle with different people in the corners.
+Orai spent a year and a half shipping constantly with flat metrics. Then, during Techstars, a designer, a developer and a founder started meeting every week about one screen, the first lesson a new user sees. In about three months, completion of that lesson went from roughly ten percent to ninety-five. Our archives back the starting number, not the peak, so ninety-five is my best reconstruction. None of the changes involved speech technology. We added a banner telling people to hit record, cut text, swapped a static walkthrough for an animated one, and put "redo this lesson" and "next lesson" where a thumb lands. The gamified loop we added was the developer's idea, not the designer's. The team and its hours didn't change. [pause] The loop did.
+CopyCat followed the same shape. For a year our production model sat stale while everyone worked hard on everything else. A manual audit in late 2022 put component-detection accuracy between 29 and 75 percent, depending on element type. Our performance marketer ran the structured tests, because fresh eyes don't need the right job title, and ML engineers fixed what he found. Progress stalled at 75 percent, and someone reasonably asked, "it's good enough, no?"
+[pause] It wasn't. Below about 95 percent, every missed component became broken code in everything generated on top of it. I held the standard, showed the team exactly that, and kept the bar where it was. The developer's skill closed the gap, from 75 percent to roughly 95. Users called the result "a different league," and said false positives were "near absent." It took about three months with the loop, after a year without one.
+Here's a smaller one, from a company I'll keep anonymous. A new engineer spent their second day sitting with the ops team, listening to them complain about one screen. They fixed it on days three and four. On day five, the ops lead found the fix live, in the middle of a demo. That team later called a bigger rebuild of the console a game-changer, and their daily use of it shaped what got built next. When the team worked the same way with customers, one of them wrote in, unprompted. [pause] [delighted] "Oh wow. That is easy."
+In both companies, the same people worked the same hours through the flat stretch and the fast one. Effort never changed. [pause] Structure did.
+
+## automation
+Part six. The objection. [pause] Shouldn't a machine be watching this?
+[pause]
+A peer asked me this question after I sent them a draft of this essay.
+He argued that the problem is bigger than any team's attention, and that mature industries stopped relying on attention long ago. Your car diagnoses itself over a bus protocol. Manufacturing didn't fix human error by hiring more careful people. It built jidoka, andon cords and pointing-and-calling. Today I pay attention, tomorrow I don't. In his words, the structure I'm proposing is "a sliver along a mountain of automations that is required."
+He's right, case by case. An acceptance test would have caught the settings update that wiped a customer's discounts. An alert on missing data would have caught the pipeline that ingested nothing for six weeks. A linter would have flagged the trailing space in the plan name. The newer tools go further. Mutation testing shows which tests would still pass if the code broke. Formal methods like TLA plus and Lean prove a property holds for every input, not just the ones you tried. AI reviewers read every diff, and don't get tired at five p.m. Used well, these tools cut the thrash a lot.
+But every one of them is <emphasis>crystallized attention</emphasis>. Someone chose the property to prove, the mutants worth killing, the linter's rules, and what the AI reviewer should look for. The tools sharpen our precision. They don't decide where to aim it, or what correct means this quarter. Before product-market fit that definition keeps moving, and a test written against last month's definition will happily pass this month's wrong code.
+That's the triangle's job. After each miss, ask what you were staring at, and who was positioned to see it. Every answer that ends in "a machine could watch this" becomes this sprint's test, alert or proof. The triangle isn't the alternative to the automation mountain. [pause] It's the quarry. Pointing-and-calling was a human ritual before it was a system, and the ritual is how anyone learned what to automate.
+It isn't slow, either. The fastest delivery I've watched recently was a cross-cutting migration everyone had put off for months. Two developers built it, a reviewer who knew where the risky code lived checked it, and the business side held the deadline. It shipped in nine working days instead of a month.
+My reviewer would point you to Karl Popper here. A test is a hypothesis you try to break, and the hardest question in engineering is, [pause] what should be true for this to fail? We skip it for the same reason we miss the gorilla. [pause] We're blind to our blindness.
+
+## practice
+Part seven. The practice. [pause] Relentless alignment.
+[pause]
+Stephen Bungay's The Art of Action explains why alignment slips, using the Prussian army's answer to battlefield chaos. Every plan runs into three gaps. The knowledge gap sits between what you'd like to know and what you actually know. The alignment gap sits between what you want people to do and what they actually do. The effects gap sits between what you expect an action to achieve and what it achieves. The usual response is more detail, more instructions and more control, and Bungay shows that it makes the gaps worse. What works is stating the intent, having the people doing the work explain back how they'll meet it, which he calls a backbrief, and adjusting as results come in.
+The triangle runs on the same idea, and it only works if its three people talk often. Alignment decays under load like everything else, so one kickoff meeting doesn't hold. Here's the rhythm for a small software team, with the gap each habit closes.
+[pause]
+One. Write down what "done" means before anyone codes. This closes the knowledge gap. For the metering fix, it would have said, "Future invoices use the corrected meter. Invoices finance has already closed stay exactly as charged." The standard holder edits it in ten minutes, and that second sentence would have stopped the backfill.
+Two. Demo the rough version on day two. This closes the alignment gap. On day two of a two-week feature, put the rough version in front of the standard holder, with real data, broken styling and no slides. If they say "that's grouped by the wrong date" now, it costs a conversation. If they say it at launch, it costs a rewrite. AI tools make the rough version a few hours of work, so there's no reason to wait.
+Three. Ask what else the diff changes. This closes the effects gap. Read the diff for what it changes that the description doesn't mention. In the demo at the top, the rename was perfect, and the deleted unsubscribe check was the bug. Then ask, "what should be true for this to fail?" and write that test.
+Four. Alert when expected data stops arriving. Add an alert for data that should exist and doesn't, like "no orders from this region in 24 hours," and one for data that shouldn't exist, like "an invoice dated next year." The pipeline that ingested nothing for six weeks never threw an error.
+Five. Ask who could have seen it, not who missed it. Skip "who missed it?" Ask, "what were we looking at when it slipped, and who would have seen it?" If the answer is "finance would have, and nobody asked them," the fix is putting finance in the plan review, not warning the engineer.
+Six. Turn the talk into PRDs, RFCs and ADRs as you grow. Once the team outgrows one room, the done paragraph becomes a PRD. A big change gets a one-page RFC that a peer reviews before anyone builds it. Each settled decision gets a short ADR, so six months later a new engineer can read why the system works this way, instead of rediscovering it.
+Seven. Fix every place the same assumption lives. When a blind spot bites once, search for the same assumption everywhere else. If one integration broke because it trusted a webhook to always arrive, check every integration that trusts a webhook, before the second one breaks.
+[pause]
+Each of these takes minutes. A wrong turn caught in a demo costs a conversation. The same wrong turn caught by a customer costs an incident, plus the weeks of unticketed cleanup that come after it. Relentless doesn't mean intense. It means frequent, the way a helmsman makes small corrections all the time, instead of one big one at the end.
+
+## close
+Part eight. The point. [pause] You can't out-focus blindness.
+[pause]
+Focus doesn't cure inattentional blindness. [pause] <emphasis>Focus causes it.</emphasis> Effort and care draw on the same budget, and seniority only spends it more efficiently on the main task. The fix that survives a real sprint is structural. Put more than one attention system on the work, point each at a different question, and re-sync them often.
+In practice that's one developer, a technical peer who asks whether the code does what was meant, and a standard holder who asks whether what was meant is still what's needed. Measured against the weeks of rework it prevents, it's the fastest setup I've seen in ten years of startups.
+[long pause]
+<slow>The gorilla is already in your codebase. It's in mine.</slow> [pause] The question is whether anyone on your team is positioned to see it, or whether your customers are doing that job for you.
+[long pause]
+If this matches your experience, or you have a counterexample, I want to hear it. The sources, the checklist and the figures are all on the page.

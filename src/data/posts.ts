@@ -6,6 +6,8 @@ export interface Post {
   displayDate: string;
   readingTime: string;
   ogImage: string;
+  /** Root-relative path of the narration MP3, which turns on the Listen bar. */
+  audio?: string;
 }
 
 export const posts: Post[] = [
@@ -19,5 +21,6 @@ export const posts: Post[] = [
     displayDate: "October 20, 2026",
     readingTime: "23 min read",
     ogImage: "/images/blog/inattentional-blindness-og.png?v=2",
+    audio: "/audio/blog/inattentional-blindness.mp3",
   },
 ];

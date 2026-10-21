@@ -29,6 +29,7 @@ title, the canonical URL and the social tags all read from it.
 | `displayDate` | Human date shown in the byline |
 | `readingTime` | Byline text, such as `23 min read` |
 | `ogImage` | Root-relative path of the social card; bump `?v=N` when the image changes |
+| `audio` | Optional root-relative path of the narration MP3, which turns on the Listen bar |
 
 `PostLayout` (`src/layouts/PostLayout.astro`) draws the frame: the pinned nav
 with its reading-progress bar, the header, the share row, the footer and the
@@ -56,7 +57,7 @@ in `src/styles/post.css`.
 | `CaseFile` | One incident. Wrap a run of them in `<div class="case-grid">`. The props `staring`, `invisible` and `seenBy` fill the facts list, `catcher` opens the verdict in bold, and the `verdict` slot finishes it. |
 | `Checklist` | Practices the reader can tick and copy as Markdown. Give each post its own `storageKey`, versioned like `<slug>-checklist.v1`, and bump the version when the items change. |
 | `Sources` | The numbered source list. Each `<li>` gets `id="src-N"`. Practitioner links go in the `further` slot. |
-| `ShareRow`, `BlogNav`, `BlogAdventureSwitch` | `PostLayout` and the blog index place these, so a post never uses them directly. |
+| `ShareRow`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. |
 
 These classes from `post.css` cover the remaining markup:
 
@@ -116,6 +117,87 @@ reader gets the same argument as the picture.
   year, linked title (DOI when one exists), and the venue in italics.
 - **Make the reader take part** where it helps the argument, such as a diff to
   review before a `Reveal`, or a checklist to copy.
+
+## Narration
+
+A post can carry an audio version. When its entry in `posts.ts` sets `audio`,
+such as `/audio/blog/<slug>.mp3`, `PostLayout` shows the Listen bar
+(`ListenBar.astro`) under the byline. The bar says the voice is AI-generated.
+
+`scripts/narrate.py` renders the audio through one of two APIs, from the
+same tagged script:
+
+| Provider | Model | Cost of a 32,000-character essay |
+|---|---|---|
+| ElevenLabs (default) | Eleven v4 | About 12,000 credits, measured on the first essay, which fits in the Starter plan's 30,000 a month |
+| Fish Audio (`--provider fish`) | Drama 3 | About $0.48, at $15 per million characters |
+
+### Writing the script
+
+The narration script lives at `narration/<slug>.txt`. Each `## <id>` header
+starts a section, and the ids match the post's `PostSection` ids.
+`<!-- comments -->` never reach the model. A listener can't see the page, so
+the script rewrites it for the ear:
+
+- Never read code aloud, because it comes out garbled. When the listener has
+  to see code to follow along, such as the diff in the opening demo, ask them
+  to pause and review it on the page. Name a file or variable only in plain
+  words, and never leave a `<` in the text, because Drama 3 reads it as a tag.
+- Describe each figure or interactive demo in a sentence or two, and say that
+  the full version is on the page.
+- Announce each section as "Part one. The gorilla, twice. Looking is not
+  seeing."
+- Read case-file facts and verdicts as sentences, and leave out citation
+  numbers and the source list.
+- Write tricky numbers in words, such as "forty to fifty percent" or "five
+  p.m.".
+
+The script uses Drama 3's two kinds of delivery cue. Use them where they
+change the meaning, not on every line. Eleven v4 reads only the bracket cues,
+so before an ElevenLabs request the script turns each paired tag into a
+bracket cue before its words, such as `<slow>…</slow>` into `[slowly] …`.
+
+| Cue | What it does |
+|---|---|
+| `[pause]`, `[long pause]` | Adds a beat at that point, such as before a reveal or after a section title |
+| `[free-form direction]` | Sets the delivery from that point, such as `[wry]` or `[brisk, matter-of-fact]` |
+| `<emphasis>…</emphasis>` | Stresses the wrapped words |
+| `<slow>…</slow>` | Slows the wrapped words, for a line that should land |
+
+Drama 3 also accepts `<whisper>`, `<soft>`, `<fast>`, `<stress>` and
+`<forceful>`.
+
+### Rendering
+
+`scripts/narrate.py` needs only Python 3 and `ffmpeg`. Every post uses the
+voice set in `ELEVENLABS_VOICE_ID` or `FISH_VOICE_ID` at the top of the
+script. To change the narrator, pick a voice in the ElevenLabs voice library
+or on fish.audio, or clone your own voice there, and copy its id.
+
+```bash
+# Render every section that has no take yet, then build the MP3.
+ELEVENLABS_API_KEY=... python3 scripts/narrate.py <slug>
+FISH_API_KEY=... python3 scripts/narrate.py --provider fish <slug>
+
+# Re-render the sections that came out wrong, then rebuild the MP3.
+ELEVENLABS_API_KEY=... python3 scripts/narrate.py <slug> cases close
+```
+
+Each provider keeps its own takes, so you can render a section with both and
+compare them before you pick one. An Eleven v4 request takes at most 10,000
+characters, so split any longer section in two.
+
+Takes vary, so listen through each section and re-render the ones that
+misread a word or a cue. The script joins the sections with a short silence,
+normalizes loudness to -16 LUFS, and writes a 96 kbps mono MP3 to
+`public/audio/blog/<slug>.mp3`. The section takes stay in
+`narration/.takes/<slug>/<provider>/`, which git ignores.
+
+The script has tests:
+
+```bash
+python3 -m unittest discover -s scripts -p 'test_*.py'
+```
 
 ## Social card
 

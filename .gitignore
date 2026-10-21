@@ -14,3 +14,6 @@ dist/
 # Working drafts and old private sources. Never commit.
 private-src/
 drafts/
+
+# Drama 3 takes and auditions. The finished MP3 lives in public/audio/blog/.
+narration/.takes/
