@@ -3,7 +3,8 @@ Narration script for /blog/inattentional-blindness/. scripts/narrate.py renders
 each "## <section-id>" block as its own take, so one section can be re-rendered
 without touching the rest. The ids match the PostSection ids on the page.
 
-Drama 3 reads two kinds of cue, and docs/blog.md lists the ones this script uses.
+The script is written in Drama 3's cue syntax, and narrate.py rewrites it for
+ElevenLabs. docs/blog.md lists the cues.
 Point cues in square brackets land where they sit, like [pause] or [wry]. Paired
 tags wrap the words they change, like <emphasis>six</emphasis> or <slow>...</slow>.
 Code, file names and figures are rewritten as speech, because the listener can't

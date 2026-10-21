@@ -5,7 +5,7 @@ import unittest
 import wave
 from pathlib import Path
 
-from narrate import join_wavs, parse_script
+from narrate import for_elevenlabs, join_wavs, parse_script
 
 SCRIPT = """<!--
 A header comment that spans
@@ -45,6 +45,21 @@ class ParseScriptTest(unittest.TestCase):
     def test_duplicate_section_ids_are_rejected(self):
         with self.assertRaises(ValueError):
             parse_script("## demo\nOne.\n## demo\nTwo.")
+
+
+class ForElevenLabsTest(unittest.TestCase):
+    def test_paired_tags_become_bracket_cues(self):
+        self.assertEqual(
+            for_elevenlabs("It's <emphasis>correctly wrong</emphasis>. <slow>It's in mine.</slow>"),
+            "It's [emphasized] correctly wrong. [slowly] It's in mine.",
+        )
+
+    def test_bracket_cues_pass_through(self):
+        self.assertEqual(for_elevenlabs("[pause] Was it complete? [wry]"), "[pause] Was it complete? [wry]")
+
+    def test_unknown_paired_tags_are_rejected(self):
+        with self.assertRaises(ValueError):
+            for_elevenlabs("<shout>no</shout>")
 
 
 class JoinWavsTest(unittest.TestCase):

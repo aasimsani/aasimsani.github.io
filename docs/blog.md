@@ -124,9 +124,13 @@ A post can carry an audio version. When its entry in `posts.ts` sets `audio`,
 such as `/audio/blog/<slug>.mp3`, `PostLayout` shows the Listen bar
 (`ListenBar.astro`) under the byline. The bar says the voice is AI-generated.
 
-Fish Audio's Drama 3 model renders the audio through its API at
-`api.fish.audio`. It costs $15 per million characters, so a 30,000-character
-essay costs about $0.45 per full render.
+`scripts/narrate.py` renders the audio through one of two APIs, from the
+same tagged script:
+
+| Provider | Model | Cost of a 32,000-character essay |
+|---|---|---|
+| ElevenLabs (default) | Eleven v4 | About 32,000 credits at one credit per character, more than the Starter plan's 30,000 a month |
+| Fish Audio (`--provider fish`) | Drama 3 | About $0.48, at $15 per million characters |
 
 ### Writing the script
 
@@ -147,8 +151,10 @@ the script rewrites it for the ear:
 - Write tricky numbers in words, such as "forty to fifty percent" or "five
   p.m.".
 
-Drama 3 takes two kinds of delivery cue. Use them where they change the
-meaning, not on every line.
+The script uses Drama 3's two kinds of delivery cue. Use them where they
+change the meaning, not on every line. Eleven v4 reads only the bracket cues,
+so before an ElevenLabs request the script turns each paired tag into a
+bracket cue before its words, such as `<slow>…</slow>` into `[slowly] …`.
 
 | Cue | What it does |
 |---|---|
@@ -163,23 +169,28 @@ Drama 3 also accepts `<whisper>`, `<soft>`, `<fast>`, `<stress>` and
 ### Rendering
 
 `scripts/narrate.py` needs only Python 3 and `ffmpeg`. Every post uses the
-voice set in `VOICE_ID` at the top of the script. To change the narrator, pick
-a voice on fish.audio, or clone your own there, and copy the id from the end
-of its URL.
+voice set in `ELEVENLABS_VOICE_ID` or `FISH_VOICE_ID` at the top of the
+script. To change the narrator, pick a voice in the ElevenLabs voice library
+or on fish.audio, or clone your own voice there, and copy its id.
 
 ```bash
 # Render every section that has no take yet, then build the MP3.
-FISH_API_KEY=... python3 scripts/narrate.py <slug>
+ELEVENLABS_API_KEY=... python3 scripts/narrate.py <slug>
+FISH_API_KEY=... python3 scripts/narrate.py --provider fish <slug>
 
 # Re-render the sections that came out wrong, then rebuild the MP3.
-FISH_API_KEY=... python3 scripts/narrate.py <slug> cases close
+ELEVENLABS_API_KEY=... python3 scripts/narrate.py <slug> cases close
 ```
+
+Each provider keeps its own takes, so you can render a section with both and
+compare them before you pick one. An Eleven v4 request takes at most 10,000
+characters, so split any longer section in two.
 
 Takes vary, so listen through each section and re-render the ones that
 misread a word or a cue. The script joins the sections with a short silence,
 normalizes loudness to -16 LUFS, and writes a 96 kbps mono MP3 to
 `public/audio/blog/<slug>.mp3`. The section takes stay in
-`narration/.takes/`, which git ignores.
+`narration/.takes/<slug>/<provider>/`, which git ignores.
 
 The script has tests:
 
