@@ -1,0 +1,63 @@
+name: PR preview
+
+# Each pull request gets a Cloudflare preview at pr-<number>-aasimsani-net.<subdomain>.workers.dev.
+# Cloudflare can't delete a preview alias, so closing the PR uploads a
+# "preview closed" page to the same alias instead.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  ALIAS: pr-${{ github.event.pull_request.number }}
+  WRANGLER: npx -y wrangler@4.151.3
+
+jobs:
+  publish:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Keep search engines off the preview
+        run: printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > dist/_headers
+      - name: Upload preview
+        run: |
+          $WRANGLER versions upload --preview-alias "$ALIAS" | tee upload.log
+          url=$(grep -oE "https://$ALIAS-[a-z0-9.-]+\.workers\.dev" upload.log | head -1)
+          test -n "$url"
+          echo "URL=$url" >> "$GITHUB_ENV"
+      - name: Comment the preview URL
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" \
+            --edit-last --create-if-none \
+            --body "Preview for ${{ github.event.pull_request.head.sha }}: $URL"
+
+  retire:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace the preview with a closed notice
+        run: |
+          rm -rf dist && mkdir dist
+          printf '<!doctype html><meta name="robots" content="noindex"><title>Preview closed</title><p>This preview closed with its pull request.</p>\n' > dist/index.html
+          printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > dist/_headers
+          $WRANGLER versions upload --preview-alias "$ALIAS"

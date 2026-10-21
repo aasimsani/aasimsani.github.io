@@ -1,12 +1,14 @@
-// Cloudflare Workers Builds reads this file to give every pull request a preview
-// URL. GitHub Pages still serves aasimsani.net from master, so this Worker only
-// hosts previews. The site is static, so no Worker code runs and preview
-// traffic doesn't count against the Workers request limit.
+// The PR preview workflow (.github/workflows/preview.yml) uploads each pull
+// request to this Worker. GitHub Pages still serves aasimsani.net from master.
+// workers.dev is off, so the Worker has no public production copy, and only the
+// per-PR preview URLs answer. The site is static, so no Worker code runs and
+// preview traffic doesn't count against the Workers request limit.
 {
   "name": "aasimsani-net",
   "compatibility_date": "2026-10-21",
   "assets": {
     "directory": "./dist"
   },
+  "workers_dev": false,
   "preview_urls": true
 }

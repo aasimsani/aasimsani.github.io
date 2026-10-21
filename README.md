@@ -9,20 +9,18 @@ npm run build     # production build into dist/
 
 ## PR previews
 
-Cloudflare Workers Builds builds every pull request and comments with a
-preview URL. `wrangler.jsonc` points the Worker at `dist/`. The production
-site still deploys to GitHub Pages from `master`, so Cloudflare only hosts
-previews.
+`.github/workflows/preview.yml` builds every pull request, uploads it to the
+`aasimsani-net` Cloudflare Worker (`wrangler.jsonc`) under the alias
+`pr-<number>`, and comments the preview URL on the PR. The production site
+still deploys to GitHub Pages from `master`.
 
-The Worker is connected to this repo in the Cloudflare dashboard under
-Workers & Pages → `aasimsani-net` → Settings → Builds, with these settings:
+- The Worker has `workers.dev` turned off, so it has no public production copy.
+- Every preview sends `X-Robots-Tag: noindex, nofollow`, so search engines skip it.
+- When the PR closes, the workflow replaces its preview with a "preview closed"
+  page, because Cloudflare can't delete a preview alias.
 
-| Setting | Value |
-|---|---|
-| Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy` |
-| Non-production branch deploy command | `npx wrangler versions upload` |
-| Production branch | `master` |
+The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN`, from the
+"Edit Cloudflare Workers" token template, and `CLOUDFLARE_ACCOUNT_ID`.
 
 ## Content tooling
 
