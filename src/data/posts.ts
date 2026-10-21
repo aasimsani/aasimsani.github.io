@@ -18,6 +18,6 @@ export const posts: Post[] = [
     published: "2026-10-20",
     displayDate: "October 20, 2026",
     readingTime: "23 min read",
-    ogImage: "/images/blog/inattentional-blindness-og.png",
+    ogImage: "/images/blog/inattentional-blindness-og.png?v=2",
   },
 ];
