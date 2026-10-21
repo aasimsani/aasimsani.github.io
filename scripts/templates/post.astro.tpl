@@ -2,7 +2,8 @@
 // PostLayout draws the header, progress bar, share row, footer and the
 // Serious / After hours switch from this post's entry in src/data/posts.ts.
 // Shared styles live in src/styles/post.css. Add a <style> block here only for
-// figures that belong to this post.
+// figures that belong to this post. docs/blog.md covers the components,
+// visual style and writing style.
 import PostLayout from "../../layouts/PostLayout.astro";
 import PostSection from "../../components/post/PostSection.astro";
 import Reveal from "../../components/post/Reveal.astro";

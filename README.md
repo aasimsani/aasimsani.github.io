@@ -23,7 +23,9 @@ index, OG tags, and dates). The page uses `PostLayout` and the components in
 `src/components/post/`, and shared post styles live in `src/styles/post.css`.
 Then: write the post, add an OG card at
 `public/images/blog/<slug>-og.png` (1200×630), and set `readingTime`.
-Around 3+ posts, consider migrating to Astro content collections.
+[`docs/blog.md`](docs/blog.md) covers the components, visual style, writing
+style and social-card spec. Around 3+ posts, consider migrating to Astro
+content collections.
 
 ### Public standalone page (unlisted by default)
 

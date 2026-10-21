@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const [, , slug, title, description = "One-line description — shows on the blog index and social cards."] = process.argv;
+const [, , slug, title, description = "One-line description. It shows on the blog index and social cards."] = process.argv;
 if (!slug || !title) {
   console.error('usage: npm run new-post -- <slug> "Title" ["Description"]');
   process.exit(1);
@@ -64,3 +64,4 @@ console.log(`created  src/pages/blog/${slug}.astro`);
 console.log(`updated  src/data/posts.ts (published: ${published})`);
 console.log(`next:    add OG card at public/images/blog/${slug}-og.png (1200x630),`);
 console.log(`         write the post, set readingTime, then npm run build to verify.`);
+console.log(`guide:   docs/blog.md`);
