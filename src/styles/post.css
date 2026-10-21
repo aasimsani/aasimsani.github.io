@@ -45,6 +45,34 @@
 }
 .post .byline b { color: var(--color-text); font-weight: 500; }
 
+/* The Listen bar sits under the byline when a post has narration. */
+.listen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.8rem;
+  margin-top: 1.6rem;
+  padding: 0.8rem 1rem;
+}
+.listen .post-btn { align-self: center; }
+.listen-play { min-width: 6.5rem; }
+.listen-seek {
+  flex: 1 1 8rem;
+  accent-color: var(--color-accent);
+}
+.listen-time {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.listen-note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
 /* The progress bar sits on the bottom edge of the pinned blog nav. */
 .read-progress {
   position: absolute;

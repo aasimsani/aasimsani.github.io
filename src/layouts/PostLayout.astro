@@ -10,6 +10,7 @@ import Footer from "../components/Footer.astro";
 import BlogAdventureSwitch from "../components/post/BlogAdventureSwitch.astro";
 import ShareRow from "../components/post/ShareRow.astro";
 import BlogNav from "../components/post/BlogNav.astro";
+import ListenBar from "../components/post/ListenBar.astro";
 import { posts } from "../data/posts";
 import { site } from "../data/site";
 import "../styles/post.css";
@@ -58,6 +59,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
           <span aria-hidden="true">&middot;</span>
           <span>{post.readingTime}</span>
         </div>
+        {post.audio && <ListenBar src={post.audio} />}
       </header>
 
       <slot />

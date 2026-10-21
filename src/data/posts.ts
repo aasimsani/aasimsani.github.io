@@ -6,6 +6,8 @@ export interface Post {
   displayDate: string;
   readingTime: string;
   ogImage: string;
+  /** Root-relative path of the narration MP3, which turns on the Listen bar. */
+  audio?: string;
 }
 
 export const posts: Post[] = [

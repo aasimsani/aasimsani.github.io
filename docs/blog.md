@@ -29,6 +29,7 @@ title, the canonical URL and the social tags all read from it.
 | `displayDate` | Human date shown in the byline |
 | `readingTime` | Byline text, such as `23 min read` |
 | `ogImage` | Root-relative path of the social card; bump `?v=N` when the image changes |
+| `audio` | Optional root-relative path of the narration MP3, which turns on the Listen bar |
 
 `PostLayout` (`src/layouts/PostLayout.astro`) draws the frame: the pinned nav
 with its reading-progress bar, the header, the share row, the footer and the
@@ -56,7 +57,7 @@ in `src/styles/post.css`.
 | `CaseFile` | One incident. Wrap a run of them in `<div class="case-grid">`. The props `staring`, `invisible` and `seenBy` fill the facts list, `catcher` opens the verdict in bold, and the `verdict` slot finishes it. |
 | `Checklist` | Practices the reader can tick and copy as Markdown. Give each post its own `storageKey`, versioned like `<slug>-checklist.v1`, and bump the version when the items change. |
 | `Sources` | The numbered source list. Each `<li>` gets `id="src-N"`. Practitioner links go in the `further` slot. |
-| `ShareRow`, `BlogNav`, `BlogAdventureSwitch` | `PostLayout` and the blog index place these, so a post never uses them directly. |
+| `ShareRow`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. |
 
 These classes from `post.css` cover the remaining markup:
 
@@ -116,6 +117,75 @@ reader gets the same argument as the picture.
   year, linked title (DOI when one exists), and the venue in italics.
 - **Make the reader take part** where it helps the argument, such as a diff to
   review before a `Reveal`, or a checklist to copy.
+
+## Narration
+
+A post can carry an audio version. When its entry in `posts.ts` sets `audio`,
+such as `/audio/blog/<slug>.mp3`, `PostLayout` shows the Listen bar
+(`ListenBar.astro`) under the byline. The bar says the voice is AI-generated.
+
+Fish Audio's Drama 3 model renders the audio through its API at
+`api.fish.audio`. It costs $15 per million characters, so a 30,000-character
+essay costs about $0.45 per full render.
+
+### Writing the script
+
+The narration script lives at `narration/<slug>.txt`. Each `## <id>` header
+starts a section, and the ids match the post's `PostSection` ids.
+`<!-- comments -->` never reach the model. A listener can't see the page, so
+the script rewrites it for the ear:
+
+- Spell out code and file names as speech, such as "user items" for
+  `user_items`. Never leave a `<` in the text, because Drama 3 reads it as a
+  tag.
+- Describe each figure or interactive demo in a sentence or two, and say that
+  the full version is on the page.
+- Announce each section as "Part one. The gorilla, twice. Looking is not
+  seeing."
+- Read case-file facts and verdicts as sentences, and leave out citation
+  numbers and the source list.
+- Write tricky numbers in words, such as "forty to fifty percent" or "five
+  p.m.".
+
+Drama 3 takes two kinds of delivery cue. Use them where they change the
+meaning, not on every line.
+
+| Cue | What it does |
+|---|---|
+| `[pause]`, `[long pause]` | Adds a beat at that point, such as before a reveal or after a section title |
+| `[free-form direction]` | Sets the delivery from that point, such as `[wry]` or `[brisk, matter-of-fact]` |
+| `<emphasis>…</emphasis>` | Stresses the wrapped words |
+| `<slow>…</slow>` | Slows the wrapped words, for a line that should land |
+
+Drama 3 also accepts `<whisper>`, `<soft>`, `<fast>`, `<stress>` and
+`<forceful>`.
+
+### Rendering
+
+`scripts/narrate.py` needs only Python 3 and `ffmpeg`. Every post uses the
+voice set in `VOICE_ID` at the top of the script. To change the narrator, pick
+a voice on fish.audio, or clone your own there, and copy the id from the end
+of its URL.
+
+```bash
+# Render every section that has no take yet, then build the MP3.
+FISH_API_KEY=... python3 scripts/narrate.py <slug>
+
+# Re-render the sections that came out wrong, then rebuild the MP3.
+FISH_API_KEY=... python3 scripts/narrate.py <slug> cases close
+```
+
+Takes vary, so listen through each section and re-render the ones that
+misread a word or a cue. The script joins the sections with a short silence,
+normalizes loudness to -16 LUFS, and writes a 96 kbps mono MP3 to
+`public/audio/blog/<slug>.mp3`. The section takes stay in
+`narration/.takes/`, which git ignores.
+
+The script has tests:
+
+```bash
+python3 -m unittest discover -s scripts -p 'test_*.py'
+```
 
 ## Social card
 
