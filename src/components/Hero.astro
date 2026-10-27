@@ -110,6 +110,34 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
     );
     pointer-events: none;
   }
+  /* Serious mode on wide screens sets the text on the left, so the portrait field has the right half. */
+  @media (min-width: 1100px) {
+    :global(:root:not([data-site-mode="afterhours"])) .home {
+      justify-content: flex-start;
+      padding-left: max(1.5rem, 7vw);
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .overlay {
+      max-width: min(620px, 46vw);
+      text-align: left;
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .name {
+      font-size: clamp(3.5rem, 7vw, 6.5rem);
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .hype {
+      margin-left: 0;
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .buttons,
+    :global(:root:not([data-site-mode="afterhours"])) .list-inline {
+      justify-content: flex-start;
+    }
+  }
+  /* Below that width the field sits above the name, so the hero stacks. */
+  @media (max-width: 1099px) {
+    :global(:root:not([data-site-mode="afterhours"])) .home {
+      flex-direction: column;
+      padding-top: 4.5rem;
+    }
+  }
   /* After hours shades text with the pixel world's own panels, and this pool would wash out the hero waiting under the slider. */
   :global([data-site-mode="afterhours"]) .overlay::before {
     display: none;
