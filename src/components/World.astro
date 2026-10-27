@@ -14,6 +14,7 @@
 <div class="fx afterhours-only" aria-hidden="true"></div>
 
 <div class="hud px-frame afterhours-only" role="group" aria-label="Game status">
+  <span class="hud-face" aria-hidden="true"><canvas width="72" height="72"></canvas></span>
   <span class="zone"><span class="caret">&gt;</span> <span data-zone>Start</span></span>
   <span class="embers" title="Embers collected"><span class="ember-icon" aria-hidden="true"></span><span data-embers>0</span></span>
   <button type="button" class="mode" data-mode aria-pressed="true">Fight</button>
@@ -74,14 +75,55 @@
     bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     z-index: 55;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: 0.9rem;
-    padding: 0 0 0 0.85rem;
+    padding: 0;
     background: var(--color-surface);
     color: var(--color-text-soft);
     font-family: var(--font-ui);
     font-size: 0.8rem;
     line-height: 1;
+  }
+  /* Aasim's pixel face leads the HUD in a bevelled box, like a Doom status-bar face. face.ts draws it and swaps its expressions. */
+  .hud-face {
+    position: relative;
+    flex: none;
+    box-sizing: border-box;
+    width: 72px;
+    height: 72px;
+    padding: 3px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-bg) 55%, var(--color-surface));
+    box-shadow:
+      inset 2px 2px 0 color-mix(in srgb, var(--color-text) 18%, transparent),
+      inset -2px -2px 0 rgb(0 0 0 / 0.45);
+  }
+  .hud-face canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+  .hud-face::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #ff2b3a;
+    mix-blend-mode: multiply;
+    opacity: 0;
+  }
+  .hud-face.hurt::after {
+    opacity: 0.75;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hud-face.hurt canvas {
+      transform: translate(-3px, 2px) rotate(-4deg);
+    }
+  }
+  .zone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4ch;
   }
   .caret {
     color: var(--color-accent);
@@ -127,6 +169,14 @@
     }
     .hud .zone {
       display: none;
+    }
+    /* The face fills the bar's height and sits flush at its left end. */
+    .hud-face {
+      width: 48px;
+      height: 48px;
+    }
+    .embers {
+      padding-left: 0.1rem;
     }
   }
   /* Between tablet and wide desktop the gutters are too narrow for the HUD, so it tucks away with the adventure switch. */
@@ -259,6 +309,7 @@
   import { animate, spring } from "animejs";
   import type { World } from "../scripts/companion/engine";
   import "../scripts/companion/hud";
+  import "../scripts/companion/face";
 
   let world: World | null = null;
   let loading = false;

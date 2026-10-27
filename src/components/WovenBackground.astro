@@ -13,11 +13,26 @@
     inset: 0;
     z-index: 0;
     pointer-events: none; /* hero content stays interactive; we read mouse globally */
+    /* woven.ts reads these two: the knot's centre as a share of the width, and the face's height as a share of the field. */
+    --field-x: 0.5;
+    --face-h: 0.7;
   }
-  /* Phones set the hero left-aligned over the field, so the field steps back. */
-  @media (max-width: 640px) {
+  /* Wide screens split the hero, so the field and the face take the right side. */
+  @media (min-width: 1100px) {
     .woven-bg {
-      opacity: 0.28;
+      --field-x: 0.72;
+      --face-h: 0.62;
+    }
+  }
+  /* Narrower screens have no room beside the text, so the field becomes a block above the name. */
+  @media (max-width: 1099px) {
+    .woven-bg {
+      position: relative;
+      inset: auto;
+      flex: none;
+      width: 100%;
+      height: min(48vh, 440px);
+      --face-h: 0.92;
     }
   }
   .woven-bg :global(canvas) {
