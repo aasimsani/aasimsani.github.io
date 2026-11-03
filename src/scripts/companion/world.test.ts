@@ -1,7 +1,7 @@
 // Run with: npm run test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildJourney, buildRoad, pointAt, roundCorners, scrollSpeed, spawnPlan, stopForValue, tAtY } from "./world.ts";
+import { buildJourney, buildRoad, campfireLayout, chaseSpeed, freeSwing, hitStop, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, stopForValue, swingDamage, tAtY, tapTarget } from "./world.ts";
 
 test("buildRoad zigzags down inside the margins", () => {
   const road = buildRoad(60, 600, 6, 8);
@@ -159,4 +159,70 @@ test("roundCorners rounds each turn and keeps the ends and the downhill rule", (
   for (const v of road.slice(1, -1)) assert.ok(!out.some((p) => p.x === v.x && p.y === v.y), `corner (${v.x}, ${v.y}) survived`);
   // A long leg keeps its middle, so crossings and bosses stay on the road.
   assert.ok(out.some((p) => p.x === 50 && p.y === 82) || out.some((p, i) => i > 0 && out[i - 1].x < 50 && p.x > 50));
+});
+
+// The catch-up rules keep the hero in view when the reader scrolls fast. Distances are world pixels, and
+// `view` is the viewport height in world pixels.
+test("chaseSpeed keeps today's walk until the hero falls far behind, then sprints", () => {
+  const view = 225;
+  assert.equal(chaseSpeed(0.5, view, false), 0.5, "never overshoots the target");
+  assert.equal(chaseSpeed(10, view, false), 1.3, "a short gap walks at the minimum");
+  assert.equal(chaseSpeed(60, view, false), 60 * 0.08, "a gap under 30% of the screen keeps today's 8% step");
+  assert.equal(chaseSpeed(80, view, false), 80 * 0.15, "past 30% of the screen he sprints at 15% of the gap a frame");
+  assert.equal(chaseSpeed(20, 60, false), 4, "on a short screen the sprint still moves at least 4 px a frame");
+  assert.equal(chaseSpeed(-80, view, false), 80 * 0.15, "the gap's sign doesn't change the speed");
+  assert.equal(chaseSpeed(400, view, true), 400 * 0.2, "a ninja dash stays faster than a sprint");
+});
+
+test("freeSwing pays for swings the reader can't see", () => {
+  assert.equal(freeSwing("minion", false, true), true, "a lagging hero cuts minions for free, as today");
+  assert.equal(freeSwing("minion", false, false), false);
+  assert.equal(freeSwing("mini", true, false), true, "a mini-boss fight off-screen is free");
+  assert.equal(freeSwing("mini", false, true), true, "so is one the hero lags behind on");
+  assert.equal(freeSwing("mini", false, false), false, "an on-screen mini-boss still takes scrolling");
+  assert.equal(freeSwing("boss", true, true), false, "the final boss always takes scrolling");
+});
+
+test("swingDamage hits mini-bosses harder on free swings and ninja dashes", () => {
+  assert.equal(swingDamage("minion", false, false), 1);
+  assert.equal(swingDamage("mini", false, false), 1);
+  assert.equal(swingDamage("mini", false, true), 2, "a free swing ends a 6 HP fight in three");
+  assert.equal(swingDamage("mini", true, false), 3, "the ninja keeps his triple hit");
+  assert.equal(swingDamage("boss", true, true), 1);
+});
+
+test("leashed pulls the hero forward once he's a quarter screen above the view", () => {
+  assert.equal(leashed(100, 900), false, "on screen");
+  assert.equal(leashed(-200, 900), false, "a little above the top is fine");
+  assert.equal(leashed(-226, 900), true);
+});
+
+test("hitStop freezes only on-screen mini-boss hits the reader paid for", () => {
+  assert.equal(hitStop("mini", true, false), 3);
+  assert.equal(hitStop("mini", false, false), 0, "off-screen hits never freeze");
+  assert.equal(hitStop("mini", true, true), 0, "catch-up swings never freeze");
+  assert.equal(hitStop("minion", true, false), 0);
+  assert.equal(hitStop("boss", true, false), 3);
+});
+
+test("tapTarget picks the nearest live enemy within reach of a tap", () => {
+  const es = [
+    { x: 10, y: 50, h: 7, alive: true },
+    { x: 40, y: 50, h: 11, alive: true },
+    { x: 12, y: 52, h: 7, alive: false },
+  ];
+  assert.equal(tapTarget(es, 11, 46, 8), 0, "the tap lands on the slime's body, not its feet");
+  assert.equal(tapTarget(es, 40, 44, 8), 1);
+  assert.equal(tapTarget(es, 25, 46, 8), -1, "a tap between enemies hits nothing");
+  assert.equal(tapTarget([{ x: 12, y: 50, h: 7, alive: false }], 12, 46, 8), -1, "the dead stay dead");
+});
+
+test("campfireLayout seats everyone around the fire inside the lane", () => {
+  const a = campfireLayout(100, [20, 200]);
+  assert.ok(a.slime < a.hero && a.hero < a.fire && a.fire < a.boss, "slime, hero, fire, then Scope Creep");
+  const b = campfireLayout(25, [20, 200]);
+  assert.ok(b.slime - 10 >= 20, "pushed in from the left edge of the lane");
+  const c = campfireLayout(195, [20, 200]);
+  assert.ok(c.boss + 16 <= 200, "pushed in from the right edge");
+  assert.equal(c.fire - c.hero, a.fire - a.hero, "the spacing never changes");
 });

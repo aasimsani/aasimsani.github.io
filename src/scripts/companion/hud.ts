@@ -119,6 +119,9 @@ on<At & { dmg: number; tier: string; zone: number; hp: number; max: number }>("w
 
 on<At & { tier: string; zone: number; name: string; reward: number; embers: number; quiet?: boolean }>("world:defeat", (d) => {
   if (d.quiet) {
+    // A boss the hero skipped (the catch-up leash, or a spirit in wander mode) takes its health bar with it.
+    const b = bar();
+    if (b && d.zone === barZone) b.hidden = true;
     clearZone(d.zone, true);
     return;
   }
@@ -244,4 +247,4 @@ on<At & { dir: number; size: number }>("world:slash", (d) => {
     .add(svg.createDrawable(path), { draw: ["0 0", "0 1"], duration: 110, ease: "outQuad" })
     .add(svg.createDrawable(path), { draw: ["0 1", "1 1"], duration: 200, ease: "inQuad" }, "+=40");
 });
-on<At>("world:prompt", (d) => float("dmg", "Scroll to attack ↓", d, -20));
+on<At & { text?: string }>("world:prompt", (d) => float("dmg", d.text ?? "Scroll to attack ↓", d, -20));

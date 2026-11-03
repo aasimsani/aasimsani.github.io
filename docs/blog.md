@@ -96,6 +96,21 @@ The visitor's clock picks the mode, and the switch lets them change it.
   passes it, and a dashed road between sections. It never adds a character or
   a boss. Elements that exist only in this mode carry `afterhours-only`.
 
+`src/scripts/post-fx.ts` plays the After hours effects, all from the vendored
+PixelFX in `src/scripts/pixelfx/`. A post needs no markup for them.
+
+| Effect | When it plays |
+|---|---|
+| Lantern flame | A canvas over each section's lantern holds a live flame once the section is cleared, and it lights with a pop |
+| Moving sky | Shooting stars cross the sky and fireflies drift in the margins, at night only, and never behind the column |
+| Post cleared | A banner with two fireworks plays once above the share row, when every lantern is lit |
+| Share achievement | Any share button unlocks an achievement below the share row |
+| Copy coins | `copyWithFeedback` in `copy.ts` throws coins on every successful copy |
+| Narrator wisp | A wisp hovers beside the Listen bar while the narration plays |
+
+Under reduced motion none of them play, and the lanterns light the way they
+did before.
+
 Every figure carries an `aria-label`. A chart or diagram also carries
 `role="img"`, and its label states the data or the flow in full, so a screen
 reader gets the same argument as the picture.

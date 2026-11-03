@@ -152,7 +152,7 @@ const {
 
 <script>
   import { animate, scrambleText, spring } from "animejs";
-  import { pixelWipe } from "../scripts/wipe";
+  import { crtSwitch } from "../scripts/crt";
 
   type Mode = "serious" | "afterhours";
   const root = document.documentElement;
@@ -183,11 +183,12 @@ const {
       /* storage blocked */
     }
     if (mode === current()) return;
-    pixelWipe(() => {
+    // The page switches off like an old TV, and the other mode powers on.
+    crtSwitch(() => {
       root.dataset.siteMode = mode;
       dispatchEvent(new CustomEvent("site:mode", { detail: { mode } }));
       paint();
-    }, "bottom-center");
+    });
   }
 
   buttons.forEach((b) => b.addEventListener("click", () => choose(b.dataset.site as Mode)));
