@@ -93,4 +93,14 @@ export const projects: Project[] = [
       `A browser app for designing profile ribs to 3D print for the wheel. You draw the mug, pot, or bowl you want to throw by dragging points, and the rib's working edge becomes that pot's wall. A height scale and a rim line run up the rib, and the rib grows by your clay's shrinkage, so the pot leaves the kiln at the size you drew. A 3D view shows the rib against the pot on the wheel, and a print plate view shows the STL on the bed.`,
     ],
   },
+  {
+    title: "Pottery Roller Maker",
+    logo: "/images/pottery-roller.svg",
+    link: "/projects/pottery-roller-maker/",
+    linkLabel: "Try it in your browser",
+    github: "aasimsani/pottery-roller-maker",
+    paragraphs: [
+      `A browser app for designing texture and underglaze rollers to 3D print. You describe the pot, and the app sizes the roller so a whole number of turns goes round it, which means the pattern meets itself where you finish. Patterns come from the same libraries and layers as the stencil maker. A print check flags raised lines too thin to print and gaps that clay or underglaze would fill, and Claude can look at and change the design through an MCP server while you watch.`,
+    ],
+  },
 ];

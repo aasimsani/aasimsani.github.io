@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+<!-- A texture roller with leaf relief rolling over a clay slab, leaving the leaves pressed in behind it, in the app's teal, clay, and paper colours. -->
+<rect width="100" height="100" fill="#2f6f73"/>
+<rect y="70" width="100" height="30" fill="#e8dcc8"/>
+<g><ellipse cx="0" cy="0" rx="2.4000000000000004" ry="4.65" fill="#c4b08f" transform="translate(5 78) rotate(-35)"/><ellipse cx="0" cy="0" rx="2.4000000000000004" ry="4.65" fill="#c4b08f" transform="translate(12 84) rotate(35)"/><ellipse cx="0" cy="0" rx="2.4000000000000004" ry="4.65" fill="#c4b08f" transform="translate(19 78) rotate(-35)"/></g>
+<path d="M76 55H85L92 21" fill="none" stroke="#fbf8f3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="24" y="40" width="52" height="30" rx="3" fill="#fbf8f3"/>
+<ellipse cx="76" cy="55" rx="5" ry="15" fill="#e8dcc8"/>
+<circle cx="76" cy="55" r="2" fill="#2f6f73"/>
+<g><ellipse cx="0" cy="0" rx="3.2" ry="6.2" fill="#2f6f73" transform="translate(32 52) rotate(-35)"/><ellipse cx="0" cy="0" rx="3.2" ry="6.2" fill="#2f6f73" transform="translate(41 61) rotate(35)"/><ellipse cx="0" cy="0" rx="3.2" ry="6.2" fill="#2f6f73" transform="translate(50 52) rotate(-35)"/><ellipse cx="0" cy="0" rx="3.2" ry="6.2" fill="#2f6f73" transform="translate(59 61) rotate(35)"/><ellipse cx="0" cy="0" rx="3.2" ry="6.2" fill="#2f6f73" transform="translate(68 52) rotate(-35)"/></g>
+</svg>
