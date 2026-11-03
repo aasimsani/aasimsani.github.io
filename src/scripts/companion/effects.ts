@@ -63,7 +63,6 @@ export function actorOf(rows: Frame, pal: Record<string, string>, dy = 0) {
 export const TEAL = ["#0c2a33", "#0f4f47", "#17675d", "#2fa596", "#5fd8c6", "#8fe6d8", "#d8fff8", "#ffffff"];
 export const EMBER = ["#3d1012", "#701a14", "#a8301a", "#e0561e", "#ff9a3c", "#ffbe73", "#ffe2b0", "#fff6e6", "#ffffff"];
 export const SLOP = ["#0a0c18", "#2a1f66", "#4f3cc0", "#7b5cff", "#b9a6ff", "#ff6bd0", "#ffe66b", "#fffbe0"];
-export const PORTAL = ["#140a26", "#2b1252", "#481c88", "#6b2cc0", "#ff4a8a", "#ff86c0", "#ffd0e6", "#ffffff"];
 export const GOLD = ["#2a1c08", "#5a3e10", "#9a6c18", "#d8a428", "#ffd84a", "#fff09a", "#ffffff"];
 
 type P = { disc: (x: number, y: number, r: number, c: number, a: number) => void; glow: (x: number, y: number, r: number, c: number, k: number) => void };

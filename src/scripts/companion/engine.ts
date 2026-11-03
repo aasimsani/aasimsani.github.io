@@ -14,7 +14,7 @@
 // turns those into page reactions.
 import { animate, createTimer } from "animejs";
 import { buildJourney, campfireLayout, chaseSpeed, freeSwing, hitStop, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, swingDamage, tAtY, tapTarget, type Pt } from "./world";
-import { EMBER, GOLD, Layer, PORTAL, SLOP, TEAL, TICK, actorAlphaOf, actorOf, createFx, pocketPoof, type Fx } from "./effects";
+import { EMBER, GOLD, Layer, SLOP, TEAL, TICK, actorAlphaOf, actorOf, createFx, pocketPoof, type Fx } from "./effects";
 import * as hitSpark from "../pixelfx/fx/impacts/hit-spark.js";
 import * as zapHit from "../pixelfx/fx/lightning/zap-hit.js";
 import * as critHit from "../pixelfx/fx/impacts/crit-hit.js";
@@ -28,7 +28,6 @@ import * as lightningStrike from "../pixelfx/fx/lightning/lightning-strike.js";
 import * as disintegrate from "../pixelfx/fx/spawn/disintegrate.js";
 import * as smallExplosion from "../pixelfx/fx/explosions/small-explosion.js";
 import * as glitch from "../pixelfx/fx/scifi/glitch.js";
-import * as portal from "../pixelfx/fx/arcane/portal.js";
 import * as campfire from "../pixelfx/fx/fire/campfire.js";
 import * as haloFx from "../pixelfx/fx/holy/halo.js";
 import * as fireflies from "../pixelfx/fx/weather/fireflies.js";
@@ -68,14 +67,11 @@ type Enemy = {
   engaged: boolean;
   timer: number;
   telegraph: number;
-  /** PixelFX effects attached to this enemy: its death, its speech glitch, and its portal entrance. */
+  /** PixelFX effects attached to this enemy: its death and its speech glitch. */
   death?: Fx;
   deathMod?: Parameters<typeof actorAlphaOf>[0];
   deathVanish?: [number, number];
   glitch?: Fx;
-  enter?: Fx;
-  enterAt?: number;
-  entered?: boolean;
 };
 type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number; c: string };
 type Shot = { x: number; y: number; vx: number; vy: number; kind: "dash" | "sparkle"; life: number };
@@ -162,7 +158,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   const sparks: Spark[] = [];
   const shots: Shot[] = [];
   let camY = 0, time = 0, shake = 0, embers = 0, placed = false, zoneShown = -1, running = true;
-  // PixelFX: hits, deaths and portals play on the 2x layer at a world position. The slider's weather plays
+  // PixelFX: hits and deaths play on the 2x layer at a world position. The slider's weather plays
   // in a band between the slider and the hero's starting ledge, on its own 2x layer (see drawWeather).
   const fxActor = new Layer(), fxWorld = new Layer();
   const live: { fx: Fx; x: number; y: number }[] = [];
@@ -495,7 +491,6 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
         engaged: old ? old.engaged : false,
         timer: 0,
         telegraph: 0,
-        entered: old?.entered,
       };
     });
     enemies = [...bosses, ...spawnMinions()];
@@ -527,8 +522,6 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       tufts.push({ x: Math.round(p.x + (q.x - p.x) * f), y: Math.round(p.y + (q.y - p.y) * f) });
     }
     readColors();
-    // Mini-bosses already in view, or behind it, are simply there. The rest arrive through a portal.
-    for (const e of enemies) if (e.tier === "mini" && e.entered === undefined) e.entered = e.y < scrollY / S + H;
     if (!placed) {
       snap();
       placed = true;
@@ -723,14 +716,6 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     for (const e of enemies) {
       if (e.death?.done()) e.death = undefined;
       if (e.glitch?.done()) e.glitch = undefined;
-      // A mini-boss arrives through a portal just before its crossing scrolls into view, so the portal is
-      // already open when the reader sees it.
-      if (e.tier === "mini" && e.entered === false && e.alive && e.y < scrollY / S + H + 10) {
-        e.entered = true;
-        e.enterAt = time;
-        e.enter = play(portal, e.x, e.y - liftOf(e), { width: 13, height: 20, palette: PORTAL }) ?? undefined;
-        later.push({ at: time + 45, run: () => e.enter?.stop() });
-      }
     }
     // The AFK campfire: 30 seconds without a scroll, and an idle hero, start it.
     if (!afk && !reduce && time - lastInput > 900 && hero.atk < 0 && hero.speed < 0.08 && !hero.held) startAfk();
@@ -1247,17 +1232,6 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       return;
     }
     if (!e.alive && !e.dying) return;
-    // A mini-boss that hasn't arrived yet stays hidden, then fades up out of its portal.
-    if (e.tier === "mini" && e.entered === false) return;
-    // The boss starts to show 0.2 s after the portal opens and is solid by 0.5 s.
-    if (e.enterAt !== undefined && time - e.enterAt < 16) {
-      const a = Math.max(0, Math.min(1, (time - e.enterAt - 6) / 9));
-      if (a <= 0) return;
-      ctx.globalAlpha = a;
-      drawBody(e);
-      ctx.globalAlpha = 1;
-      return;
-    }
     // While the slop speaks, the glitch effect draws its body.
     if (e.glitch) return;
     drawBody(e);
