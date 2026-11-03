@@ -347,6 +347,16 @@ figure.post-panel {
 [data-site-mode="afterhours"] .post-btn { border-radius: 0; }
 [data-site-mode="afterhours"] .aside { border-radius: 0; }
 
+/* With post-fx.ts running, a canvas over each lantern draws a live flame in its glass,
+   so the SVG glass stays dark and the canvas does the lighting. */
+.post .section-head .lantern-fx { position: relative; flex: none; width: 21px; height: 33px; }
+.post .section-head .lantern-fx canvas {
+  position: absolute; left: -9px; top: -6px; width: 39px; height: 45px;
+  image-rendering: pixelated; pointer-events: none;
+}
+.post .lantern-fx .lantern .flame,
+.post .lantern-fx .lantern .core { fill: var(--color-line); }
+
 /* Each lantern stays dark until the reader finishes its section. */
 [data-site-mode="afterhours"] .section-head:not([data-cleared]) .lantern .flame,
 [data-site-mode="afterhours"] .section-head:not([data-cleared]) .lantern .core {

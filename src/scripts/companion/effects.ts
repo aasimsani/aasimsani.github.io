@@ -32,9 +32,15 @@ export class Layer {
     fx.draw(this.frame, layer);
   }
 
-  /** Composite over transparency, so the engine can drawImage the result over the world. */
-  flush() {
-    composite(this.frame, this.img.data, null);
+  /**
+   * Composite over transparency, so the result can be drawn over the world or the page. Light over
+   * transparency becomes faint color, so a popup passes `floor` (0..255) to drop the faintest alpha, and its
+   * glow stops showing the canvas edge.
+   */
+  flush(floor = 0) {
+    const d = this.img.data;
+    composite(this.frame, d, null);
+    if (floor) for (let i = 3; i < d.length; i += 4) if (d[i] < floor) d[i] = 0;
     this.ctx.putImageData(this.img, 0, 0);
     return this.canvas;
   }

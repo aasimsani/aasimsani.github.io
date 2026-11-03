@@ -4,6 +4,6 @@
 
 Local changes, each marked with an "aasimsani.net fork" comment:
 
-- `fx/weather/fireflies.js`, `falling-leaves.js` and `god-rays.js` take `backdrop: false`, which skips the haze, meadow and litter they paint, so they float over the site's own sky.
+- `fx/weather/fireflies.js`, `falling-leaves.js`, `god-rays.js` and `shooting-stars.js` take `backdrop: false`, which skips the haze, meadow, litter and starfield they paint, so they float over the site's own sky.
 
 To update, copy the same files from a newer pixelfx checkout and re-apply the forks.
