@@ -80,7 +80,7 @@ export const projects: Project[] = [
     linkLabel: "Try it in your browser",
     github: "aasimsani/pottery-stencil-maker",
     paragraphs: [
-      `A browser app for designing underglaze stencils that fit a thrown piece. You measure the band you want to paint on a mug, pot, vase, bowl, or plate rim, layer patterns from open libraries or your own images onto it, and download an STL that fits. A print check flags plastic that's too thin, paint lines that would close up, and spans that would sag before you print. Claude can look at the stencil and change it through a Model Context Protocol (MCP) server while you watch.`,
+      `This browser app designs underglaze stencils that fit a thrown piece. You measure the band that you want to paint on a mug, pot, vase, bowl, or plate rim. Then you layer patterns from open libraries or your own images onto the band, and you download an STL file that fits. Before you print, a print check flags plastic that is too thin, paint lines that would close up, and spans that would sag. Claude can look at the stencil and change it through a Model Context Protocol (MCP) server while you watch.`,
     ],
   },
   {
@@ -90,7 +90,7 @@ export const projects: Project[] = [
     linkLabel: "Try it in your browser",
     github: "aasimsani/pottery-rib-maker",
     paragraphs: [
-      `A browser app for designing profile ribs to 3D print for the wheel. You draw the mug, pot, or bowl you want to throw by dragging points, and the rib's working edge becomes that pot's wall. A height scale and a rim line run up the rib, and the rib grows by your clay's shrinkage, so the pot leaves the kiln at the size you drew. A 3D view shows the rib against the pot on the wheel, and a print plate view shows the STL on the bed. Claude can look at the rib and change it through a Model Context Protocol (MCP) server while you watch.`,
+      `This browser app designs profile ribs to 3D print for the wheel. You draw the mug, pot, or bowl that you want to throw by dragging points, and the rib's working edge becomes that pot's wall. A height scale and a rim line run up the rib. The rib grows by your clay's shrinkage, so the pot leaves the kiln at the size you drew. A 3D view shows the rib against the pot on the wheel, and a print plate view shows the STL file on the bed. Claude can look at the rib and change it through a Model Context Protocol (MCP) server while you watch.`,
     ],
   },
   {
@@ -100,7 +100,7 @@ export const projects: Project[] = [
     linkLabel: "Try it in your browser",
     github: "aasimsani/pottery-roller-maker",
     paragraphs: [
-      `A browser app for designing texture and underglaze rollers to 3D print. You describe the pot, and the app sizes the roller so a whole number of turns goes round it, which means the pattern meets itself where you finish. Patterns come from the same libraries and layers as the stencil maker. A print check flags raised lines too thin to print and gaps that clay or underglaze would fill. Claude can look at the roller and change it through a Model Context Protocol (MCP) server while you watch.`,
+      `This browser app designs texture and underglaze rollers to 3D print. You describe the pot, and the app sizes the roller so that a whole number of turns goes round it. The pattern then meets itself where you finish. Patterns come from the same libraries and layers as the stencil maker. A print check flags raised lines that are too thin to print and gaps that clay or underglaze would fill. Claude can look at the roller and change it through a Model Context Protocol (MCP) server while you watch.`,
     ],
   },
 ];
