@@ -1,7 +1,9 @@
 // The background world. One fixed canvas covers the viewport at low resolution,
 // and the browser upscales it with image-rendering: pixelated. World space maps
 // onto the document (one world pixel = S CSS pixels), so the road, enemies and
-// lanterns scroll with the page. Sky, stars, moon and ramparts lag behind for
+// lanterns scroll with the page. The canvas itself runs at twice the world's
+// resolution: the world draws under a 2x transform in chunky 2x2 blocks, and the
+// characters draw in between at the finer grid, one sprite pixel per S / 2 CSS px. Sky, stars, moon and ramparts lag behind for
 // parallax. Motion is simulated in floating point and snapped when drawn.
 //
 // The game has three enemy tiers. Minions line the gutter roads, and the hero
@@ -12,7 +14,7 @@
 // turns those into page reactions.
 import { animate, createTimer } from "animejs";
 import { buildJourney, chaseSpeed, freeSwing, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, swingDamage, tAtY, type Pt } from "./world";
-import { BAT, GULL, LEGS, LOOKS, MINI_BOSSES, MINION_DAY, MINION_NIGHT, SLIME, SLIME_DAY, SLOP_LINES, SLOP_PAL, SLOP_PR, WHITE, dayPalette, type Frame, type Look } from "./sprites";
+import { BAT, GULL, LEGS, LOOKS, MINI_BOSSES, SLIME, SLIME_DAY, SLOP_LINES, SLOP_PAL, SLOP_PR, WHITE, dayPalette, type Frame, type Look } from "./sprites";
 
 type Mode = "fight" | "wander";
 type Tier = "minion" | "mini" | "boss";
@@ -294,9 +296,9 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     W = Math.ceil(innerWidth / S);
     H = Math.ceil(innerHeight / S);
     // Setting a canvas size wipes it, even to the same value, so only a real size change touches it.
-    if (canvas.width !== W || canvas.height !== H) {
-      canvas.width = W;
-      canvas.height = H;
+    if (canvas.width !== W * 2 || canvas.height !== H * 2) {
+      canvas.width = W * 2;
+      canvas.height = H * 2;
       panelLayer.width = W;
       panelLayer.height = H;
     }
@@ -764,13 +766,27 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     ctx.globalCompositeOperation = "source-over";
   }
 
+  // --- the 2x character grid ---
+  // ax and ay turn a world position into a pixel on the 2x grid, and acting() runs drawing code on that grid.
+  const ax = (x: number) => Math.round(x * 2);
+  const ay = (y: number) => Math.round((y - camY) * 2);
+  const apx = (x: number, y: number, c: string, w = 1, h = 1) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(Math.round(x), Math.round(y), w, h);
+  };
+  function acting(fn: () => void) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    fn();
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+  }
+  /** A sprite on the 2x grid; left and top are 2x-grid pixels. */
   function sprite(rows: Frame, left: number, top: number, d: 1 | -1, pal: Record<string, string>) {
     for (let r = 0; r < rows.length; r++) {
       const row = rows[r];
       for (let c = 0; c < row.length; c++) {
         const k = row[c];
         if (k === "." || !pal[k]) continue;
-        px(d > 0 ? left + c : left + (row.length - 1 - c), top + r, pal[k]);
+        apx(d > 0 ? left + c : left + (row.length - 1 - c), top + r, pal[k]);
       }
     }
   }
@@ -778,6 +794,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   function draw() {
     if (!W) return;
     camY = scrollY / S + (shake ? (rand() - 0.5) * shake : 0);
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     ctx.drawImage(sky!, 0, 0);
 
     for (const s of stars) {
@@ -952,36 +970,40 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
 
     if (e.tier === "minion") {
       // By day the slimes wear sunglasses and the bats are seagulls.
-      const pal = day ? MINION_DAY : MINION_NIGHT;
-      const p = white ? WHITE(pal) : pal;
-      if (e.look === 0) sprite((day ? SLIME_DAY : SLIME)[Math.floor((time + e.phase * 10) / 6) % 2], e.x - 5 + e.kx, e.y - 7, dir, p);
-      else sprite((day ? GULL : BAT)[Math.floor(time / 4) % 2], e.x - 5 + e.kx, e.y - 13 + Math.round(Math.sin(time * 0.12 + e.phase) * 2), dir, p);
+      const set = e.look === 0 ? (day ? SLIME_DAY : SLIME) : day ? GULL : BAT;
+      const p = white ? WHITE(set.pal) : set.pal;
+      const frame = set.frames[Math.floor((time + (e.look === 0 ? e.phase * 10 : 0)) / (e.look === 0 ? 6 : 4)) % 2];
+      const lift = e.look === 0 ? 7 : 13 - Math.round(Math.sin(time * 0.12 + e.phase) * 2);
+      acting(() => sprite(frame, ax(e.x + e.kx) - frame[0].length / 2, ay(e.y - lift), dir, p));
     } else if (e.tier === "mini") {
       const m = MINI_BOSSES[e.look];
       const frame = m.frames[Math.floor((time + e.phase * 10) / 7) % m.frames.length];
       const lift = m.flying ? 12 + Math.round(Math.sin(time * 0.08 + e.phase) * 2) : 0;
       glow(e.x, e.y - 6 - lift, 16, e.alive ? 0.12 : 0, "255,80,120");
-      sprite(frame, e.x - Math.floor(frame[0].length / 2) + e.kx, e.y - frame.length - lift, dir, white ? WHITE(m.pal) : day ? dayPalette(m.pal) : m.pal);
+      acting(() => sprite(frame, ax(e.x + e.kx) - Math.floor(frame[0].length / 2), ay(e.y - lift) - frame.length, dir, white ? WHITE(m.pal) : day ? dayPalette(m.pal) : m.pal));
     } else {
       const frame = SLOP_PR[Math.floor(time / 9) % 2];
       const enraged = e.hp <= e.max / 2;
       const bob = Math.round(Math.sin(time * 0.06) * 1.5);
       glow(e.x, e.y - 14, 30, enraged ? 0.32 : 0.18, enraged ? "255,79,216" : "127,174,154");
-      const left = e.x - Math.floor(frame[0].length / 2) + e.kx, top = e.y - frame.length + bob;
-      sprite(frame, left, top, dir, white ? WHITE(SLOP_PAL) : day ? dayPalette(SLOP_PAL) : SLOP_PAL);
-      // The slop glitches. A few rows tear sideways every few frames, and more once it's enraged.
-      if (e.alive && time % (enraged ? 3 : 7) === 0) {
-        const tears = enraged ? 4 : 2;
-        for (let i = 0; i < tears; i++) {
-          const row = Math.round(top - camY + rand() * frame.length);
-          const shift = Math.round((rand() - 0.5) * (enraged ? 8 : 4));
-          const h = 1 + Math.floor(rand() * 2), x = Math.round(left - 2), w = frame[0].length + 4;
-          ctx.drawImage(canvas, x, row, w, h, x + shift, row, w, h);
+      const left = ax(e.x + e.kx) - Math.floor(frame[0].length / 2), top = ay(e.y + bob) - frame.length;
+      acting(() => {
+        sprite(frame, left, top, dir, white ? WHITE(SLOP_PAL) : day ? dayPalette(SLOP_PAL) : SLOP_PAL);
+        // The slop glitches. A few rows tear sideways every few frames, and more once it's enraged.
+        if (e.alive && time % (enraged ? 3 : 7) === 0) {
+          const tears = enraged ? 4 : 2;
+          for (let i = 0; i < tears; i++) {
+            const row = Math.round(top + rand() * frame.length);
+            const shift = Math.round((rand() - 0.5) * (enraged ? 16 : 8));
+            const h = 2 + Math.floor(rand() * 3), x = left - 4, w = frame[0].length + 8;
+            ctx.drawImage(canvas, x, row, w, h, x + shift, row, w, h);
+          }
         }
-      }
-      if (e.telegraph) px(e.x, e.y - frame.length - 6 + bob, col.fx, 1, 3);
+      });
+      const height = frame.length / 2;
+      if (e.telegraph) px(e.x, e.y - height - 6 + bob, col.fx, 1, 3);
       // Napping in wander mode: little z's float up.
-      if (!fight && e.alive && time % 60 < 40) px(e.x + 10, e.y - frame.length - 4 - ((time % 60) >> 3), col.teal, 2, 2);
+      if (!fight && e.alive && time % 60 < 40) px(e.x + 10, e.y - height - 4 - ((time % 60) >> 3), col.teal, 2, 2);
     }
     ctx.globalAlpha = 1;
   }
@@ -1006,15 +1028,18 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
 
     if (look.aura) glow(left + 6, top + 6, 13 + look.aura * 30, look.aura, "255,120,60");
 
-    for (let i = look.trailLength - 1; i >= 1; i--) {
-      const n = scarf[i];
-      px(n.x + hero.dragX, n.y + hero.dragY, i >= look.trailLength - 2 ? look.trail[1] : look.trail[0], i < 5 ? 2 : 1, 1);
-    }
-
     const legs = hero.held ? LEGS.pass : lunging ? LEGS.lunge : !moving ? LEGS.idle : running ? (passing ? LEGS.pass : LEGS.run) : passing ? LEGS.pass : LEGS.stride;
-    sprite(legs, left, feet - 2, d, pal);
-    sprite(look.body.slice(7), left, top + 7, d, pal);
-    sprite(look.body.slice(0, 7), left + lean, top, d, pal);
+    acting(() => {
+      for (let i = look.trailLength - 1; i >= 1; i--) {
+        const n = scarf[i];
+        apx(ax(n.x + hero.dragX), ay(n.y + hero.dragY), i >= look.trailLength - 2 ? look.trail[1] : look.trail[0], i < 5 ? 3 : 2, 2);
+      }
+      // On the 2x grid the legs are 6 rows and the body 26, split at row 14 so the head can lean.
+      const L = ax(left), T = ay(top);
+      sprite(legs, L, ay(feet - 2), d, pal);
+      sprite(look.body.slice(14), L, T + 14, d, pal);
+      sprite(look.body.slice(0, 14), L + lean * 2, T, d, pal);
+    });
     drawWeapon(look, left + 6 + lean + d * 3, top + 9, d, swingPhase);
 
     if (look.crown) {
@@ -1027,37 +1052,49 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
 
   // The sword rests low behind him. The keyboard rides under his arm. Both rise on the
   // wind-up and sweep an arc on the slash, and the keyboard sheds keycaps as it lands.
+  // (sx, sy) is his hand in world pixels; the weapon itself draws on the 2x grid.
   function drawWeapon(look: Look, sx: number, sy: number, d: 1 | -1, p: number) {
     const kb = look.weapon === "keyboard";
-    const c = look.weaponColor;
-    if (p < 0) {
-      if (kb) {
-        px(d > 0 ? sx - 7 : sx + 1, sy + 1, c, 6, 2);
-        for (let i = 0; i < 3; i++) px((d > 0 ? sx - 6 : sx + 2) + i * 2, sy + 1, "#2a2f3a");
-      } else {
-        px(sx - d * 5, sy + 1, "#c9a45a");
-        for (let i = 1; i <= 4; i++) px(sx - d * 5 - d * i * 0.5, sy + 1 + i, c);
+    const c = look.weaponColor, gold = "#c9a45a";
+    const hx = ax(sx), hy = ay(sy);
+    const keys = (x: number, y: number) => {
+      apx(x, y, c, 12, 4);
+      for (let i = 0; i < 5; i++) apx(x + 1 + i * 2 + (i > 2 ? 1 : 0), y + 1, "#2a2f3a");
+    };
+    acting(() => {
+      if (p < 0) {
+        if (kb) keys(d > 0 ? hx - 14 : hx + 2, hy + 2);
+        else {
+          apx(hx - d * 10, hy + 2, gold, 2, 2);
+          for (let i = 1; i <= 8; i++) apx(hx - d * 10 - d * i * 0.5, hy + 3 + i, c);
+        }
+        return;
       }
-      return;
-    }
-    if (p < 0.4) {
-      if (kb) px(sx - d * 3 - 3, sy - 8, c, 6, 2);
-      else for (let i = 0; i < 5; i++) px(sx - d * 2, sy - 4 - i, i ? c : "#c9a45a");
-      return;
-    }
-    if (p < 0.75) {
-      const reach = p < 0.55 ? 1 : 0.65;
-      for (let a = -1.3; a <= 1.1; a += 0.12) {
-        const r = 6 + (a > 0 ? 1 : 0) + (kb ? 1 : 0);
-        const x = sx + d * Math.cos(a) * r * reach, y = sy + Math.sin(a) * r;
-        px(x, y, a > 0.6 ? col.teal : kb ? c : col.fx, kb ? 2 : 1, 1);
-        if (p < 0.55) px(x - d, y, col.teal);
+      if (p < 0.4) {
+        if (kb) keys(hx - d * 6 - 6, hy - 16);
+        else {
+          apx(hx - d * 4, hy - 8, gold, 2, 2);
+          for (let i = 1; i <= 9; i++) apx(hx - d * 4 + (d > 0 ? 0 : 1), hy - 8 - i, c);
+        }
+        return;
       }
-      if (kb && p < 0.5 && rand() < 0.6) spark(sx + d * 6, sy, d * (0.5 + rand()), -rand(), 18, [col.fx, "#c9ced8", "#0a66c2"][Math.floor(rand() * 3)]);
-      return;
-    }
-    if (kb) px(d > 0 ? sx : sx - 6, sy + 3, c, 6, 2);
-    else for (let i = 0; i < 5; i++) px(sx + d * i, sy + 3 + (i >> 1), i ? c : "#c9a45a");
+      if (p < 0.75) {
+        const reach = p < 0.55 ? 1 : 0.65;
+        for (let a = -1.3; a <= 1.1; a += 0.06) {
+          const r = 12 + (a > 0 ? 2 : 0) + (kb ? 2 : 0);
+          const x = hx + d * Math.cos(a) * r * reach, y = hy + Math.sin(a) * r;
+          apx(x, y, a > 0.6 ? col.teal : kb ? c : col.fx, kb ? 3 : 1, kb ? 2 : 1);
+          if (p < 0.55) apx(x - d * 2, y, col.teal, 1, 1);
+        }
+        return;
+      }
+      if (kb) keys(d > 0 ? hx : hx - 12, hy + 6);
+      else {
+        apx(hx, hy + 6, gold, 2, 2);
+        for (let i = 1; i <= 9; i++) apx(hx + d * (1 + i), hy + 7 + (i >> 1), c);
+      }
+    });
+    if (kb && p >= 0.4 && p < 0.5 && rand() < 0.6) spark(sx + d * 6, sy, d * (0.5 + rand()), -rand(), 18, [col.fx, "#c9ced8", "#0a66c2"][Math.floor(rand() * 3)]);
   }
 
   // --- wiring -----------------------------------------------------------------------
