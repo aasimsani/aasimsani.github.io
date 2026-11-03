@@ -780,3 +780,33 @@ export const SLOP_LINES = [
 ];
 
 export const WHITE = (pal: Record<string, string>) => Object.fromEntries(Object.keys(pal).map((k) => [k, "#ffffff"]));
+
+// --- the AFK campfire --------------------------------------------------------------------
+
+/** A short log to sit on, on the 2x grid. */
+export const LOG: Frame = [
+  "..oooooooooooooooooooo..",
+  ".oWwwwwwwWwwwwwwWwwwwRo.",
+  "oWwwwwWwwwwwwwwwwwWwwRRo",
+  "oddddddddddddddddddddRRo",
+  ".oooooooooooooooooooooo.",
+];
+export const LOG_PAL: Record<string, string> = { o: "#1c1220", W: "#b07a52", w: "#8a5a38", d: "#5e3a26", R: "#c99a72" };
+
+/** Who says what around the fire, one line every 2.4 seconds. */
+export const CAMPFIRE_CHAT: ["slime" | "hero" | "boss", string][] = [
+  ["slime", "Do you ever think we're just CSS?"],
+  ["hero", "Only on Mondays."],
+  ["boss", "What if this campfire also had a dashboard?"],
+  ["hero", "No."],
+  ["slime", "I got promoted. I'm a slime lead now."],
+  ["boss", "Cool. Do you have a roadmap?"],
+  ["hero", "Merge Conflict won't sit with us."],
+  ["slime", "It's on both sides of the log."],
+  ["boss", "Quick one: can the fire be bigger by Friday?"],
+  ["hero", "Ship it as it is."],
+  ["slime", "Where did the reader go?"],
+  ["hero", "Another tab. They always come back."],
+  ["boss", "Just one more feature."],
+  ["slime", "You said that at the last campfire."],
+];

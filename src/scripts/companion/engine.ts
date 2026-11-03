@@ -13,8 +13,22 @@
 // world:defeat, world:zone, world:say, world:hurt, world:state), and hud.ts
 // turns those into page reactions.
 import { animate, createTimer } from "animejs";
-import { buildJourney, chaseSpeed, freeSwing, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, swingDamage, tAtY, type Pt } from "./world";
-import { BAT, GULL, LEGS, LOOKS, MINI_BOSSES, SLIME, SLIME_DAY, SLOP_LINES, SLOP_PAL, SLOP_PR, WHITE, dayPalette, type Frame, type Look } from "./sprites";
+import { buildJourney, campfireLayout, chaseSpeed, freeSwing, hitStop, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, swingDamage, tAtY, tapTarget, type Pt } from "./world";
+import { EMBER, GOLD, Layer, PORTAL, SLOP, TEAL, TICK, actorAlphaOf, actorOf, createFx, pocketPoof, type Fx } from "./effects";
+import * as hitSpark from "../pixelfx/fx/impacts/hit-spark.js";
+import * as zapHit from "../pixelfx/fx/lightning/zap-hit.js";
+import * as critHit from "../pixelfx/fx/impacts/crit-hit.js";
+import * as shatter from "../pixelfx/fx/spawn/shatter-death.js";
+import * as disintegrate from "../pixelfx/fx/spawn/disintegrate.js";
+import * as smallExplosion from "../pixelfx/fx/explosions/small-explosion.js";
+import * as glitch from "../pixelfx/fx/scifi/glitch.js";
+import * as portal from "../pixelfx/fx/arcane/portal.js";
+import * as campfire from "../pixelfx/fx/fire/campfire.js";
+import * as haloFx from "../pixelfx/fx/holy/halo.js";
+import * as fireflies from "../pixelfx/fx/weather/fireflies.js";
+import * as leaves from "../pixelfx/fx/weather/falling-leaves.js";
+import * as godRays from "../pixelfx/fx/weather/god-rays.js";
+import { BAT, CAMPFIRE_CHAT, GULL, LEGS, LOG, LOG_PAL, LOOKS, MINI_BOSSES, SLIME, SLIME_DAY, SLOP_LINES, SLOP_PAL, SLOP_PR, WHITE, dayPalette, type Frame, type Look } from "./sprites";
 
 type Mode = "fight" | "wander";
 type Tier = "minion" | "mini" | "boss";
@@ -35,6 +49,13 @@ type Enemy = {
   engaged: boolean;
   timer: number;
   telegraph: number;
+  /** PixelFX effects attached to this enemy: its death, its speech glitch, and its portal entrance. */
+  death?: Fx;
+  deathMod?: Parameters<typeof actorAlphaOf>[0];
+  glitch?: Fx;
+  enter?: Fx;
+  enterAt?: number;
+  entered?: boolean;
 };
 type Spark = { x: number; y: number; vx: number; vy: number; life: number; max: number; c: string };
 type Shot = { x: number; y: number; vx: number; vy: number; kind: "dash" | "sparkle"; life: number };
@@ -119,6 +140,17 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   const sparks: Spark[] = [];
   const shots: Shot[] = [];
   let camY = 0, time = 0, shake = 0, embers = 0, placed = false, zoneShown = -1, running = true;
+  // PixelFX: hits, deaths and portals play on the 2x layer at a world position. The slider's weather plays
+  // in one 320 x 180 box just under the hype slider, on its own 2x layer.
+  const fxActor = new Layer(), fxWorld = new Layer();
+  const live: { fx: Fx; x: number; y: number }[] = [];
+  const later: { at: number; run: () => void }[] = [];
+  let weather: Fx[] = [], fading: Fx[] = [];
+  let sliderAt: { x: number; y: number } | null = null;
+  let halo: Fx | null = null, freeze = 0, lastInput = 0;
+  let lanes: [number, number][] = [];
+  let column: [number, number] = [0, 0];
+  let afk: null | { fire: Fx; at: ReturnType<typeof campfireLayout>; y: number; line: number } = null;
   let day = false, energy = 0, ninjaUntil = 0, blockedFor = 0;
   let prompted: Enemy | null = null;
   let mode: Mode = "fight";
@@ -326,6 +358,10 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       right = [Math.round(W * 0.68), W - MARGIN - 2];
     }
 
+    lanes = [left, right];
+    column = [colL, colR];
+    fxActor.resize(W * 2, H * 2);
+    fxWorld.resize(W * 2, H * 2);
     const ids = ["experience", "awards", "education", "publicspeaking", "projects", "news", "research", "footer"];
     const blocks = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
     const top = (el: Element) => (el.getBoundingClientRect().top + scrollY) / S;
@@ -337,6 +373,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     const ctrl = document.querySelector<HTMLElement>(".hype-control")?.getBoundingClientRect();
     const track = document.querySelector<HTMLElement>(".hype-control input")?.getBoundingClientRect();
     startsAtSlider = !!ctrl?.width && !!track?.width;
+    sliderAt = startsAtSlider ? { x: (track!.left + track!.width / 2) / S, y: (ctrl!.bottom + scrollY) / S } : null;
     const start = startsAtSlider ? { x: Math.round((track!.left + 9) / S), y: Math.round((ctrl!.bottom + scrollY) / S) + 15 } : null;
     const journey = buildJourney({ top: start ? start.y : 26, bottom: WH - 14, boundaries, left, right, leg: 56, cross: 6, sway: 0.35, rand: terrain });
     // Rounded turns, so the hero and the painted road both follow smooth bends.
@@ -378,6 +415,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
         engaged: old ? old.engaged : false,
         timer: 0,
         telegraph: 0,
+        entered: old?.entered,
       };
     });
     enemies = [...bosses, ...spawnMinions()];
@@ -409,6 +447,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       tufts.push({ x: Math.round(p.x + (q.x - p.x) * f), y: Math.round(p.y + (q.y - p.y) * f) });
     }
     readColors();
+    // Mini-bosses already in view, or behind it, are simply there. The rest arrive through a portal.
+    for (const e of enemies) if (e.tier === "mini" && e.entered === undefined) e.entered = e.y < scrollY / S + H;
     if (!placed) {
       snap();
       placed = true;
@@ -455,6 +495,19 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     return Math.max(lead, home);
   };
   const screen = (x: number, y: number) => ({ x: x * S, y: y * S - scrollY });
+  // The tap hint shows once per visitor.
+  let tapHintShown = false;
+  const tapHinted = () => {
+    if (tapHintShown) return true;
+    tapHintShown = true;
+    try {
+      if (localStorage.getItem("tapHint")) return true;
+      localStorage.setItem("tapHint", "1");
+    } catch {
+      /* storage blocked */
+    }
+    return false;
+  };
 
   function place() {
     const p = pointAt(road, hero.t);
@@ -499,17 +552,57 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
 
   function say(e: Enemy, line: number) {
     emit("world:say", { ...screen(e.x, e.y - 32), text: SLOP_LINES[line % SLOP_LINES.length] });
+    // The slop tears and color-splits for as long as its speech bubble is up.
+    if (e.tier === "boss" && e.alive) {
+      e.glitch = play(glitch, e.x, e.y, { actor: actorOf(SLOP_PR[0], day ? dayPalette(SLOP_PAL) : SLOP_PAL), palette: SLOP }) ?? undefined;
+      later.push({ at: time + 39, run: () => e.glitch?.stop() });
+    }
+  }
+
+  // --- effects -------------------------------------------------------------------
+
+  /** Play a PixelFX effect anchored at a world position. Reduced motion plays nothing. */
+  function play(mod: Parameters<typeof createFx>[0], x: number, y: number, opts: Record<string, unknown> = {}): Fx | null {
+    if (reduce) return null;
+    const fx = createFx(mod, opts);
+    live.push({ fx, x, y });
+    return fx;
+  }
+  // How far an enemy floats above the road, and how tall its body is, in world pixels.
+  const liftOf = (e: Enemy) => (e.tier === "minion" ? (e.look === 0 ? 0 : 13) : e.tier === "mini" && MINI_BOSSES[e.look].flying ? 12 : 0);
+  const heightOf = (e: Enemy) => (e.tier === "minion" ? (e.look === 0 ? 7 : 5) : e.tier === "mini" ? MINI_BOSSES[e.look].frames[0].length / 2 : SLOP_PR[0].length / 2);
+
+  // Each hype stop has its own weather, kept in a box under the slider: fireflies and leaves for Touch grass,
+  // faint rays for Hireable, full rays and a hologram shimmer for Thought leader, gold rays and a halo for Agree?.
+  function setWeather(stop: number) {
+    for (const w of weather) w.stop();
+    fading.push(...weather);
+    weather = [];
+    halo = null;
+    if (reduce) return;
+    const sky = (mod: Parameters<typeof createFx>[0], o: Record<string, unknown> = {}) => createFx(mod, { backdrop: false, ...o });
+    if (stop === 0) weather = [sky(fireflies), sky(leaves)];
+    if (stop === 2) weather = [sky(godRays, { light: 0.35 })];
+    if (stop === 3) weather = [sky(godRays)];
+    if (stop === 4) {
+      weather = [sky(godRays, { palette: GOLD })];
+      halo = createFx(haloFx, { actor: actorOf(LOOKS[4].body, LOOKS[4].pal, -4) });
+    }
   }
 
   // --- combat -------------------------------------------------------------------
 
-  function damage(e: Enemy, dmg: number) {
+  function damage(e: Enemy, dmg: number, tapped = false) {
     e.hp = Math.max(0, e.hp - dmg);
     e.flash = 3;
     e.kx = hero.dir * (e.tier === "minion" ? 3 : 1.5);
     shake = Math.max(shake, e.tier === "minion" ? 1 : 2);
-    const hitColor = hero.look.weapon === "keyboard" ? hero.look.weaponColor : col.fx;
-    for (let i = 0; i < 6; i++) spark(e.x, e.y - 6, hero.dir * (0.4 + rand()), -rand() * 0.9, 12, i % 2 ? hitColor : col.teal);
+    // The hit matches the weapon: the blade throws sparks, the keyboard a zap, and a boss takes a crit.
+    const feet = e.y - liftOf(e), body = heightOf(e) * 2, flip = hero.dir < 0;
+    if (e.tier === "minion" && hero.look.weapon === "keyboard") play(zapHit, e.x, feet - heightOf(e) / 2, { flip, palette: TEAL });
+    else if (e.tier === "minion") play(hitSpark, e.x, feet, { flip, height: body / 2, palette: TEAL.slice(1) });
+    else play(critHit, e.x, feet, { flip, height: body / 2, palette: EMBER.slice(1) });
+    if (!tapped) freeze = Math.max(freeze, hitStop(e.tier, e.y > camY && e.y < camY + H, hero.quick));
     const at = screen(e.x, e.y - (e.tier === "boss" ? 26 : 10));
     emit("world:hit", { ...at, dmg, tier: e.tier, zone: e.zone, hp: e.hp, max: e.max });
     if (e.hp > 0) return;
@@ -519,17 +612,51 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     shake = e.tier === "boss" ? 10 : e.tier === "mini" ? 5 : 2;
     const reward = e.tier === "boss" ? 25 : e.tier === "mini" ? 5 : 1;
     embers += reward;
-    const n = e.tier === "boss" ? 90 : e.tier === "mini" ? 40 : 14;
-    const palette =
-      e.tier === "boss" ? [SLOP_PAL.S, SLOP_PAL.E, SLOP_PAL.Y, SLOP_PAL.G]
-      : e.tier === "mini" ? [MINI_BOSSES[e.look].pal.A, MINI_BOSSES[e.look].pal.a, col.lantern]
-      : ["#6bd36b", "#b8f5a0", col.lantern];
-    for (let i = 0; i < n; i++) spark(e.x, e.y - 8, (rand() - 0.5) * (e.tier === "boss" ? 4 : 2.2), -rand() * 2.2, 24 + rand() * 24, palette[i % palette.length]);
+    // Deaths by tier: a minion poofs, a mini-boss shatters from its own sprite, and the slop crumbles into
+    // pixels before the arena blows. Under reduced motion they fade out as before.
+    if (e.tier === "minion") {
+      if (play(pocketPoof, e.x, feet)) e.dying = 0;
+    } else if (e.tier === "mini") {
+      const m = MINI_BOSSES[e.look];
+      e.death = play(shatter, e.x, feet, { actor: actorOf(m.frames[0], day ? dayPalette(m.pal) : m.pal), palette: EMBER.slice(1) }) ?? undefined;
+      e.deathMod = shatter;
+    } else {
+      e.glitch?.stop();
+      e.death = play(disintegrate, e.x, e.y, { actor: actorOf(SLOP_PR[0], day ? dayPalette(SLOP_PAL) : SLOP_PAL), palette: SLOP }) ?? undefined;
+      e.deathMod = disintegrate;
+      if (e.death) later.push({ at: time + 78, run: () => { play(smallExplosion, e.x, e.y, { size: 1, palette: SLOP }); shake = 10; } });
+    }
     emit("world:defeat", { ...at, tier: e.tier, zone: e.zone, name: nameOf(e), reward, embers });
   }
 
   function step() {
     time++;
+    for (let i = live.length - 1; i >= 0; i--) {
+      live[i].fx.update(TICK);
+      if (live[i].fx.done()) live.splice(i, 1);
+    }
+    for (const w of weather) w.update(TICK);
+    fading = fading.filter((w) => (w.update(TICK), !w.done()));
+    halo?.update(TICK);
+    for (let i = later.length - 1; i >= 0; i--) if (time >= later[i].at) later.splice(i, 1)[0].run();
+    for (const e of enemies) {
+      if (e.death?.done()) e.death = undefined;
+      if (e.glitch?.done()) e.glitch = undefined;
+      // A mini-boss arrives through a portal the first time its crossing scrolls into view.
+      if (e.tier === "mini" && e.entered === false && e.alive && e.y < scrollY / S + H - 4) {
+        e.entered = true;
+        e.enterAt = time;
+        e.enter = play(portal, e.x, e.y - liftOf(e), { width: 13, height: 20, palette: PORTAL }) ?? undefined;
+        later.push({ at: time + 72, run: () => e.enter?.stop() });
+      }
+    }
+    // The AFK campfire: 30 seconds without a scroll, and an idle hero, start it.
+    if (!afk && !reduce && time - lastInput > 900 && hero.atk < 0 && hero.speed < 0.08 && !hero.held) startAfk();
+    if (afk && time % 72 === 0) {
+      const [who, text] = CAMPFIRE_CHAT[afk.line++ % CAMPFIRE_CHAT.length];
+      const x = afk.at[who] / 2, h = who === "hero" ? 26 : who === "slime" ? 8 : 13;
+      emit("world:say", { ...screen(x, afk.y - h), text });
+    }
     if (shake > 0) shake--;
     if (hero.hurt > 0) hero.hurt--;
 
@@ -622,6 +749,8 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
         prompted = foe;
         emit("world:prompt", screen(hero.x, hero.y - 24));
       }
+      // Phones get one hint, once, that a tap slays a monster.
+      if (touch && blockedFor === 20 && !tapHinted()) emit("world:prompt", { ...screen(foe.x, foe.y - heightOf(foe) - liftOf(foe)), text: "Tap a monster to slay it" });
     } else {
       blockedFor = 0;
       energy = Math.min(energy, perSwing());
@@ -886,8 +1015,23 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       if (l.lit > 0.05) glow(l.x + 0.5, l.y - 9.5, 12 + Math.sin(time * 0.3 + l.x), 0.35 * l.lit);
     }
 
+    // The weather box hangs just under the slider. A weather loop's ground sits 170 px below its top edge.
+    const boxTop = sliderAt ? ay(sliderAt.y) + 4 : 0;
+    if (sliderAt && (weather.length || fading.length) && boxTop < H * 2 && boxTop + 180 > 0) {
+      fxWorld.clear();
+      for (const w of [...weather, ...fading]) fxWorld.draw(w, ax(sliderAt.x), boxTop + 170);
+      acting(() => ctx.drawImage(fxWorld.flush(), 0, 0));
+    }
+
     for (const e of enemies) drawEnemy(e);
+    if (afk) drawParty();
     drawHero();
+    if (live.length || halo) {
+      fxActor.clear();
+      for (const l of live) fxActor.draw(l.fx, ax(l.x), ay(l.y));
+      if (halo && !afk) fxActor.draw(halo, ax(hero.x + hero.dragX), ay(Math.round(hero.y + hero.dragY) - 1 + Math.round(hero.jump)) + 5);
+      acting(() => ctx.drawImage(fxActor.flush(), 0, 0));
+    }
 
     for (const s of shots) {
       if (s.kind === "dash") px(s.x - 2, s.y, col.fx, 5, 1);
@@ -951,7 +1095,37 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
 
   function drawEnemy(e: Enemy) {
     if (e.y < camY - 40 || e.y > camY + H + 40) return;
+    // While a death effect runs, the body shows only for as long as the effect wants it.
+    if (e.death && e.deathMod) {
+      const a = actorAlphaOf(e.deathMod, e.death.t, e.death.options);
+      if (a <= 0) return;
+      ctx.globalAlpha = a;
+      e.dying = 0;
+      const alive = e.alive;
+      e.alive = true;
+      e.flash = 0;
+      drawBody(e);
+      e.alive = alive;
+      ctx.globalAlpha = 1;
+      return;
+    }
     if (!e.alive && !e.dying) return;
+    // A mini-boss that hasn't arrived yet stays hidden, then fades up out of its portal.
+    if (e.tier === "mini" && e.entered === false) return;
+    if (e.enterAt !== undefined && time - e.enterAt < 40) {
+      const a = Math.max(0, Math.min(1, (time - e.enterAt - 21) / 18));
+      if (a <= 0) return;
+      ctx.globalAlpha = a;
+      drawBody(e);
+      ctx.globalAlpha = 1;
+      return;
+    }
+    // While the slop speaks, the glitch effect draws its body.
+    if (e.glitch) return;
+    drawBody(e);
+  }
+
+  function drawBody(e: Enemy) {
     const fight = mode === "fight";
     if ((!fight && e.tier !== "boss") || (!e.alive && e.dying > 14 && e.tier !== "boss")) {
       // A spirit: a small teal flame that bobs above the road, then rises away once passed.
@@ -1008,6 +1182,21 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     ctx.globalAlpha = 1;
   }
 
+  // The campfire party: two logs, a slime on the left, Scope Creep on the right.
+  function drawParty() {
+    const a = afk!, feet = ay(a.y);
+    const boss = MINI_BOSSES[0];
+    acting(() => {
+      sprite(LOG, a.at.slime - 12, feet - 5, 1, LOG_PAL);
+      sprite(LOG, a.at.hero - 8, feet - 5, -1, LOG_PAL);
+      sprite(LOG, a.at.boss - 12, feet - 5, -1, LOG_PAL);
+      const slime = (day ? SLIME_DAY : SLIME), sf = slime.frames[Math.floor(time / 15) % 2];
+      sprite(sf, a.at.slime - sf[0].length / 2, feet - 4 - sf.length, 1, slime.pal);
+      const bf = boss.frames[Math.floor(time / 20) % 2];
+      sprite(bf, a.at.boss - bf[0].length / 2, feet - 4 - bf.length, -1, day ? dayPalette(boss.pal) : boss.pal);
+    });
+  }
+
   function drawHero() {
     const look = hero.look;
     const d = hero.dir;
@@ -1029,6 +1218,11 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     if (look.aura) glow(left + 6, top + 6, 13 + look.aura * 30, look.aura, "255,120,60");
 
     const legs = hero.held ? LEGS.pass : lunging ? LEGS.lunge : !moving ? LEGS.idle : running ? (passing ? LEGS.pass : LEGS.run) : passing ? LEGS.pass : LEGS.stride;
+    // At the campfire he sits on the log: no legs, no weapon.
+    if (afk) {
+      acting(() => sprite(look.body, afk!.at.hero - 12, ay(afk!.y) - 31, 1, pal));
+      return;
+    }
     acting(() => {
       for (let i = look.trailLength - 1; i >= 1; i--) {
         const n = scarf[i];
@@ -1039,6 +1233,19 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       sprite(legs, L, ay(feet - 2), d, pal);
       sprite(look.body.slice(14), L, T + 14, d, pal);
       sprite(look.body.slice(0, 14), L + lean * 2, T, d, pal);
+      // Thought leader: every third row of him flickers cyan, and a bright scan band runs down his body.
+      if (hype === 3 && !reduce) {
+        const scan = (time * 0.8) % 40;
+        const shimmer = (rows: Frame, x0: number, y0: number, r0: number) => rows.forEach((row, r) => [...row].forEach((k, c) => {
+          if (k === ".") return;
+          const x = d > 0 ? x0 + c : x0 + row.length - 1 - c, y = y0 + r;
+          if ((r0 + r + Math.floor(time * 0.6)) % 3 === 0) apx(x, y, "rgba(95, 216, 255, 0.35)");
+          if (Math.abs(r0 + r - scan) < 1.5) apx(x, y, "rgba(216, 255, 248, 0.6)");
+        }));
+        shimmer(look.body.slice(0, 14), L + lean * 2, T, 0);
+        shimmer(look.body.slice(14), L, T + 14, 14);
+        shimmer(legs, L, ay(feet - 2), 26);
+      }
     });
     drawWeapon(look, left + 6 + lean + d * 3, top + 9, d, swingPhase);
 
@@ -1115,6 +1322,55 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   addEventListener("resize", relayout);
   new MutationObserver(readColors).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
+  // --- AFK campfire ---------------------------------------------------------------------
+
+  // The party gathers on the nearest bridge in view, because a bridge spans the column and the gutters are
+  // too narrow for four. With no bridge in view, it sits where the hero stands.
+  function startAfk() {
+    const view = camY + H / 2;
+    const bridge = crossings
+      .filter((c) => c.y > camY + 30 && c.y < camY + H - 10)
+      .sort((a, b) => Math.abs(a.y - view) - Math.abs(b.y - view))[0];
+    let at: ReturnType<typeof campfireLayout>, y: number;
+    if (bridge) {
+      // Sit beside the crossing's mini-boss, not on top of it.
+      at = campfireLayout(Math.round(bridge.x * 2) - 110, [column[0] * 2 + 8, column[1] * 2 - 8]);
+      y = bridge.y;
+    } else {
+      at = campfireLayout(Math.round(hero.x * 2), [8, W * 2 - 8]);
+      y = hero.y;
+    }
+    const fire = createFx(campfire, { height: 12, palette: EMBER });
+    live.push({ fx: fire, x: at.fire / 2, y });
+    afk = { fire, at, y, line: 0 };
+    play(pocketPoof, at.hero / 2, y);
+  }
+  function wake() {
+    lastInput = time;
+    if (!afk) return;
+    afk.fire.stop();
+    play(pocketPoof, afk.at.slime / 2, afk.y);
+    play(pocketPoof, afk.at.hero / 2, afk.y);
+    play(pocketPoof, afk.at.boss / 2, afk.y);
+    afk = null;
+  }
+  for (const type of ["scroll", "wheel", "touchstart", "keydown"]) addEventListener(type, wake, { passive: true });
+
+  // --- tap to slay (touch screens) -------------------------------------------------------
+  // On a phone, tapping a monster kills it in one hit. Taps on links, buttons and inputs pass through.
+  if (touch) {
+    addEventListener("click", (ev) => {
+      if (mode !== "fight" || !running) return;
+      if ((ev.target as Element | null)?.closest?.("a, button, input, select, textarea, label, summary, [role=button]")) return;
+      const wx = ev.clientX / S, wy = (ev.clientY + scrollY) / S;
+      const i = tapTarget(enemies.map((e) => ({ x: e.x, y: e.y - liftOf(e), h: heightOf(e), alive: e.alive })), wx, wy, 10);
+      if (i < 0) return;
+      hero.dir = enemies[i].x >= hero.x ? 1 : -1;
+      damage(enemies[i], enemies[i].hp, true);
+      if (!enemies[i].alive) slash(enemies[i]);
+    });
+  }
+
   function setMode(next: Mode) {
     mode = next;
     if (modeBtn) {
@@ -1130,6 +1386,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     if (mode === "fight") for (const e of enemies) if (hero.t < e.t) Object.assign(e, { alive: true, hp: e.max, dying: 0, engaged: false });
   }
   setMode(mode);
+  setWeather(hype);
   modeBtn?.addEventListener("click", () => setMode(mode === "fight" ? "wander" : "fight"));
 
   // The slider changes who walks the road, how crowded it is, and the color of the sky.
@@ -1138,6 +1395,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     const swap = () => {
       hype = next;
       hero.look = LOOKS[next];
+      setWeather(next);
       enemies = [...enemies.filter((x) => x.tier !== "minion"), ...spawnMinions()];
       retintSky();
     };
@@ -1202,7 +1460,9 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     : createTimer({
         frameRate: 30,
         onUpdate: () => {
-          step();
+          // A hit-stop holds the world still for a few frames.
+          if (freeze > 0) freeze--;
+          else step();
           draw();
         },
       });
