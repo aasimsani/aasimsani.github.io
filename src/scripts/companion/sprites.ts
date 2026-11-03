@@ -30,7 +30,7 @@ function fromHsl([h, s, l]: [number, number, number]): number[] {
 }
 // Shadows drift toward violet and highlights toward warm gold, so a ramp reads as light on the material.
 const toward = (h: number, target: number, k: number) => h + ((((target - h) % 360) + 540) % 360 - 180) * k;
-function shade(hex: string, step: Step): string {
+export function shade(hex: string, step: Step): string {
   const [h, s, l] = toHsl(hexRgb(hex));
   const at = (dl: number, ds: number, target: number, k: number) => rgbHex(fromHsl([toward(h, target, k), Math.max(0, Math.min(1, s + ds)), Math.max(0.04, Math.min(0.97, l + dl))]));
   if (step === -2) return at(-0.26, 0.05, 255, 0.28);
