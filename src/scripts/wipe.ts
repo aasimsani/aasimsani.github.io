@@ -1,6 +1,6 @@
 // A wall of pixel blocks spreads out from a corner, runs `swap` while the page
-// is covered, then peels away from the same corner. The theme toggle and the
-// adventure switch both use it, so every big change looks like one gesture.
+// is covered, then peels away from the same corner. The theme toggle uses it;
+// the adventure switch plays the CRT effect in crt.ts instead.
 import { createTimeline, stagger } from "animejs";
 
 let busy = false;
