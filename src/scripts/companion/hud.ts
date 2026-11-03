@@ -119,6 +119,9 @@ on<At & { dmg: number; tier: string; zone: number; hp: number; max: number }>("w
 
 on<At & { tier: string; zone: number; name: string; reward: number; embers: number; quiet?: boolean }>("world:defeat", (d) => {
   if (d.quiet) {
+    // A boss the hero skipped (the catch-up leash, or a spirit in wander mode) takes its health bar with it.
+    const b = bar();
+    if (b && d.zone === barZone) b.hidden = true;
     clearZone(d.zone, true);
     return;
   }

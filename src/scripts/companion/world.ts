@@ -177,3 +177,33 @@ export function roundCorners(road: Pt[], radius: number, steps: number): Pt[] {
   out.push(road[road.length - 1]);
   return out;
 }
+
+// --- catch-up rules --------------------------------------------------------------
+// When the reader scrolls fast, the hero must keep up or the fights happen off-screen. All distances are
+// world pixels, and `view` is the viewport height in world pixels.
+
+/** World pixels the hero moves this frame toward a target `gap` away. Past 30% of the screen he sprints. */
+export function chaseSpeed(gap: number, view: number, ninja: boolean): number {
+  const d = Math.abs(gap);
+  if (ninja) return Math.min(d, Math.max(5, d * 0.2));
+  if (d > view * 0.3) return Math.min(d, Math.max(4, d * 0.15));
+  return Math.min(d, Math.max(1.3, d * 0.08));
+}
+
+/** Whether a swing costs no scrolling. Fights the reader can't see resolve on their own; the final boss never does. */
+export function freeSwing(tier: "minion" | "mini" | "boss", offscreen: boolean, lagging: boolean): boolean {
+  if (tier === "minion") return lagging;
+  if (tier === "mini") return offscreen || lagging;
+  return false;
+}
+
+/** Damage per swing. A ninja dash triples it on a mini-boss, and a free swing doubles it. */
+export function swingDamage(tier: "minion" | "mini" | "boss", ninja: boolean, free: boolean): number {
+  if (tier !== "mini") return 1;
+  return ninja ? 3 : free ? 2 : 1;
+}
+
+/** Whether the hero has fallen more than a quarter screen above the viewport and should blink to its top edge. */
+export function leashed(heroScreenY: number, viewportH: number): boolean {
+  return heroScreenY < -viewportH * 0.25;
+}

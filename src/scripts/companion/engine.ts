@@ -11,7 +11,7 @@
 // world:defeat, world:zone, world:say, world:hurt, world:state), and hud.ts
 // turns those into page reactions.
 import { animate, createTimer } from "animejs";
-import { buildJourney, pointAt, roundCorners, scrollSpeed, spawnPlan, tAtY, type Pt } from "./world";
+import { buildJourney, chaseSpeed, freeSwing, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, swingDamage, tAtY, type Pt } from "./world";
 import { BAT, GULL, LEGS, LOOKS, MINI_BOSSES, MINION_DAY, MINION_NIGHT, SLIME, SLIME_DAY, SLOP_LINES, SLOP_PAL, SLOP_PR, WHITE, dayPalette, type Frame, type Look } from "./sprites";
 
 type Mode = "fight" | "wander";
@@ -109,7 +109,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
   let hype = startHype;
   const hero = {
     t: 0, x: 0, y: 0, dir: 1 as 1 | -1, speed: 0, phase: 0, blink: 0, jump: 0,
-    atk: -1, atkLen: 8, target: null as Enemy | null,
+    atk: -1, atkLen: 8, target: null as Enemy | null, quick: false,
     dragX: 0, dragY: 0, held: false, hurt: 0,
     look: LOOKS[startHype],
   };
@@ -563,11 +563,31 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     const stopAt = blocker ? blocker.t - reach / roadLen : 1;
     const target = blocker && want >= stopAt ? stopAt : want;
     const gap = (target - hero.t) * roadLen;
-    let mag = Math.min(Math.abs(gap), Math.max(ninja ? 5 : 1.3, Math.abs(gap) * (ninja ? 0.2 : 0.08)));
-    if (hero.atk >= 0 && !ninja) mag *= 0.3;
+    // He sprints when far behind, and a sprint or an off-screen swing doesn't slow him down.
+    const offscreen = hero.y * S - scrollY < innerHeight * 0.05;
+    const sprinting = Math.abs(gap) * S > innerHeight * 0.3;
+    let mag = chaseSpeed(gap, innerHeight / S, ninja);
+    if (hero.atk >= 0 && !ninja && !sprinting && !offscreen) mag *= 0.3;
     const prevX = hero.x, prevT = hero.t;
     hero.t += (Math.sign(gap) * mag) / roadLen;
     place();
+    // The leash: once he's a quarter screen above the view, he blinks to its top edge. Everything he skips
+    // counts as beaten, so the section headings still light up.
+    if (fight && leashed(hero.y * S - scrollY, innerHeight)) {
+      const to = Math.max(hero.t, tAtY(road, scrollY / S));
+      for (const e of enemies) {
+        if (!e.alive || e.tier === "boss" || e.t >= to) continue;
+        e.alive = false;
+        if (e.tier === "mini") emit("world:defeat", { ...screen(e.x, e.y), tier: "mini", zone: e.zone, name: nameOf(e), reward: 0, embers, quiet: true });
+      }
+      hero.t = to;
+      hero.atk = -1;
+      place();
+      for (const n of scarf) {
+        n.x = n.px = hero.x;
+        n.y = n.py = hero.y - 10;
+      }
+    }
     hero.speed = hero.speed * 0.7 + mag * 0.3;
     if (Math.abs(hero.x - prevX) > 0.01) hero.dir = hero.x > prevX ? 1 : -1;
     hero.phase += hero.speed / 2.4;
@@ -604,16 +624,18 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       blockedFor = 0;
       energy = Math.min(energy, perSwing());
     }
-    // When the reader has scrolled well past the hero, he cuts minions down for free
-    // to catch up, so he reaches the next boss while it's still on screen.
-    const lagging = foe?.tier === "minion" && (want - hero.t) * roadLen * S > innerHeight * 0.15;
+    // When the reader has scrolled well past the hero, or a mini-boss fight is off-screen, he swings on
+    // his own and faster, so he reaches the next boss while it's still on screen.
+    const lagging = (want - hero.t) * roadLen * S > innerHeight * 0.15;
     // On touch screens he also fights on his own, swinging every 20 frames while blocked.
-    const free = lagging || (touch && blockedFor >= 20);
+    const quick = !!foe && freeSwing(foe.tier, offscreen, lagging);
+    const free = quick || (touch && blockedFor >= 20);
     if (foe && hero.atk < 0 && (free || energy >= perSwing())) {
       if (!free) energy -= perSwing();
       blockedFor = 0;
       hero.target = foe;
-      hero.atkLen = ninja || lagging ? 4 : 7;
+      hero.atkLen = ninja || quick ? 4 : 7;
+      hero.quick = quick;
       hero.atk = 0;
     }
     if (hero.atk >= 0) {
@@ -621,7 +643,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
       if (tgt) hero.dir = tgt.x >= hero.x ? 1 : -1;
       hero.atk++;
       if (tgt && tgt.alive && hero.atk === Math.max(2, Math.floor(hero.atkLen * 0.45))) {
-        damage(tgt, ninja && tgt.tier === "mini" ? 3 : 1);
+        damage(tgt, swingDamage(tgt.tier, ninja, hero.quick));
         if (!tgt.alive || ninja) slash(tgt);
       }
       if (hero.atk >= hero.atkLen) {
