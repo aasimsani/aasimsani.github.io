@@ -150,10 +150,12 @@ function sky() {
   const layer = new Layer();
   const cv = layer.canvas;
   cv.setAttribute("aria-hidden", "true");
-  Object.assign(cv.style, { position: "absolute", inset: "0", width: "100%", height: "100%", imageRendering: "pixelated" });
+  // The sky sits well behind the words: the canvas is faded on top of the sky's own opacity, and the meteors and
+  // fireflies glow at less than half strength.
+  Object.assign(cv.style, { position: "absolute", inset: "0", width: "100%", height: "100%", imageRendering: "pixelated", opacity: "0.4" });
   holder.appendChild(cv);
-  const stars = createFx(shootingStars, { backdrop: false });
-  const flies = [createFx(fireflies, { backdrop: false, seed: 2 }), createFx(fireflies, { backdrop: false, seed: 5 })];
+  const stars = createFx(shootingStars, { backdrop: false, light: 0.4 });
+  const flies = [createFx(fireflies, { backdrop: false, seed: 2, light: 0.4 }), createFx(fireflies, { backdrop: false, seed: 5, light: 0.4 })];
   let acc = 0, shown = false;
   run((dt) => {
     // In Serious mode or at dawn the canvas empties once and the loop idles.
