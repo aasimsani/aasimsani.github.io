@@ -207,3 +207,32 @@ export function swingDamage(tier: "minion" | "mini" | "boss", ninja: boolean, fr
 export function leashed(heroScreenY: number, viewportH: number): boolean {
   return heroScreenY < -viewportH * 0.25;
 }
+
+/** Frames to freeze the world on a hit. Only bosses hit on screen, in a fight the reader paid for, get a hit-stop. */
+export function hitStop(tier: "minion" | "mini" | "boss", onScreen: boolean, quick: boolean): number {
+  return tier !== "minion" && onScreen && !quick ? 3 : 0;
+}
+
+/**
+ * The index of the live enemy nearest a tap, or -1 when none is within `reach`. Enemies stand at (x, y) with
+ * their feet on the road, so the tap is measured against the middle of a body `h` pixels tall.
+ */
+export function tapTarget(enemies: { x: number; y: number; h: number; alive: boolean }[], x: number, y: number, reach: number): number {
+  let best = -1, bestD = reach;
+  enemies.forEach((e, i) => {
+    if (!e.alive) return;
+    const d = Math.hypot(e.x - x, e.y - e.h / 2 - y);
+    if (d <= bestD) [best, bestD] = [i, d];
+  });
+  return best;
+}
+
+/**
+ * Where the AFK campfire party sits, in 2x-grid pixels: a slime, the hero, the fire, then Scope Creep. The
+ * group slides as one so it stays inside the lane [lo, hi].
+ */
+export function campfireLayout(hero: number, [lo, hi]: [number, number]) {
+  const at = { slime: hero - 22, hero, fire: hero + 26, boss: hero + 56 };
+  const shift = Math.max(lo - (at.slime - 10), Math.min(0, hi - (at.boss + 16)));
+  return { slime: at.slime + shift, hero: at.hero + shift, fire: at.fire + shift, boss: at.boss + shift };
+}

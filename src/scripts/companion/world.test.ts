@@ -1,7 +1,7 @@
 // Run with: npm run test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildJourney, buildRoad, chaseSpeed, freeSwing, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, stopForValue, swingDamage, tAtY } from "./world.ts";
+import { buildJourney, buildRoad, campfireLayout, chaseSpeed, freeSwing, hitStop, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, stopForValue, swingDamage, tAtY, tapTarget } from "./world.ts";
 
 test("buildRoad zigzags down inside the margins", () => {
   const road = buildRoad(60, 600, 6, 8);
@@ -195,4 +195,34 @@ test("leashed pulls the hero forward once he's a quarter screen above the view",
   assert.equal(leashed(100, 900), false, "on screen");
   assert.equal(leashed(-200, 900), false, "a little above the top is fine");
   assert.equal(leashed(-226, 900), true);
+});
+
+test("hitStop freezes only on-screen mini-boss hits the reader paid for", () => {
+  assert.equal(hitStop("mini", true, false), 3);
+  assert.equal(hitStop("mini", false, false), 0, "off-screen hits never freeze");
+  assert.equal(hitStop("mini", true, true), 0, "catch-up swings never freeze");
+  assert.equal(hitStop("minion", true, false), 0);
+  assert.equal(hitStop("boss", true, false), 3);
+});
+
+test("tapTarget picks the nearest live enemy within reach of a tap", () => {
+  const es = [
+    { x: 10, y: 50, h: 7, alive: true },
+    { x: 40, y: 50, h: 11, alive: true },
+    { x: 12, y: 52, h: 7, alive: false },
+  ];
+  assert.equal(tapTarget(es, 11, 46, 8), 0, "the tap lands on the slime's body, not its feet");
+  assert.equal(tapTarget(es, 40, 44, 8), 1);
+  assert.equal(tapTarget(es, 25, 46, 8), -1, "a tap between enemies hits nothing");
+  assert.equal(tapTarget([{ x: 12, y: 50, h: 7, alive: false }], 12, 46, 8), -1, "the dead stay dead");
+});
+
+test("campfireLayout seats everyone around the fire inside the lane", () => {
+  const a = campfireLayout(100, [20, 200]);
+  assert.ok(a.slime < a.hero && a.hero < a.fire && a.fire < a.boss, "slime, hero, fire, then Scope Creep");
+  const b = campfireLayout(25, [20, 200]);
+  assert.ok(b.slime - 10 >= 20, "pushed in from the left edge of the lane");
+  const c = campfireLayout(195, [20, 200]);
+  assert.ok(c.boss + 16 <= 200, "pushed in from the right edge");
+  assert.equal(c.fire - c.hero, a.fire - a.hero, "the spacing never changes");
 });

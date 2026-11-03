@@ -30,7 +30,7 @@ function fromHsl([h, s, l]: [number, number, number]): number[] {
 }
 // Shadows drift toward violet and highlights toward warm gold, so a ramp reads as light on the material.
 const toward = (h: number, target: number, k: number) => h + ((((target - h) % 360) + 540) % 360 - 180) * k;
-function shade(hex: string, step: Step): string {
+export function shade(hex: string, step: Step): string {
   const [h, s, l] = toHsl(hexRgb(hex));
   const at = (dl: number, ds: number, target: number, k: number) => rgbHex(fromHsl([toward(h, target, k), Math.max(0, Math.min(1, s + ds)), Math.max(0.04, Math.min(0.97, l + dl))]));
   if (step === -2) return at(-0.26, 0.05, 255, 0.28);
@@ -780,3 +780,33 @@ export const SLOP_LINES = [
 ];
 
 export const WHITE = (pal: Record<string, string>) => Object.fromEntries(Object.keys(pal).map((k) => [k, "#ffffff"]));
+
+// --- the AFK campfire --------------------------------------------------------------------
+
+/** A short log to sit on, on the 2x grid. */
+export const LOG: Frame = [
+  "..oooooooooooooooooooo..",
+  ".oWwwwwwwWwwwwwwWwwwwRo.",
+  "oWwwwwWwwwwwwwwwwwWwwRRo",
+  "oddddddddddddddddddddRRo",
+  ".oooooooooooooooooooooo.",
+];
+export const LOG_PAL: Record<string, string> = { o: "#1c1220", W: "#b07a52", w: "#8a5a38", d: "#5e3a26", R: "#c99a72" };
+
+/** Who says what around the fire, one line every 2.4 seconds. */
+export const CAMPFIRE_CHAT: ["slime" | "hero" | "boss", string][] = [
+  ["slime", "Do you ever think we're just CSS?"],
+  ["hero", "Only on Mondays."],
+  ["boss", "What if this campfire also had a dashboard?"],
+  ["hero", "No."],
+  ["slime", "I got promoted. I'm a slime lead now."],
+  ["boss", "Cool. Do you have a roadmap?"],
+  ["hero", "Merge Conflict won't sit with us."],
+  ["slime", "It's on both sides of the log."],
+  ["boss", "Quick one: can the fire be bigger by Friday?"],
+  ["hero", "Ship it as it is."],
+  ["slime", "Where did the reader go?"],
+  ["hero", "Another tab. They always come back."],
+  ["boss", "Just one more feature."],
+  ["slime", "You said that at the last campfire."],
+];

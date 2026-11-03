@@ -73,6 +73,9 @@ const canonical = `${site.url}blog/${post.slug}/`;
 </BaseLayout>
 
 <script>
+  import { mountPostFx } from "../scripts/post-fx";
+
+  mountPostFx();
   const bar = document.querySelector<HTMLElement>(".read-progress span");
   const heads = Array.from(document.querySelectorAll<HTMLElement>(".post .section-head"));
 
