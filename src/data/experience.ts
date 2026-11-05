@@ -24,11 +24,10 @@ export const experience: Experience[] = [
     paragraphs: [
       `After seven years in AI I wanted to build systems where speed and correctness both matter. Sales tax compliance needs both, because every transaction has to compute fast and every return has to be right.`,
       `I joined as employee #1 and built the systems that run global sales tax inside finance and commerce stacks. They took the company to its first 300 customers and from $0 to $3M+ ARR.`,
-      `<strong>Compute:</strong> a real-time tax calculation API in FastAPI that returns the exact tax on every transaction, plus the global nexus engine, the US sales tax engine, a geocoding service, and a multi-currency exchange layer.`,
-      `<strong>Ingestion:</strong> Temporal pipelines that bring in 100M+ transactions a month from Stripe, QuickBooks, Shopify, Salesforce, Business Central, Odoo, Agree, Maxio, Measure, Spree, and Rillet, plus 250+ HRIS systems through Finch. They run on webhooks and historical backfill, and a reconciliation system catches drift.`,
-      `<strong>Ops:</strong> AWS infrastructure in Terraform, a Temporal-driven backfill orchestrator, an RWX-based CI/CD pipeline, and an internal Slack <code>/deploy</code> bot. Python, FastAPI, DuckDB, PostgreSQL, Temporal.`,
+      `<strong>Compute:</strong> a real-time tax calculation API, the global nexus engine, the US sales tax engine, geocoding, and currency exchange.`,
+      `<strong>Ingestion:</strong> Temporal pipelines that bring in 100M+ transactions a month from Stripe, QuickBooks, Shopify, Salesforce, Business Central, and 6 more, plus 250+ HRIS systems through Finch. A reconciliation system catches drift.`,
+      `<strong>Ops:</strong> AWS in Terraform, RWX CI/CD, and a Slack <code>/deploy</code> bot. Python, FastAPI, DuckDB, PostgreSQL, Temporal.`,
       `I onboarded our first 100 customers myself, ran integration support for the first 200, and built a certification program for customers' own API integrations.`,
-      `Backed by XYZ, Headline, Vinyl Capital, Nomo Ventures, Recall Capital, J Ventures, and the founders of Runway, OpenGov, OnDeck, Column Tax, and Kettle & Fire.`,
     ],
   },
   {
