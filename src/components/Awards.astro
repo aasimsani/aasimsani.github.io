@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="awardsandinvolvements section-anchor" id="awards">
   <div class="container">
-    <SectionHeader title="Awards and Involvements" />
+    <SectionHeader section="awards" />
     <div class="grid">
       {awards.map((a) => (
         <article class="card">
@@ -13,6 +13,7 @@ import SectionHeader from "./SectionHeader.astro";
             <img src={a.logo} alt={a.title} width="92" height="92" loading="lazy" decoding="async" />
           </a>
           <h3>{a.title}</h3>
+          <p class="when">{a.when}</p>
           <p>{a.description}</p>
         </article>
       ))}
@@ -34,19 +35,27 @@ import SectionHeader from "./SectionHeader.astro";
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 2.5rem 2rem;
   }
+  /* Cards read left to right like the Projects and Talks cards, so a short last row doesn't look stranded. */
   .card {
-    text-align: center;
+    text-align: left;
   }
   .logo-mark {
-    margin: 0 auto 1rem;
+    margin: 0 0 1rem;
   }
   h3 {
-    font-size: 1.25rem;
+    font-size: var(--text-card-title);
     font-weight: 500;
+    margin: 0 0 0.2rem;
+  }
+  p.when {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--color-muted);
     margin: 0 0 0.5rem;
   }
   p {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
     color: var(--color-text-soft);
     margin: 0;
   }
