@@ -12,6 +12,13 @@ npm test          # unit tests for the site scripts
 `.github/workflows/ci.yml` runs the type check and the tests, including the
 narration script's Python tests, on every pull request and on `master`.
 
+## The homepage
+
+`src/data/nav.ts` lists the homepage's sections in page order. The page, the
+sticky nav, the phone menu, the "Zone N" labels and the After hours game all
+read that one list, so reordering or renaming a section is one edit there. Each
+section's content is in its own file in `src/data/`.
+
 ## What a build ships
 
 - **Fonts.** Geist, Geist Mono and Silkscreen come from the Fontsource packages

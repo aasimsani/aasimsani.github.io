@@ -3,12 +3,12 @@
 // podcast app or feed reader can play it.
 import rss from "@astrojs/rss";
 import { statSync } from "node:fs";
-import { posts } from "../data/posts";
+import { newestFirst } from "../data/posts";
 import { site } from "../data/site";
 import { absolute, postUrl } from "../data/schema";
 
 export function GET() {
-  const sorted = [...posts].sort((a, b) => b.published.localeCompare(a.published));
+  const sorted = newestFirst();
   return rss({
     title: site.feedTitle,
     description: site.feedDescription,

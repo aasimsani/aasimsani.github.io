@@ -5,7 +5,7 @@ import { nav } from "../data/nav";
 {/* Desktop sticky strip — the horizontal link row that's been there. */}
 <section class="nav-section">
   <nav class="nav" id="section-menu" aria-label="Sections">
-    {nav.map((n) => <a class="nav-link" href={n.href}>{n.short}</a>)}
+    {nav.map((n) => <a class="nav-link" href={`#${n.id}`}>{n.short ?? n.title}</a>)}
   </nav>
 </section>
 
@@ -21,7 +21,7 @@ import { nav } from "../data/nav";
   <svg class="b-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
 </button>
 <nav class="mobile-menu" id="mobile-menu" aria-label="Sections" data-open="false">
-  {nav.map((n) => <a class="nav-link" href={n.href}>{n.short}</a>)}
+  {nav.map((n) => <a class="nav-link" href={`#${n.id}`}>{n.short ?? n.title}</a>)}
 </nav>
 
 <script>

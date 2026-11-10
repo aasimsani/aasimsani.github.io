@@ -5,9 +5,10 @@
 // nav links marked as cleared, the final boss's speech bubbles, and the
 // victory banner that unlocks the footer.
 import { animate, createTimeline, scrambleText, spring, stagger, svg } from "animejs";
+import { zoneIds } from "../../data/nav";
 
 // Section ids in road order. Mini-boss i guards section IDS[i], and the footer is the boss arena.
-const IDS = ["experience", "awards", "education", "publicspeaking", "projects", "news", "research", "footer"];
+const IDS = zoneIds;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel);
