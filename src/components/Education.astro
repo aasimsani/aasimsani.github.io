@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="education section-anchor" id="education">
   <div class="container">
-    <SectionHeader title="Education" />
+    <SectionHeader section="education" />
     <div class="entries">
       {education.map((s) => (
         <article class="entry">
@@ -46,7 +46,7 @@ import SectionHeader from "./SectionHeader.astro";
     .entry { grid-template-columns: 1fr; }
   }
   h3 {
-    font-size: 1.45rem;
+    font-size: var(--text-entry-title);
     font-weight: 500;
     margin: 0 0 0.75rem;
   }

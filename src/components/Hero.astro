@@ -8,7 +8,7 @@ const iconKey: Record<string, string> = {
   linkedin: "linkedin",
   github: "github",
   envelope: "envelope",
-  twitter: "twitter",
+  x: "x",
 };
 const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
 ---
@@ -35,6 +35,12 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
       {/* Serious mode always reads the human bio. After hours lets the slider rewrite it. */}
       <div class="bio serious-only" set:html={hypeStops[hypeDefault].html}></div>
       <div class="hype-copy afterhours-only" set:html={hypeStops[hypeDefault].html}></div>
+      {/* The buttons sit above the slider, so After hours shows them on a laptop's first screen too. */}
+      <div class="buttons">
+        {hero.cta.map((c) => (
+          <a class="top-button px-frame" href={c.href}>{c.label}</a>
+        ))}
+      </div>
       <button type="button" class="hype-stamp afterhours-only" tabindex="-1" aria-hidden="true">
         <span class="stamp-main">♻ Repost if you agree</span>
         <span class="stamp-count"><span data-reposts>12,847</span> reposts</span>
@@ -80,11 +86,6 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
       };
       window.reserveHype();
     </script>
-    <div class="buttons">
-      {hero.cta.map((c) => (
-        <a class="top-button px-frame" href={c.href}>{c.label}</a>
-      ))}
-    </div>
     <div class="list-inline">
       {social.map((s) => (
         <div>
@@ -195,16 +196,6 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
   :global(.js-anim) .word {
     visibility: hidden;
   }
-  /* On phones three centered paragraphs are hard to read, so the hero sets left-aligned. */
-  @media (max-width: 640px) {
-    .overlay {
-      text-align: left;
-    }
-    .buttons,
-    .list-inline {
-      justify-content: flex-start;
-    }
-  }
   .greeting {
     font-family: var(--font-ui);
     font-size: 1rem;
@@ -243,7 +234,7 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
   .hype {
     position: relative;
     max-width: 38rem;
-    margin: 0 auto 2.75rem;
+    margin: 0 auto;
   }
   /* After hours leaves a gap under the slider, where the hero waits until the reader scrolls. */
   :global([data-site-mode="afterhours"]) .hype {
@@ -255,7 +246,7 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
     line-height: 1.6;
     text-wrap: pretty;
     min-height: 7.7em;
-    margin: 0 0 1.75rem;
+    margin: 0 0 2.5rem;
     color: var(--color-text);
   }
   .bio :global(p),
@@ -370,6 +361,10 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
     margin-bottom: 2.5rem;
     flex-wrap: wrap;
   }
+  /* After hours follows the buttons with the slider, whose label bubble needs room above the track. */
+  :global([data-site-mode="afterhours"]) .buttons {
+    margin-bottom: 3.25rem;
+  }
   .top-button {
     display: inline-block;
     padding: 0.85rem 1.5rem;
@@ -415,6 +410,59 @@ const hypeValue = Math.round((hypeDefault / (hypeStops.length - 1)) * 100);
   .social-svg :global(svg) {
     width: 100%;
     height: 100%;
+  }
+  /* On phones three centered paragraphs are hard to read, so the hero sets left-aligned, buttons and icons included.
+     This block comes last so it beats the centered defaults above. The bio is also set a step smaller, which brings
+     the name and the buttons about a third of a screen closer to the top. */
+  @media (max-width: 640px) {
+    .overlay {
+      text-align: left;
+    }
+    .buttons,
+    .list-inline {
+      justify-content: flex-start;
+    }
+    .buttons {
+      gap: 0.5rem;
+    }
+    .list-inline {
+      margin-left: -8px; /* the icons' 44px tap targets pad them in, so this lines the first glyph up with the text */
+    }
+    .bio,
+    .hype-copy {
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+    /* Pixel type is wide, so After hours trims the buttons to keep all three on one row. */
+    :global([data-site-mode="afterhours"]) .top-button {
+      padding-inline: 0.9rem;
+      font-size: 0.8rem;
+    }
+  }
+  /* A short laptop screen gets less air above the name, which keeps the buttons on the first screen at 720px tall. */
+  @media (min-width: 1100px) and (max-height: 800px) {
+    .home {
+      padding-top: 2.5rem;
+    }
+  }
+  /* Below 1100px Serious mode stacks the portrait above the text, which pushes everything down. There the buttons
+     go straight under the name, so a visitor with half a minute reaches the resume and the email without scrolling
+     past the bio. */
+  @media (max-width: 1099px) {
+    :global(:root:not([data-site-mode="afterhours"])) .hype {
+      display: flex;
+      flex-direction: column;
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .buttons {
+      order: -1;
+      margin-bottom: 1.75rem;
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .bio {
+      margin-bottom: 1.5rem;
+    }
+    :global(:root:not([data-site-mode="afterhours"])) .name {
+      margin-bottom: 1.25rem;
+    }
   }
 </style>
 

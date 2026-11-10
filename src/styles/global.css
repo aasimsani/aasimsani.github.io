@@ -19,6 +19,11 @@
   --font-display: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
   --font-body: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
   --font-ui: "Silkscreen", "Silkscreen Fallback", "Geist Mono", monospace;
+  --font-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+
+  /* Two sizes of title cover every homepage section: an entry with a logo beside it, and a card in a grid. */
+  --text-entry-title: 1.5rem;
+  --text-card-title: 1.25rem;
 }
 
 /* The pixel world reads these, so the background and the page can't drift apart. */
@@ -111,12 +116,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Headings set their own leading. Left to inherit the body's 1.7, a two-line title reads as two titles. */
 h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
   font-weight: 650;
+  line-height: 1.2;
   letter-spacing: -0.03em;
   color: var(--color-text);
 }
+
 
 /* Stepped corners are the one ornament. Controls, panels and the pixel world all share them. */
 .px-frame {
@@ -156,6 +164,16 @@ main:focus {
   outline: none;
 }
 
+/* One keyboard focus ring for every link and control. */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 3px;
+}
+/* Stepped corners clip whatever falls outside the box, a focus ring included, so a framed control draws its ring just inside. */
+:root:not([data-site-mode="serious"]) .px-frame:focus-visible {
+  outline-offset: -4px;
+}
+
 a {
   color: var(--color-accent);
   text-decoration: underline;
@@ -175,8 +193,9 @@ a:hover {
   color: var(--color-bg);
 }
 
+/* Code is set in the mono face in both modes. The pixel type has no lowercase, so it would shout a command. */
 .codeText, code {
-  font-family: var(--font-ui);
+  font-family: var(--font-mono);
   font-size: 0.9em;
   color: var(--color-teal);
 }

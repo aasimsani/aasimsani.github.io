@@ -74,7 +74,7 @@ const rituals = [
       </p>
 
       <figure class="diff post-panel" aria-label="A code diff renaming user_items to digest_items">
-        <div class="diff-title"><span class="diff-file">notifications/digest.py</span><span class="diff-stat">+6 &minus;7</span></div>
+        <div class="diff-title"><span class="diff-file">notifications/digest.py</span><span class="diff-stat">+5 &minus;7</span></div>
         <pre tabindex="0"><code><span class="dl ctx">  def send_weekly_digest(user, stories):</span>
 <span class="dl del">-     user_items = []</span>
 <span class="dl add">+     digest_items = []</span>
@@ -1087,7 +1087,9 @@ compiler checks it.</Fragment>
     font-size: 0.82rem;
     line-height: 1.6;
   }
-  .diff code { color: var(--color-text-soft); font-size: 1em; }
+  /* Each line is a block-level span, and the line breaks between the spans would each add an empty row inside
+     <pre>. A grid container drops that whitespace, so the code is single-spaced. */
+  .diff code { display: grid; color: var(--color-text-soft); font-size: 1em; }
   .dl { display: block; padding: 0 1rem; white-space: pre; }
   .dl.add { background: color-mix(in srgb, var(--color-teal) 14%, transparent); color: var(--color-text); }
   .dl.del { background: color-mix(in srgb, var(--color-accent) 11%, transparent); color: var(--color-text-soft); }
@@ -1130,7 +1132,7 @@ compiler checks it.</Fragment>
     font-size: 0.8rem;
     line-height: 1.65;
   }
-  .load-code code { color: var(--color-text-soft); font-size: 1em; }
+  .load-code code { display: grid; color: var(--color-text-soft); font-size: 1em; }
   .cl {
     display: block;
     white-space: pre;

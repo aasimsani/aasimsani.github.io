@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="experience section-anchor" id="experience">
   <div class="container">
-    <SectionHeader title="Experience" />
+    <SectionHeader section="experience" />
     <div class="entries">
       {experience.map((e) => (
         <article class="entry">
@@ -68,7 +68,7 @@ import SectionHeader from "./SectionHeader.astro";
   }
   h3 {
     margin: 0;
-    font-size: 1.7rem;
+    font-size: var(--text-entry-title);
     font-weight: 500;
   }
   h3 a { color: var(--color-text); text-decoration: none; }
