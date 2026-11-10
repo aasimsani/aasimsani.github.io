@@ -18,7 +18,10 @@ for every rule here.
 ## Page anatomy
 
 `src/data/posts.ts` holds one entry per post. The `/blog/` index, the page
-title, the canonical URL and the social tags all read from it.
+title, the canonical URL and the social tags all read from it. So do the RSS
+feed at `/rss.xml` and the schema.org data in each page's head
+(`src/data/schema.ts`), so a new entry reaches feed readers and search engines
+with no further step.
 
 | Field | What it does |
 |---|---|
@@ -29,7 +32,7 @@ title, the canonical URL and the social tags all read from it.
 | `displayDate` | Human date shown in the byline |
 | `readingTime` | Byline text, such as `23 min read` |
 | `ogImage` | Root-relative path of the social card; bump `?v=N` when the image changes |
-| `audio` | Optional root-relative path of the narration MP3, which turns on the Listen bar |
+| `audio` | Optional root-relative path of the narration MP3, which turns on the Listen bar and attaches the MP3 to the post's RSS item |
 
 `PostLayout` (`src/layouts/PostLayout.astro`) draws the frame: the pinned nav
 with its reading-progress bar, the header, the share row, the footer and the
@@ -88,6 +91,9 @@ and similar attributes.
 | Kicker, section labels, nav links, buttons | Silkscreen (`--font-ui`) |
 | Code and diffs | Geist Mono (`--font-mono`) |
 
+The site serves all three itself, from the `@font-face` rules in
+`src/styles/fonts.css`. Geist ships a true italic, which `<i>` and `<em>` use.
+
 The visitor's clock picks the mode, and the switch lets them change it.
 
 - **Serious** is the plain reading page.
@@ -113,7 +119,12 @@ did before.
 
 Every figure carries an `aria-label`. A chart or diagram also carries
 `role="img"`, and its label states the data or the flow in full, so a screen
-reader gets the same argument as the picture.
+reader gets the same argument as the picture. ARIA doesn't allow a role on a
+figure that has a `<figcaption>`, so in a captioned figure the `role="img"` and
+its label go on the graphic inside, such as the `<svg>`.
+
+A `<pre>` or figure that scrolls sideways on a phone carries `tabindex="0"`, so
+a keyboard reader can focus it and scroll it.
 
 ## Writing style
 
