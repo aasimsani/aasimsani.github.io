@@ -3,7 +3,9 @@ import { speaking } from "../data/speaking";
 import SectionHeader from "./SectionHeader.astro";
 
 // Talks link out behind a poster instead of embedding players, so the page
-// loads no third-party video code until someone chooses to watch.
+// loads no third-party video code until someone chooses to watch. A poster
+// image that fails to load removes itself, which leaves the plain panel and
+// the play mark instead of a broken-image icon.
 const ytId = (src: string) => src.match(/embed\/([\w-]+)/)?.[1];
 const fullTitle = (t: (typeof speaking)[number]) => [t.title, t.subtitle].filter(Boolean).map((x) => x!.trim()).join(" ");
 const watchUrl = (t: (typeof speaking)[number]) => {
@@ -20,7 +22,15 @@ const watchUrl = (t: (typeof speaking)[number]) => {
         <article class="talk">
           <a class="poster px-frame" href={watchUrl(t)} target="_blank" rel="noopener">
             {t.embed.kind === "youtube" ? (
-              <img src={`https://i.ytimg.com/vi/${ytId(t.embed.src)}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" />
+              <img
+                src={`https://i.ytimg.com/vi/${ytId(t.embed.src)}/hqdefault.jpg`}
+                alt=""
+                width="480"
+                height="360"
+                loading="lazy"
+                decoding="async"
+                onerror="this.remove()"
+              />
             ) : (
               <span class="poster-fallback">Watch on LinkedIn</span>
             )}
@@ -41,12 +51,13 @@ const watchUrl = (t: (typeof speaking)[number]) => {
     background: transparent;
   }
   .container {
-    max-width: 1080px;
+    max-width: 1000px;
     margin: 0 auto;
   }
+  /* Four talks sit two to a row. The min() lets a card shrink below 340px, so a 360px phone doesn't scroll sideways. */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
     gap: 3rem 2rem;
   }
   .talk h3 {
