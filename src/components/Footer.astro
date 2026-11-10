@@ -6,22 +6,29 @@ const label: Record<string, string> = {
   "envelope-square": "Email",
   "linkedin-square": "LinkedIn",
   "github-square": "GitHub",
-  "twitter-square": "X (Twitter)",
+  "x-square": "X",
 };
 const year = new Date().getFullYear();
 const iconKey: Record<string, string> = {
   "envelope-square": "envelope",
   "linkedin-square": "linkedin",
   "github-square": "github",
-  "twitter-square": "twitter",
+  "x-square": "x",
 };
+// The ways onward that the hero offers, repeated where a reader finishes. Every page but the homepage adds Home.
+const links = [
+  ...(Astro.url.pathname === "/" ? [] : [{ label: "Home", href: "/" }]),
+  { label: "Writing", href: "/blog/" },
+  { label: "Resume", href: "/resume.pdf" },
+  { label: "RSS", href: "/rss.xml" },
+];
 ---
 
 <footer id="footer">
   <div class="wrap">
     <div class="cta">
       <p class="kicker afterhours-only">
-        <span class="locked">The final boss is guarding my inbox. (It's unlocked anyway.)</span>
+        <span class="locked">The final boss is guarding my inbox. (It’s unlocked anyway.)</span>
         <span class="unlocked">PR closed. Inbox unlocked.</span>
       </p>
       <a class="mail px-frame" href="mailto:aasimsani05@gmail.com">Email me</a>
@@ -33,6 +40,9 @@ const iconKey: Record<string, string> = {
         </a>
       ))}
     </div>
+    <nav class="links" aria-label="Footer">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
     <p class="copy">© {year} {bio.footer.copyright}</p>
   </div>
 </footer>
@@ -124,6 +134,23 @@ const iconKey: Record<string, string> = {
   .socials :global(svg) {
     width: 28px;
     height: 28px;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1.4rem;
+    margin-bottom: 1.25rem;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+  }
+  .links a {
+    color: var(--color-text-soft);
+    text-decoration-color: var(--color-line);
+  }
+  .links a:hover {
+    color: var(--color-accent);
+    text-decoration-color: var(--color-accent);
   }
   .copy {
     font-family: var(--font-ui);

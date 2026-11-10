@@ -11,6 +11,7 @@ import BlogAdventureSwitch from "../components/post/BlogAdventureSwitch.astro";
 import ShareRow from "../components/post/ShareRow.astro";
 import BlogNav from "../components/post/BlogNav.astro";
 import ListenBar from "../components/post/ListenBar.astro";
+import AuthorNote from "../components/post/AuthorNote.astro";
 import { posts } from "../data/posts";
 import { site } from "../data/site";
 import { absolute, postSchema, postUrl } from "../data/schema";
@@ -67,6 +68,7 @@ const canonical = postUrl(post);
 
       <slot />
       <ShareRow url={canonical} text={shareText ?? post.title} />
+      <AuthorNote />
       <slot name="sources" />
     </main>
 

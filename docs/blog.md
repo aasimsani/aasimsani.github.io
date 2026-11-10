@@ -17,8 +17,9 @@ for every rule here.
 
 ## Page anatomy
 
-`src/data/posts.ts` holds one entry per post. The `/blog/` index, the page
-title, the canonical URL and the social tags all read from it. So do the RSS
+`src/data/posts.ts` holds one entry per post. The `/blog/` index, the
+homepage's Writing section (which shows the newest three), the page title, the
+canonical URL and the social tags all read from it. So do the RSS
 feed at `/rss.xml` and the schema.org data in each page's head
 (`src/data/schema.ts`), so a new entry reaches feed readers and search engines
 with no further step.
@@ -60,7 +61,10 @@ in `src/styles/post.css`.
 | `CaseFile` | One incident. Wrap a run of them in `<div class="case-grid">`. The props `staring`, `invisible` and `seenBy` fill the facts list, `catcher` opens the verdict in bold, and the `verdict` slot finishes it. |
 | `Checklist` | Practices the reader can tick and copy as Markdown. Give each post its own `storageKey`, versioned like `<slug>-checklist.v1`, and bump the version when the items change. |
 | `Sources` | The numbered source list. Each `<li>` gets `id="src-N"`. Practitioner links go in the `further` slot. |
-| `ShareRow`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. |
+| `ShareRow`, `AuthorNote`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. `AuthorNote` sits under the share row and says who wrote the post, in the line from `bio.author` in `src/data/bio.ts`. |
+
+`src/components/PostCard.astro` draws a post on a listing. The blog index and
+the homepage both use it, so a post looks the same in both places.
 
 These classes from `post.css` cover the remaining markup:
 
@@ -254,3 +258,10 @@ headless Chrome:
 When a card changes after publishing, bump the `?v=N` suffix on `ogImage` in
 `posts.ts`. LinkedIn, X and Slack cache cards by URL, so they keep showing the
 old image until the URL changes.
+
+The homepage has its own card, `public/images/og-card.jpg`, which carries the
+portrait. Its source is `scripts/templates/og-home.html`. That file loads the
+fonts and the portrait from this repository, so run `npm install` first. Render
+it with the same Chrome command to a PNG, convert the PNG to a JPEG (on macOS,
+`sips -s format jpeg card.png --out public/images/og-card.jpg`), and bump the
+`?v=N` on `ogImage` in `src/data/site.ts`.

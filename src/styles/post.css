@@ -298,6 +298,22 @@ figure.post-panel {
   margin-top: 1.6rem;
 }
 
+/* Who wrote the post and where to go next, under the share row. */
+.author-note {
+  margin-top: 2.2rem;
+  font-size: 0.95rem;
+  color: var(--color-text-soft);
+}
+.author-note p { margin: 0 0 0.6rem; }
+.author-note .author-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.2rem;
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+}
+
 .sources ol { padding-left: 1.2rem; }
 .sources li {
   font-size: 0.88rem;
@@ -366,7 +382,7 @@ figure.post-panel {
 
 /* The hairline between sections becomes a dashed stretch of road. */
 [data-site-mode="afterhours"] .post-section + .post-section,
-.post .sources {
+[data-site-mode="afterhours"] .post .sources {
   border-top: 0;
   background: repeating-linear-gradient(90deg, var(--world-road-hi) 0 12px, transparent 12px 24px) top / 100% 4px no-repeat;
 }

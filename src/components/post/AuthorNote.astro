@@ -1,0 +1,19 @@
+---
+// Who wrote the post and where to go next. PostLayout places it under the share
+// row, for the reader who arrived from a shared link and has never seen the
+// homepage. The line of bio comes from src/data/bio.ts.
+import { bio } from "../../data/bio";
+import { posts } from "../../data/posts";
+
+const email = bio.hero.cta.find((c) => c.href.startsWith("mailto:"))?.href;
+---
+
+<aside class="author-note" aria-label="About the author">
+  <p>{bio.author}</p>
+  <p class="author-links">
+    <a href="/">More about me</a>
+    {posts.length > 1 && <a href="/blog/">More writing</a>}
+    <a href="/rss.xml">Follow by RSS</a>
+    {email && <a href={email}>Email me</a>}
+  </p>
+</aside>
