@@ -15,7 +15,7 @@ export const projects: Project[] = [
     title: "MeowLearning",
     logo: "/images/meowlearning.webp",
     link: "https://github.com/aasimsani/meow-learning",
-    linkLabel: "See on Github",
+    linkLabel: "See on GitHub",
     github: "aasimsani/meow-learning",
     paragraphs: [
       `This is a pick-your-problem style guide I created to educate everyone, from my leadership team to my ML engineers on working with AI in production settings. This is the stuff you won't learn in most ML/AI courses.`,
@@ -25,7 +25,7 @@ export const projects: Project[] = [
     title: "Artificial Manga Panel Dataset",
     logo: "/images/ampd.webp",
     link: "https://github.com/aasimsani/artificial_manga_panel_dataset",
-    linkLabel: "See on Github",
+    linkLabel: "See on GitHub",
     github: "aasimsani/artificial_manga_panel_dataset",
     paragraphs: [
       `I love manga, but I can't read Japanese, and Google Translate's OCR + translation pipeline isn't great with manga text. So I set out to build a speech-bubble detector to localize manga into English faster (which would also help official translators). There was no free, publicly available dataset to train it on, so I generated one.`,
@@ -44,7 +44,7 @@ export const projects: Project[] = [
     title: "gwt: Git Worktree Manager",
     logoFallback: "terminal",
     link: "https://github.com/aasimsani/gwt-zsh",
-    linkLabel: "See on Github",
+    linkLabel: "See on GitHub",
     github: "aasimsani/gwt-zsh",
     githubExtra: {
       label: "PowerShell port",
@@ -58,7 +58,7 @@ export const projects: Project[] = [
     title: "ML Project Template",
     logo: "/images/copycat.webp",
     link: "https://github.com/aasimsani/ml_project_template",
-    linkLabel: "See on Github",
+    linkLabel: "See on GitHub",
     github: "aasimsani/ml_project_template",
     paragraphs: [
       `An open-source template repository to kickstart new Machine Learning projects in a standardized way. Originally built for CopyCat's ML team (saving ~2 hours per project), it works for any ML team that wants a repeatable starting point.`,

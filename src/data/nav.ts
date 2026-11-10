@@ -14,7 +14,7 @@ export const sectionTitles = {
   education: "Education",
   publicspeaking: "Public Speaking",
   projects: "Projects",
-  news: "News and media",
+  news: "News and Media",
   research: "Research",
   podcasts: "Podcasts",
   articles: "Articles",

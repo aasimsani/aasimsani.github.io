@@ -1,3 +1,5 @@
+import type { Mat } from "./mat";
+
 export type Experience = {
   company: string;
   logo: string;
@@ -8,7 +10,7 @@ export type Experience = {
   subTagline?: string;
   paragraphs: string[];
   stage: "sprouting" | "tending" | "evergreen" | "composted";
-  mat?: "dark" | "white" | "cream";
+  mat?: Mat;
 };
 
 export const experience: Experience[] = [

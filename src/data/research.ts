@@ -1,10 +1,12 @@
+import type { Mat } from "./mat";
+
 export type ResearchEntry = {
   title: string;
   logo: string;
   link?: string;
   linkLabel?: string;
   paragraphs: string[];
-  mat?: "dark" | "white" | "cream" | "bleed";
+  mat?: Mat;
 };
 
 export const research: ResearchEntry[] = [

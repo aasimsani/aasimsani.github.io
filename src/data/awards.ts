@@ -1,9 +1,11 @@
+import type { Mat } from "./mat";
+
 export type Award = {
   title: string;
   logo: string;
   link: string;
   description: string;
-  mat?: "dark" | "white" | "cream";
+  mat?: Mat;
 };
 
 export const awards: Award[] = [
@@ -37,24 +39,24 @@ export const awards: Award[] = [
       "Top 10 of 271 projects, Full Stack Deep Learning x Berkeley, Spring 2021.",
   },
   {
-    title: "Mass Challenge",
+    title: "MassChallenge",
     logo: "/images/mc.webp",
     link: "https://masschallenge.org/news/masschallenge-announces-2017-class-startups-boston-israel-switzerland/",
     description:
-      "Mass Challenge accelerator, 2017 cohort. Boston.",
+      "MassChallenge accelerator, 2017 cohort. Boston.",
   },
   {
-    title: "Creative Destruction Labs",
+    title: "Creative Destruction Lab",
     logo: "/images/cdl.webp",
     link: "https://creativedestructionlab.com/companies/?stream=artificial-intelligence",
     description:
       "Finalist, Creative Destruction Lab Toronto, 2018 (with Orai).",
   },
   {
-    title: "Hack Princeton (Fall 2018)",
+    title: "HackPrinceton (Fall 2018)",
     logo: "/images/hackprinceton.webp",
     link: "https://devpost.com/software/hackprinceton2018-fall",
     description:
-      "Hack Princeton, Fall 2018. Best Use of Google Cloud Platform.",
+      "HackPrinceton, Fall 2018. Best Use of Google Cloud Platform.",
   },
 ];

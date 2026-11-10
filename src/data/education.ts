@@ -1,9 +1,11 @@
+import type { Mat } from "./mat";
+
 export type Education = {
   school: string;
   logo: string;
   link: string;
   description: string;
-  mat?: "dark" | "white" | "cream" | "bleed";
+  mat?: Mat;
 };
 
 export const education: Education[] = [
