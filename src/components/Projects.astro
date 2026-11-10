@@ -13,14 +13,14 @@ import SectionHeader from "./SectionHeader.astro";
           <div class="logo-mark">
             {p.logo && (
               p.link ? (
-                <a href={p.link}><img src={p.logo} alt={p.title} /></a>
+                <a href={p.link}><img src={p.logo} alt={p.title} width="92" height="92" loading="lazy" decoding="async" /></a>
               ) : (
-                <img src={p.logo} alt={p.title} />
+                <img src={p.logo} alt={p.title} width="92" height="92" loading="lazy" decoding="async" />
               )
             )}
             {p.logoFallback === "terminal" && (
               p.link ? (
-                <a href={p.link} set:html={icons.terminal}></a>
+                <a href={p.link} aria-label={p.title} set:html={icons.terminal}></a>
               ) : (
                 <span set:html={icons.terminal}></span>
               )

@@ -20,14 +20,14 @@ const {
 } = Astro.props;
 ---
 
-<div class="adventure px-frame" role="group" aria-label={prompt}>
-  <span class="cyoa">{prompt}</span>
-  <div class="options">
+<aside class="adventure px-frame" aria-label={prompt}>
+  <span class="cyoa" aria-hidden="true">{prompt}</span>
+  <div class="options" role="group" aria-label="Site mode">
     <span class="pill" aria-hidden="true"></span>
     <button type="button" data-site="serious" aria-pressed="false">Serious</button>
     <button type="button" data-site="afterhours" aria-pressed="false">After hours</button>
   </div>
-</div>
+</aside>
 
 <div
   class="nudge px-frame"

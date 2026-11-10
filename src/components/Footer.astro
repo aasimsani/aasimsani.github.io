@@ -28,7 +28,7 @@ const iconKey: Record<string, string> = {
     </div>
     <div class="socials">
       {bio.footer.socials.map((s) => (
-        <a href={s.href} target="_blank" rel="noopener" aria-label={label[s.icon]}>
+        <a href={s.href} aria-label={label[s.icon]} rel="me noopener" target={s.href.startsWith("http") ? "_blank" : undefined}>
           <span set:html={icons[iconKey[s.icon]]}></span>
         </a>
       ))}

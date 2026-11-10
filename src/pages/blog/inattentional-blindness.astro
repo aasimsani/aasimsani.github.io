@@ -75,7 +75,7 @@ const rituals = [
 
       <figure class="diff post-panel" aria-label="A code diff renaming user_items to digest_items">
         <div class="diff-title"><span class="diff-file">notifications/digest.py</span><span class="diff-stat">+6 &minus;7</span></div>
-        <pre><code><span class="dl ctx">  def send_weekly_digest(user, stories):</span>
+        <pre tabindex="0"><code><span class="dl ctx">  def send_weekly_digest(user, stories):</span>
 <span class="dl del">-     user_items = []</span>
 <span class="dl add">+     digest_items = []</span>
 <span class="dl ctx">      for story in stories:</span>
@@ -100,7 +100,7 @@ const rituals = [
             that&rsquo;s what you checked, you almost certainly sailed past the
             two lines in the middle that have nothing to do with the rename:
           </p>
-          <pre class="reveal-snippet"><code>-     if user.unsubscribed:
+          <pre class="reveal-snippet" tabindex="0"><code>-     if user.unsubscribed:
 -         return None</code></pre>
           <p>
             This diff also <b>deletes the unsubscribe guard</b>. Everyone who
@@ -133,9 +133,9 @@ const rituals = [
         looked <em>directly at it</em>.<sup><a href="#src-2">2</a></sup>
       </p>
 
-      <figure class="chart post-panel" role="img" aria-label="Bar chart: about 50% of untrained viewers miss the gorilla in the basketball video; 83% of expert radiologists missed it in CT scans.">
+      <figure class="chart post-panel" tabindex="0">
         <figcaption class="chart-title">Who misses the gorilla?</figcaption>
-        <svg viewBox="0 0 640 190" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 640 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart: about 50% of untrained viewers miss the gorilla in the basketball video; 83% of expert radiologists missed it in CT scans.">
           <g font-family="var(--font-ui)" font-size="13">
             <!-- row 1 -->
             <text x="0" y="34" fill="var(--color-text-soft)">Untrained viewers, basketball video</text>
@@ -209,7 +209,7 @@ const rituals = [
           <input id="loadSlider" type="range" min="0" max="100" value="55" />
           <span class="load-readout" id="loadReadout">55%</span>
         </div>
-        <pre class="load-code" id="loadCode" style="--load:0.55"><code><span class="cl" style="--d:4"># worker liveness check: restarts stuck workers</span>
+        <pre class="load-code" id="loadCode" style="--load:0.55" tabindex="0"><code><span class="cl" style="--d:4"># worker liveness check: restarts stuck workers</span>
 <span class="cl" style="--d:3">RECENT = timedelta(minutes=10)</span>
 <span class="cl" style="--d:2"></span>
 <span class="cl" style="--d:1">def health_check(worker):</span>
@@ -487,7 +487,7 @@ compiler checks it.</Fragment>
         root-caused, and each one rides one of two channels.
       </p>
 
-      <figure class="diagram post-panel" role="img" aria-label="Diagram: a developer at full attentional load produces misses through two channels: technical (code diverges from intent) and alignment (intent diverges from reality). Misses from both channels ship and are found late.">
+      <figure class="diagram post-panel" role="img" tabindex="0" aria-label="Diagram: a developer at full attentional load produces misses through two channels: technical (code diverges from intent) and alignment (intent diverges from reality). Misses from both channels ship and are found late.">
         <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <defs>
             <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -558,7 +558,7 @@ compiler checks it.</Fragment>
         cost is <em>speed</em>.
       </p>
 
-      <figure class="diagram post-panel" role="img" aria-label="Diagram of the slowdown loop: a miss ships, is found late, triggers interrupt-driven rework, which raises work-in-progress and context switching, which raises attentional load, which produces more misses.">
+      <figure class="diagram post-panel" role="img" tabindex="0" aria-label="Diagram of the slowdown loop: a miss ships, is found late, triggers interrupt-driven rework, which raises work-in-progress and context switching, which raises attentional load, which produces more misses.">
         <svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <defs>
             <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -647,7 +647,7 @@ compiler checks it.</Fragment>
         developer builds.
       </p>
 
-      <figure class="diagram post-panel" role="img" aria-label="Triangle diagram: a developer supported by a technical peer watching channel 1 (technical misses) and a standard holder watching channel 2 (alignment misses).">
+      <figure class="diagram post-panel" role="img" tabindex="0" aria-label="Triangle diagram: a developer supported by a technical peer watching channel 1 (technical misses) and a standard holder watching channel 2 (alignment misses).">
         <svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
           <!-- triangle edges -->
           <line x1="340" y1="66" x2="150" y2="240" stroke="var(--color-line)" stroke-width="1.5"/>
@@ -752,9 +752,9 @@ compiler checks it.</Fragment>
         wasn&rsquo;t in. Here are nine casts that actually ran.
       </p>
 
-      <figure class="triad-fig post-panel" role="img" aria-label="Nine real triad configurations from Orai and CopyCat, each a triangle of builder, technical peer, and standard holder played by different people.">
+      <figure class="triad-fig post-panel">
         <figcaption class="chart-title">The same triangle, recast per problem</figcaption>
-        <div class="triad-grid">
+        <div class="triad-grid" role="img" aria-label="Nine real triad configurations from Orai and CopyCat, each a triangle of builder, technical peer, and standard holder played by different people.">
           <div class="mini-triad"><span class="mt-co">Orai</span>
             <svg viewBox="0 0 220 158" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)" font-size="11.5">
               <line x1="110" y1="36" x2="34" y2="122" stroke="var(--color-line)" stroke-width="1.5"/>
@@ -1118,7 +1118,8 @@ compiler checks it.</Fragment>
     font-size: 0.82rem;
     color: var(--color-text-soft);
   }
-  .load-controls input[type="range"] { flex: 1; accent-color: var(--color-accent); }
+  /* min-width lets the slider shrink, so the row fits a 320px phone in pixel type. */
+  .load-controls input[type="range"] { flex: 1; min-width: 0; accent-color: var(--color-accent); }
   .load-readout { color: var(--color-accent); min-width: 3ch; }
   .load-code {
     margin: 0;

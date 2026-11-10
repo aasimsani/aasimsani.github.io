@@ -33,6 +33,7 @@ import { nav } from "../data/nav";
     burger.dataset.open = open ? "true" : "false";
     menu.dataset.open = open ? "true" : "false";
     burger.setAttribute("aria-expanded", open ? "true" : "false");
+    burger.setAttribute("aria-label", open ? "Close section menu" : "Open section menu");
   }
 
   burger?.addEventListener("click", () => {
@@ -44,7 +45,10 @@ import { nav } from "../data/nav";
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && burger?.dataset.open === "true") setOpen(false);
+    if (e.key === "Escape" && burger?.dataset.open === "true") {
+      setOpen(false);
+      burger.focus();
+    }
   });
 
   document.addEventListener("click", (e) => {
@@ -150,12 +154,16 @@ import { nav } from "../data/nav";
     overflow: hidden;
     opacity: 0;
     pointer-events: none;
-    transition: max-height 0.25s ease, opacity 0.15s ease;
+    /* A closed menu leaves the tab order and the screen reader's view, once it has finished folding away. */
+    visibility: hidden;
+    transition: max-height 0.25s ease, opacity 0.15s ease, visibility 0s 0.25s;
   }
   .mobile-menu[data-open="true"] {
     max-height: 70vh;
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
+    transition: max-height 0.25s ease, opacity 0.15s ease;
   }
   .mobile-menu .nav-link {
     padding: 0.75rem 0.5rem;
