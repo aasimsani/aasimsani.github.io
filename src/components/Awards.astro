@@ -10,7 +10,7 @@ import SectionHeader from "./SectionHeader.astro";
       {awards.map((a) => (
         <article class="card">
           <a class="logo-mark" data-mat={a.mat} href={a.link} target="_blank" rel="noopener">
-            <img src={a.logo} alt={a.title} />
+            <img src={a.logo} alt={a.title} width="92" height="92" loading="lazy" decoding="async" />
           </a>
           <h3>{a.title}</h3>
           <p>{a.description}</p>

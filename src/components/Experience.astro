@@ -11,9 +11,9 @@ import SectionHeader from "./SectionHeader.astro";
         <article class="entry">
           <div class="logo-mark" data-mat={e.mat}>
             {e.link ? (
-              <a href={e.link}><img src={e.logo} alt={e.company} /></a>
+              <a href={e.link}><img src={e.logo} alt={e.company} width="92" height="92" loading="lazy" decoding="async" /></a>
             ) : (
-              <img src={e.logo} alt={e.company} />
+              <img src={e.logo} alt={e.company} width="92" height="92" loading="lazy" decoding="async" />
             )}
           </div>
           <div class="body">

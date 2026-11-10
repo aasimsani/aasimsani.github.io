@@ -29,6 +29,9 @@
     try {
       localStorage.setItem("theme", next);
     } catch (e) { /* localStorage blocked */ }
+    // The browser's own toolbar follows the page background.
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--color-bg").trim();
+    if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute("content", bg);
     applyToggleState();
   }
 

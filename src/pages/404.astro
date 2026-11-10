@@ -6,10 +6,10 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 import BlogNav from "../components/post/BlogNav.astro";
 ---
 
-<BaseLayout title="Page not found · Aasim Sani" description="This page doesn't exist.">
+<BaseLayout title="Page not found · Aasim Sani" description="This page doesn't exist." ogTitle="Page not found · Aasim Sani" ogType="website" noindex>
   <ThemeToggle />
   <BlogNav />
-  <main class="nf">
+  <main class="nf" id="main" tabindex="-1">
     <div class="nf-text">
       <p class="nf-kicker"><span class="afterhours-only">404 &middot; Zone not found</span><span class="serious-only">404</span></p>
       <h1><span class="afterhours-only">This page wandered off.</span><span class="serious-only">This page doesn&rsquo;t exist.</span></h1>

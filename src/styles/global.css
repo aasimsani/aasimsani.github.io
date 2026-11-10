@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 @theme {
   /* Night ember is the default world. Dawn applies only when the reader picks light. */
@@ -15,9 +16,9 @@
   --color-paper: #ece4d4;
   --color-placeholder: #0a0c1c;
 
-  --font-display: "Geist", "Helvetica Neue", sans-serif;
-  --font-body: "Geist", "Helvetica Neue", sans-serif;
-  --font-ui: "Silkscreen", "Geist Mono", monospace;
+  --font-display: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
+  --font-body: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
+  --font-ui: "Silkscreen", "Silkscreen Fallback", "Geist Mono", monospace;
 }
 
 /* The pixel world reads these, so the background and the page can't drift apart. */
@@ -98,6 +99,11 @@ html {
   html { font-size: 18px; }
 }
 
+/* An in-page link jumps straight to its section for readers who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 body {
   font-family: var(--font-body);
   font-weight: 400;
@@ -124,6 +130,31 @@ h1, h2, h3, h4, h5 {
 }
 
 p { margin-bottom: 1rem; }
+
+/* The first Tab stop on every page. It stays off screen until it has focus,
+   then drops in at the top left so a keyboard reader can jump past the nav. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.7rem 1rem;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  line-height: 1;
+  text-decoration: none;
+  transform: translateY(-300%);
+}
+.skip-link:focus {
+  color: var(--color-bg);
+  transform: none;
+}
+/* A skip link moves focus to <main>, and main shouldn't draw a ring for that. */
+main:focus {
+  outline: none;
+}
 
 a {
   color: var(--color-accent);
@@ -270,7 +301,7 @@ a.logo-mark {
 
 /* Serious mode drops every game marker: no pixel type, no stepped corners. */
 [data-site-mode="serious"] {
-  --font-ui: "Geist", "Helvetica Neue", sans-serif;
+  --font-ui: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
 }
 [data-site-mode="serious"] .px-frame {
   clip-path: none;
@@ -278,7 +309,7 @@ a.logo-mark {
 }
 
 /* After hours opens a tall gap above every section, where the road crosses and a mini-boss waits. */
-[data-site-mode="afterhours"] body > section[id] {
+[data-site-mode="afterhours"] main > section[id] {
   padding-top: 14rem !important;
 }
 

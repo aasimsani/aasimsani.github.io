@@ -13,19 +13,23 @@ import Research from "../components/Research.astro";
 import Footer from "../components/Footer.astro";
 import World from "../components/World.astro";
 import AdventureSwitch from "../components/AdventureSwitch.astro";
+import { homeSchema } from "../data/schema";
 ---
 
-<BaseLayout>
+<BaseLayout jsonLd={homeSchema()}>
   <ThemeToggle />
   <Hero />
   <SectionNav />
-  <Experience />
-  <Awards />
-  <Education />
-  <Speaking />
-  <Projects />
-  <News />
-  <Research />
+  {/* The section nav stays outside <main>, so it keeps sticking while the footer scrolls past. */}
+  <main id="main" tabindex="-1">
+    <Experience />
+    <Awards />
+    <Education />
+    <Speaking />
+    <Projects />
+    <News />
+    <Research />
+  </main>
   <Footer />
   <World />
   <AdventureSwitch />

@@ -13,12 +13,12 @@
 
 <div class="fx afterhours-only" aria-hidden="true"></div>
 
-<div class="hud px-frame afterhours-only" role="group" aria-label="Game status">
+<aside class="hud px-frame afterhours-only" aria-label="Game status">
   <span class="hud-face" aria-hidden="true"><canvas width="72" height="72"></canvas></span>
   <span class="zone"><span class="caret">&gt;</span> <span data-zone>Start</span></span>
   <span class="embers" title="Embers collected"><span class="ember-icon" aria-hidden="true"></span><span data-embers>0</span></span>
   <button type="button" class="mode" data-mode aria-pressed="true">Fight</button>
-</div>
+</aside>
 
 <div class="bossbar px-frame afterhours-only" hidden>
   <p class="boss-tier" data-boss-tier>Mini-boss</p>
@@ -335,7 +335,7 @@
     const grab = document.querySelector<HTMLElement>(".grab");
     if (!grab) return;
     // Over the content column the handle lets clicks through, so it never blocks a link.
-    const column = document.querySelector<HTMLElement>("body > section[id] .container") ?? document.querySelector<HTMLElement>("body > section[id]");
+    const column = document.querySelector<HTMLElement>("main > section[id] .container") ?? document.querySelector<HTMLElement>("main > section[id]");
     const follow = () => {
       const p = w.toScreen();
       grab.style.transform = `translate(${Math.round(p.x - 28)}px, ${Math.round(p.y - 70)}px)`;

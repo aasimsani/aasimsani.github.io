@@ -10,7 +10,7 @@ import SectionHeader from "./SectionHeader.astro";
       {education.map((s) => (
         <article class="entry">
           <a class="logo-mark" data-mat={s.mat} href={s.link} target="_blank" rel="noopener">
-            <img src={s.logo} alt={s.school} />
+            <img src={s.logo} alt={s.school} width="92" height="92" loading="lazy" decoding="async" />
           </a>
           <div class="body">
             <h3>{s.school}</h3>

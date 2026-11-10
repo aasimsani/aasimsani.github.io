@@ -418,7 +418,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     // Lanes are the gutters beside the content column. On narrow screens the
     // road runs behind the column instead, and denser panels keep text readable.
     // The column is the widest section container, so the road never runs under real text.
-    const containers = Array.from(document.querySelectorAll<HTMLElement>("body > section[id] .container"));
+    const containers = Array.from(document.querySelectorAll<HTMLElement>("main > section[id] .container"));
     const colW = Math.max(0, ...containers.map((c) => c.getBoundingClientRect().width)) || Math.min(innerWidth - 2 * 150, 1000);
     let colL = (innerWidth - colW) / 2 / S, colR = (innerWidth + colW) / 2 / S;
     let left: [number, number] = [MARGIN, Math.floor(colL) - 3];
