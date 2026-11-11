@@ -11,8 +11,10 @@ import BlogAdventureSwitch from "../components/post/BlogAdventureSwitch.astro";
 import ShareRow from "../components/post/ShareRow.astro";
 import BlogNav from "../components/post/BlogNav.astro";
 import ListenBar from "../components/post/ListenBar.astro";
+import AuthorNote from "../components/post/AuthorNote.astro";
 import { posts } from "../data/posts";
 import { site } from "../data/site";
+import { absolute, postSchema, postUrl } from "../data/schema";
 import "../styles/post.css";
 
 interface Props {
@@ -28,7 +30,7 @@ interface Props {
 const { slug, kicker, headline, dek, shareText } = Astro.props;
 const post = posts.find((p) => p.slug === slug);
 if (!post) throw new Error(`No entry for "${slug}" in src/data/posts.ts`);
-const canonical = `${site.url}blog/${post.slug}/`;
+const canonical = postUrl(post);
 ---
 
 <BaseLayout
@@ -36,9 +38,11 @@ const canonical = `${site.url}blog/${post.slug}/`;
   description={post.description}
   ogType="article"
   ogTitle={post.title}
-  ogImage={`${site.url.replace(/\/$/, "")}${post.ogImage}`}
+  ogImage={absolute(post.ogImage)}
+  ogImageAlt={`${post.title} An essay by ${site.firstName} ${site.lastName}.`}
   canonical={canonical}
   publishedTime={post.published}
+  jsonLd={postSchema(post)}
 >
   <div class="post-shell">
     <div class="post-sky afterhours-only" aria-hidden="true"></div>
@@ -47,7 +51,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
       <div class="read-progress" aria-hidden="true"><span></span></div>
     </BlogNav>
 
-    <main class="post">
+    <main class="post" id="main" tabindex="-1">
       <header class="post-header">
         <p class="kicker">{kicker}</p>
         <h1>{headline ?? post.title}</h1>
@@ -64,6 +68,7 @@ const canonical = `${site.url}blog/${post.slug}/`;
 
       <slot />
       <ShareRow url={canonical} text={shareText ?? post.title} />
+      <AuthorNote />
       <slot name="sources" />
     </main>
 

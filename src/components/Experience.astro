@@ -5,15 +5,15 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="experience section-anchor" id="experience">
   <div class="container">
-    <SectionHeader title="Experience" />
+    <SectionHeader section="experience" />
     <div class="entries">
       {experience.map((e) => (
         <article class="entry">
           <div class="logo-mark" data-mat={e.mat}>
             {e.link ? (
-              <a href={e.link}><img src={e.logo} alt={e.company} /></a>
+              <a href={e.link}><img src={e.logo} alt={e.company} width="92" height="92" loading="lazy" decoding="async" /></a>
             ) : (
-              <img src={e.logo} alt={e.company} />
+              <img src={e.logo} alt={e.company} width="92" height="92" loading="lazy" decoding="async" />
             )}
           </div>
           <div class="body">
@@ -68,7 +68,7 @@ import SectionHeader from "./SectionHeader.astro";
   }
   h3 {
     margin: 0;
-    font-size: 1.7rem;
+    font-size: var(--text-entry-title);
     font-weight: 500;
   }
   h3 a { color: var(--color-text); text-decoration: none; }

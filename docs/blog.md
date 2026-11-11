@@ -17,8 +17,12 @@ for every rule here.
 
 ## Page anatomy
 
-`src/data/posts.ts` holds one entry per post. The `/blog/` index, the page
-title, the canonical URL and the social tags all read from it.
+`src/data/posts.ts` holds one entry per post. The `/blog/` index, the
+homepage's Writing section (which shows the newest three), the page title, the
+canonical URL and the social tags all read from it. So do the RSS
+feed at `/rss.xml` and the schema.org data in each page's head
+(`src/data/schema.ts`), so a new entry reaches feed readers and search engines
+with no further step.
 
 | Field | What it does |
 |---|---|
@@ -29,7 +33,7 @@ title, the canonical URL and the social tags all read from it.
 | `displayDate` | Human date shown in the byline |
 | `readingTime` | Byline text, such as `23 min read` |
 | `ogImage` | Root-relative path of the social card; bump `?v=N` when the image changes |
-| `audio` | Optional root-relative path of the narration MP3, which turns on the Listen bar |
+| `audio` | Optional root-relative path of the narration MP3, which turns on the Listen bar and attaches the MP3 to the post's RSS item |
 
 `PostLayout` (`src/layouts/PostLayout.astro`) draws the frame: the pinned nav
 with its reading-progress bar, the header, the share row, the footer and the
@@ -57,7 +61,10 @@ in `src/styles/post.css`.
 | `CaseFile` | One incident. Wrap a run of them in `<div class="case-grid">`. The props `staring`, `invisible` and `seenBy` fill the facts list, `catcher` opens the verdict in bold, and the `verdict` slot finishes it. |
 | `Checklist` | Practices the reader can tick and copy as Markdown. Give each post its own `storageKey`, versioned like `<slug>-checklist.v1`, and bump the version when the items change. |
 | `Sources` | The numbered source list. Each `<li>` gets `id="src-N"`. Practitioner links go in the `further` slot. |
-| `ShareRow`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. |
+| `ShareRow`, `AuthorNote`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. `AuthorNote` sits under the share row and says who wrote the post, in the line from `bio.author` in `src/data/bio.ts`. |
+
+`src/components/PostCard.astro` draws a post on a listing. The blog index and
+the homepage both use it, so a post looks the same in both places.
 
 These classes from `post.css` cover the remaining markup:
 
@@ -88,6 +95,9 @@ and similar attributes.
 | Kicker, section labels, nav links, buttons | Silkscreen (`--font-ui`) |
 | Code and diffs | Geist Mono (`--font-mono`) |
 
+The site serves all three itself, from the `@font-face` rules in
+`src/styles/fonts.css`. Geist ships a true italic, which `<i>` and `<em>` use.
+
 The visitor's clock picks the mode, and the switch lets them change it.
 
 - **Serious** is the plain reading page.
@@ -113,7 +123,12 @@ did before.
 
 Every figure carries an `aria-label`. A chart or diagram also carries
 `role="img"`, and its label states the data or the flow in full, so a screen
-reader gets the same argument as the picture.
+reader gets the same argument as the picture. ARIA doesn't allow a role on a
+figure that has a `<figcaption>`, so in a captioned figure the `role="img"` and
+its label go on the graphic inside, such as the `<svg>`.
+
+A `<pre>` or figure that scrolls sideways on a phone carries `tabindex="0"`, so
+a keyboard reader can focus it and scroll it.
 
 ## Writing style
 
@@ -243,3 +258,10 @@ headless Chrome:
 When a card changes after publishing, bump the `?v=N` suffix on `ogImage` in
 `posts.ts`. LinkedIn, X and Slack cache cards by URL, so they keep showing the
 old image until the URL changes.
+
+The homepage has its own card, `public/images/og-card.jpg`, which carries the
+portrait. Its source is `scripts/templates/og-home.html`. That file loads the
+fonts and the portrait from this repository, so run `npm install` first. Render
+it with the same Chrome command to a PNG, convert the PNG to a JPEG (on macOS,
+`sips -s format jpeg card.png --out public/images/og-card.jpg`), and bump the
+`?v=N` on `ogImage` in `src/data/site.ts`.

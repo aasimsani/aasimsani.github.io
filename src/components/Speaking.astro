@@ -3,9 +3,10 @@ import { speaking } from "../data/speaking";
 import SectionHeader from "./SectionHeader.astro";
 
 // Talks link out behind a poster instead of embedding players, so the page
-// loads no third-party video code until someone chooses to watch.
+// loads no third-party video code until someone chooses to watch. A poster
+// image that fails to load removes itself, which leaves the plain panel and
+// the play mark instead of a broken-image icon.
 const ytId = (src: string) => src.match(/embed\/([\w-]+)/)?.[1];
-const fullTitle = (t: (typeof speaking)[number]) => [t.title, t.subtitle].filter(Boolean).map((x) => x!.trim()).join(" ");
 const watchUrl = (t: (typeof speaking)[number]) => {
   const id = t.embed.kind === "youtube" ? ytId(t.embed.src) : undefined;
   return id ? `https://www.youtube.com/watch?v=${id}` : t.embed.src.replace("/embed/feed/", "/feed/");
@@ -14,21 +15,30 @@ const watchUrl = (t: (typeof speaking)[number]) => {
 
 <section class="publicspeaking section-anchor" id="publicspeaking">
   <div class="container">
-    <SectionHeader title="Public Speaking" />
+    <SectionHeader section="publicspeaking" />
     <div class="grid">
-      {speaking.map((t, i) => (
+      {speaking.map((t) => (
         <article class="talk">
           <a class="poster px-frame" href={watchUrl(t)} target="_blank" rel="noopener">
             {t.embed.kind === "youtube" ? (
-              <img src={`https://i.ytimg.com/vi/${ytId(t.embed.src)}/hqdefault.jpg`} alt="" loading="lazy" decoding="async" />
+              <img
+                src={`https://i.ytimg.com/vi/${ytId(t.embed.src)}/hqdefault.jpg`}
+                alt=""
+                width="480"
+                height="360"
+                loading="lazy"
+                decoding="async"
+                onerror="this.remove()"
+              />
             ) : (
               <span class="poster-fallback">Watch on LinkedIn</span>
             )}
             <span class="play" aria-hidden="true"></span>
-            <span class="sr-only">Watch {fullTitle(t)}</span>
+            <span class="sr-only">Watch: {t.title}, {t.topic}</span>
           </a>
-          <h3>{fullTitle(t)}</h3>
-          <p class="tagline">{t.tagline}</p>
+          <h3>{t.title}</h3>
+          <p class="kind">{t.kind}</p>
+          <p class="tagline">{t.topic}</p>
         </article>
       ))}
     </div>
@@ -41,19 +51,29 @@ const watchUrl = (t: (typeof speaking)[number]) => {
     background: transparent;
   }
   .container {
-    max-width: 1080px;
+    max-width: 1000px;
     margin: 0 auto;
   }
+  /* Four talks sit two to a row. The min() lets a card shrink below 340px, so a 360px phone doesn't scroll sideways. */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
     gap: 3rem 2rem;
   }
   .talk h3 {
-    font-size: 1.25rem;
-    margin: 1rem 0 0.35rem;
+    font-size: var(--text-card-title);
+    font-weight: 500;
+    margin: 1rem 0 0.2rem;
+  }
+  .kind {
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    color: var(--color-muted);
+    margin: 0 0 0.5rem;
   }
   .tagline {
+    font-size: 0.95rem;
+    line-height: 1.6;
     color: var(--color-text-soft);
     margin: 0;
   }

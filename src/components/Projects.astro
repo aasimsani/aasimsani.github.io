@@ -6,21 +6,21 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="projects section-anchor" id="projects">
   <div class="container">
-    <SectionHeader title="Projects" />
+    <SectionHeader section="projects" />
     <div class="grid">
       {projects.map((p) => (
         <article class="proj">
           <div class="logo-mark">
             {p.logo && (
               p.link ? (
-                <a href={p.link}><img src={p.logo} alt={p.title} /></a>
+                <a href={p.link}><img src={p.logo} alt={p.title} width="92" height="92" loading="lazy" decoding="async" /></a>
               ) : (
-                <img src={p.logo} alt={p.title} />
+                <img src={p.logo} alt={p.title} width="92" height="92" loading="lazy" decoding="async" />
               )
             )}
             {p.logoFallback === "terminal" && (
               p.link ? (
-                <a href={p.link} set:html={icons.terminal}></a>
+                <a href={p.link} aria-label={p.title} set:html={icons.terminal}></a>
               ) : (
                 <span set:html={icons.terminal}></span>
               )
@@ -87,7 +87,7 @@ import SectionHeader from "./SectionHeader.astro";
     height: 32px;
   }
   h3 {
-    font-size: 1.4rem;
+    font-size: var(--text-card-title);
     font-weight: 500;
     margin: 0 0 0.5rem;
   }
@@ -105,8 +105,11 @@ import SectionHeader from "./SectionHeader.astro";
     margin: 0.5rem 0 1rem;
     color: var(--color-muted);
   }
+  /* A card column holds about 35 characters a line, so its copy is set a step smaller and softer than the prose sections. */
   p {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text-soft);
     margin: 0.5rem 0;
   }
 </style>

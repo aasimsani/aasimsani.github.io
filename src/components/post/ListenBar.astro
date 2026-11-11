@@ -11,10 +11,10 @@ const { src } = Astro.props;
 
 <div class="listen post-panel" data-listen>
   <audio src={src} preload="metadata"></audio>
-  <button type="button" class="post-btn listen-play" data-play aria-label="Play narration">Listen</button>
-  <input class="listen-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek" data-seek />
+  <button type="button" class="post-btn listen-play" data-play aria-label="Listen to the narration">Listen</button>
+  <input class="listen-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek through the narration" data-seek />
   <span class="listen-time" data-time>0:00</span>
-  <button type="button" class="post-btn listen-rate" data-rate aria-label="Playback speed">1×</button>
+  <button type="button" class="post-btn listen-rate" data-rate aria-label="Playback speed: 1×">1×</button>
   <p class="listen-note">Narrated by an AI voice.</p>
 </div>
 
@@ -36,8 +36,8 @@ const { src } = Astro.props;
     };
     audio.addEventListener("loadedmetadata", show);
     audio.addEventListener("timeupdate", show);
-    audio.addEventListener("play", () => { play.textContent = "Pause"; play.setAttribute("aria-label", "Pause narration"); });
-    audio.addEventListener("pause", () => { play.textContent = "Listen"; play.setAttribute("aria-label", "Play narration"); });
+    audio.addEventListener("play", () => { play.textContent = "Pause"; play.setAttribute("aria-label", "Pause the narration"); });
+    audio.addEventListener("pause", () => { play.textContent = "Listen"; play.setAttribute("aria-label", "Listen to the narration"); });
     play.addEventListener("click", () => (audio.paused ? audio.play() : audio.pause()));
     seek.addEventListener("input", () => {
       if (audio.duration) audio.currentTime = (Number(seek.value) / 100) * audio.duration;
@@ -45,6 +45,7 @@ const { src } = Astro.props;
     rate.addEventListener("click", () => {
       audio.playbackRate = RATES[(RATES.indexOf(audio.playbackRate) + 1) % RATES.length];
       rate.textContent = `${audio.playbackRate}×`;
+      rate.setAttribute("aria-label", `Playback speed: ${audio.playbackRate}×`);
     });
   });
 </script>

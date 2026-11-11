@@ -35,6 +35,12 @@
       --face-h: 0.92;
     }
   }
+  /* On a phone the field gives up a third of its height, so the name and the first lines of the bio share the first screen. */
+  @media (max-width: 640px) {
+    .woven-bg {
+      height: min(34vh, 300px);
+    }
+  }
   .woven-bg :global(canvas) {
     display: block;
     width: 100%;

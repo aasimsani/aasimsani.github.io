@@ -10,7 +10,7 @@ const lists = [
 
 <section class="news section-anchor" id="news">
   <div class="container">
-    <SectionHeader title="News and media" />
+    <SectionHeader section="news" />
     <div class="lists">
       {lists.map((l) => (
         <div class="list">
@@ -64,6 +64,11 @@ const lists = [
     padding: 0.7rem 0;
     border-top: 1px solid var(--color-line);
     align-items: baseline;
+  }
+  /* The narrow second column stacks the outlet over the title. Side by side, the title gets 175px and wraps. */
+  .list:last-child li {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
   }
   @media (max-width: 480px) {
     li {

@@ -1,0 +1,46 @@
+<!doctype html>
+<!-- The homepage's social card, public/images/og-card.jpg. docs/blog.md explains how to render it.
+     The fonts and the portrait load from this repository, so run `npm install` first. -->
+<html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: Geist; font-weight: 100 900;
+    src: url("../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2"); }
+  @font-face { font-family: Silkscreen; font-weight: 400;
+    src: url("../../node_modules/@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: Silkscreen; font-weight: 700;
+    src: url("../../node_modules/@fontsource/silkscreen/files/silkscreen-latin-700-normal.woff2") format("woff2"); }
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1200px; height: 630px; overflow: hidden; position: relative;
+    background: linear-gradient(180deg, #0b0f24 0%, #1a1438 60%, #2b1740 100%);
+    font-family: Geist, sans-serif; color: #ece4d4; }
+  .star { position: absolute; width: 4px; height: 4px; background: #cfd8ff; }
+  .col { position: absolute; left: 80px; top: 118px; }
+  .hello { font-size: 40px; line-height: 1; color: #bdb4cc; }
+  h1 { margin: 12px 0 0 -5px; font-weight: 800; font-size: 104px; line-height: 1; letter-spacing: -3.5px; }
+  .role { margin-top: 34px; font-family: Silkscreen; font-size: 26px; line-height: 1; letter-spacing: 2px; color: #ff9a3c; }
+  .past { margin-top: 18px; font-family: Silkscreen; font-size: 19px; line-height: 1; letter-spacing: 2px; color: #bdb4cc; }
+  .portrait { position: absolute; left: 770px; top: 4px; height: 550px; }
+  .road { position: absolute; left: 0; right: 0; bottom: 28px; height: 64px; background: #5e4033;
+    border-top: 6px solid #9a7050; }
+  .floor { position: absolute; left: 0; right: 0; bottom: 0; height: 28px; background: #1c1220; }
+  .byline { position: absolute; left: 80px; bottom: 51px; font-family: Silkscreen; font-weight: 700; font-size: 18px;
+    letter-spacing: 2px; color: #ece4d4; }
+</style></head><body>
+  <div class="star" style="left:120px;top:60px"></div>
+  <div class="star" style="left:410px;top:96px"></div>
+  <div class="star" style="left:690px;top:40px"></div>
+  <div class="star" style="left:860px;top:120px"></div>
+  <div class="star" style="left:560px;top:470px"></div>
+  <div class="star" style="left:300px;top:520px"></div>
+
+  <div class="col">
+    <div class="hello">I&rsquo;m</div>
+    <h1>Aasim Sani</h1>
+    <div class="role">Founding engineer at Taxwire</div>
+    <div class="past">Co-founded Orai and CopyCat</div>
+  </div>
+
+  <div class="road"></div><div class="floor"></div>
+  <img class="portrait" src="../../public/images/portrait-cutout.webp" alt="">
+  <div class="byline">aasimsani.net</div>
+</body></html>

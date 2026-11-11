@@ -6,16 +6,16 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 import BlogNav from "../components/post/BlogNav.astro";
 ---
 
-<BaseLayout title="Page not found · Aasim Sani" description="This page doesn't exist.">
+<BaseLayout title="Page not found · Aasim Sani" description="This page doesn’t exist." ogTitle="Page not found · Aasim Sani" ogType="website" noindex>
   <ThemeToggle />
-  <BlogNav />
-  <main class="nf">
+  <BlogNav wide />
+  <main class="nf" id="main" tabindex="-1">
     <div class="nf-text">
       <p class="nf-kicker"><span class="afterhours-only">404 &middot; Zone not found</span><span class="serious-only">404</span></p>
       <h1><span class="afterhours-only">This page wandered off.</span><span class="serious-only">This page doesn&rsquo;t exist.</span></h1>
       <p class="afterhours-only">The road ends here. Head back and the hero will meet you at the start.</p>
       <p class="serious-only">The link may be old, or the page may have moved.</p>
-      <a class="nf-home" href="/"><span class="afterhours-only">Back to the road</span><span class="serious-only">Go to the homepage</span></a>
+      <a class="nf-home px-frame" href="/"><span class="afterhours-only">Back to the road</span><span class="serious-only">Go to the homepage</span></a>
     </div>
     <canvas class="nf-scene afterhours-only" width="200" height="110" aria-hidden="true"></canvas>
   </main>
@@ -97,9 +97,11 @@ import BlogNav from "../components/post/BlogNav.astro";
     display: inline-block;
     margin-top: 1rem;
     font-family: var(--font-ui);
+    font-size: 0.85rem;
+    line-height: 1;
     background: var(--color-surface);
     color: var(--color-text);
-    padding: 0.7rem 1rem;
+    padding: 0.85rem 1.5rem;
     text-decoration: none;
   }
   .nf-home:hover, .nf-home:focus-visible { background: var(--color-accent); color: var(--color-bg); }

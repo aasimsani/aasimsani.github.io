@@ -14,20 +14,20 @@ interface Props {
 
 const {
   prompt = "Choose your adventure",
-  seriousNudge = "It's {when} where you are, so you got Serious mode. After hours has sword fights, a keyboard-wielding thought leader and a final boss.",
-  afterhoursNudge = "It's {when} where you are, so you got After hours mode. Here on business? There's a Serious version too.",
+  seriousNudge = "It’s {when} where you are, so you got Serious mode. After hours has sword fights, a keyboard-wielding thought leader and a final boss.",
+  afterhoursNudge = "It’s {when} where you are, so you got After hours mode. Here on business? There’s a Serious version too.",
   playLabel = "Play After hours",
 } = Astro.props;
 ---
 
-<div class="adventure px-frame" role="group" aria-label={prompt}>
-  <span class="cyoa">{prompt}</span>
-  <div class="options">
+<aside class="adventure px-frame" aria-label={prompt}>
+  <span class="cyoa" aria-hidden="true">{prompt}</span>
+  <div class="options" role="group" aria-label="Site mode">
     <span class="pill" aria-hidden="true"></span>
     <button type="button" data-site="serious" aria-pressed="false">Serious</button>
     <button type="button" data-site="afterhours" aria-pressed="false">After hours</button>
   </div>
-</div>
+</aside>
 
 <div
   class="nudge px-frame"
@@ -109,6 +109,23 @@ const {
       padding-left: 0.45rem;
     }
   }
+  /* From tablet width up the switch moves to the bottom-right corner and stacks its prompt above the two buttons.
+     Centered, it sat on top of the hero's buttons on the first screen of a laptop. */
+  @media (min-width: 768px) {
+    .adventure {
+      left: auto;
+      right: 1rem;
+      transform: none;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.4rem;
+      padding: 0.55rem 0.45rem 0.45rem;
+    }
+    .cyoa {
+      padding: 0 0.45rem;
+      font-size: 0.72rem;
+    }
+  }
 
   .nudge {
     position: fixed;
@@ -120,6 +137,15 @@ const {
     padding: 1rem 1.1rem;
     background: var(--color-text);
     color: var(--color-bg);
+  }
+  /* The bubble follows the switch into the corner. */
+  @media (min-width: 768px) {
+    .nudge {
+      left: auto;
+      right: 1rem;
+      bottom: calc(6.6rem + env(safe-area-inset-bottom, 0px));
+      transform: none;
+    }
   }
   .nudge-text {
     margin: 0 0 0.85rem;
@@ -161,6 +187,8 @@ const {
   const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-site]"));
   const nudge = document.querySelector<HTMLElement>(".nudge")!;
   const current = () => root.dataset.siteMode as Mode;
+  // On a phone the bubble is centered with a -50% shift. From tablet width up it sits in the corner and needs none.
+  const centerX = () => (matchMedia("(min-width: 768px)").matches ? "0%" : "-50%");
 
   // The accent pill springs across to whichever version is active.
   function paint(instant = false) {
@@ -194,6 +222,7 @@ const {
   buttons.forEach((b) => b.addEventListener("click", () => choose(b.dataset.site as Mode)));
 
   // First visit: explain which version the clock picked, and offer the other.
+  let nudgeAt = 0;
   function showNudge() {
     const now = new Date();
     const when = now.toLocaleString(undefined, { weekday: "long", hour: "numeric", minute: "2-digit" });
@@ -204,8 +233,9 @@ const {
     go.textContent = serious ? nudge.dataset.play! : "Go Serious";
     go.onclick = () => choose(serious ? "afterhours" : "serious");
     nudge.hidden = false;
+    nudgeAt = scrollY;
     if (!reduce) {
-      animate(nudge, { opacity: [0, 1], y: [24, 0], translateX: "-50%", ease: spring({ stiffness: 200, damping: 16 }) });
+      animate(nudge, { opacity: [0, 1], y: [24, 0], translateX: centerX(), ease: spring({ stiffness: 200, damping: 16 }) });
       animate(go, { innerHTML: scrambleText({ chars: "blocks", text: go.textContent ?? "" }) });
     }
     try {
@@ -221,7 +251,7 @@ const {
       nudge.hidden = true;
       return;
     }
-    animate(nudge, { opacity: 0, y: 16, translateX: "-50%", duration: 180, ease: "inQuad", onComplete: () => (nudge.hidden = true) });
+    animate(nudge, { opacity: 0, y: 16, translateX: centerX(), duration: 180, ease: "inQuad", onComplete: () => (nudge.hidden = true) });
   }
   nudge.querySelector("[data-nudge-close]")?.addEventListener("click", hideNudge);
 
@@ -235,6 +265,8 @@ const {
     "scroll",
     () => {
       const y = scrollY;
+      // A reader who scrolls on has chosen to stay, so the bubble stops covering the page.
+      if (!nudge.hidden && Math.abs(y - nudgeAt) > 160) hideNudge();
       const atEnd = innerHeight + y >= document.documentElement.scrollHeight - 80;
       const tuck = y > lastY + 4 && y > 200 && !atEnd && nudge.hidden;
       if (tuck) root.dataset.chrome = "tucked";

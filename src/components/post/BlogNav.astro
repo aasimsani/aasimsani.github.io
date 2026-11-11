@@ -4,17 +4,19 @@
 // bar runs along the nav's bottom edge.
 interface Props {
   current?: "blog" | "post";
+  /** The bar matches the page's column: the 720px reading column by default, or the 1000px one the 404 page uses. */
+  wide?: boolean;
 }
 
-const { current = "post" } = Astro.props;
+const { current = "post", wide = false } = Astro.props;
 const links = [
   { label: "Home", href: "/" },
-  { label: "Blog", href: "/blog/", current: current === "blog" },
+  { label: "Writing", href: "/blog/", current: current === "blog" },
 ];
 ---
 
 <header class="blog-nav">
-  <nav class="bar" aria-label="Site">
+  <nav class:list={["bar", { wide }]} aria-label="Site">
     <a class="name" href="/">Aasim Sani</a>
     <div class="links">
       {links.map((l) => (
@@ -33,15 +35,26 @@ const links = [
     background: var(--color-bg);
     border-bottom: 2px solid var(--color-line);
   }
+  /* The bar shares the 720px reading column, so the name sits over the left edge of the text below it. */
   .bar {
-    max-width: 960px;
+    max-width: 720px;
     margin: 0 auto;
     min-height: 4.75rem;
-    padding: 0 5rem 0 1.5rem;
+    padding: 0 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+  }
+  .bar.wide {
+    max-width: 1000px;
+  }
+  /* On narrower screens the fixed theme toggle sits over the bar's right end, so the links stop short of it. */
+  @media (max-width: 900px) {
+    .bar { padding-right: 5rem; }
+  }
+  @media (max-width: 1180px) {
+    .bar.wide { padding-right: 5rem; }
   }
   .name {
     font-weight: 650;

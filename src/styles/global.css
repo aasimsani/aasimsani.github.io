@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fonts.css";
 
 @theme {
   /* Night ember is the default world. Dawn applies only when the reader picks light. */
@@ -15,9 +16,14 @@
   --color-paper: #ece4d4;
   --color-placeholder: #0a0c1c;
 
-  --font-display: "Geist", "Helvetica Neue", sans-serif;
-  --font-body: "Geist", "Helvetica Neue", sans-serif;
-  --font-ui: "Silkscreen", "Geist Mono", monospace;
+  --font-display: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
+  --font-body: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
+  --font-ui: "Silkscreen", "Silkscreen Fallback", "Geist Mono", monospace;
+  --font-mono: "Geist Mono", ui-monospace, Menlo, monospace;
+
+  /* Two sizes of title cover every homepage section: an entry with a logo beside it, and a card in a grid. */
+  --text-entry-title: 1.5rem;
+  --text-card-title: 1.25rem;
 }
 
 /* The pixel world reads these, so the background and the page can't drift apart. */
@@ -98,6 +104,11 @@ html {
   html { font-size: 18px; }
 }
 
+/* An in-page link jumps straight to its section for readers who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
 body {
   font-family: var(--font-body);
   font-weight: 400;
@@ -105,12 +116,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Headings set their own leading. Left to inherit the body's 1.7, a two-line title reads as two titles. */
 h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
   font-weight: 650;
+  line-height: 1.2;
   letter-spacing: -0.03em;
   color: var(--color-text);
 }
+
 
 /* Stepped corners are the one ornament. Controls, panels and the pixel world all share them. */
 .px-frame {
@@ -124,6 +138,41 @@ h1, h2, h3, h4, h5 {
 }
 
 p { margin-bottom: 1rem; }
+
+/* The first Tab stop on every page. It stays off screen until it has focus,
+   then drops in at the top left so a keyboard reader can jump past the nav. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.7rem 1rem;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  line-height: 1;
+  text-decoration: none;
+  transform: translateY(-300%);
+}
+.skip-link:focus {
+  color: var(--color-bg);
+  transform: none;
+}
+/* A skip link moves focus to <main>, and main shouldn't draw a ring for that. */
+main:focus {
+  outline: none;
+}
+
+/* One keyboard focus ring for every link and control. */
+:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 3px;
+}
+/* Stepped corners clip whatever falls outside the box, a focus ring included, so a framed control draws its ring just inside. */
+:root:not([data-site-mode="serious"]) .px-frame:focus-visible {
+  outline-offset: -4px;
+}
 
 a {
   color: var(--color-accent);
@@ -144,8 +193,9 @@ a:hover {
   color: var(--color-bg);
 }
 
+/* Code is set in the mono face in both modes. The pixel type has no lowercase, so it would shout a command. */
 .codeText, code {
-  font-family: var(--font-ui);
+  font-family: var(--font-mono);
   font-size: 0.9em;
   color: var(--color-teal);
 }
@@ -270,7 +320,7 @@ a.logo-mark {
 
 /* Serious mode drops every game marker: no pixel type, no stepped corners. */
 [data-site-mode="serious"] {
-  --font-ui: "Geist", "Helvetica Neue", sans-serif;
+  --font-ui: "Geist", "Geist Fallback", "Helvetica Neue", sans-serif;
 }
 [data-site-mode="serious"] .px-frame {
   clip-path: none;
@@ -278,7 +328,7 @@ a.logo-mark {
 }
 
 /* After hours opens a tall gap above every section, where the road crosses and a mini-boss waits. */
-[data-site-mode="afterhours"] body > section[id] {
+[data-site-mode="afterhours"] main > section[id] {
   padding-top: 14rem !important;
 }
 

@@ -1,0 +1,34 @@
+name: CI
+
+# Type-checks the site and runs the unit tests on every pull request and on
+# master. The preview workflow builds each pull request, and the deploy
+# workflow builds master, so this one doesn't build.
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Type-check the Astro project
+        run: npm run check
+      - name: Test the site scripts
+        run: npm test
+      - name: Test the narration script
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'

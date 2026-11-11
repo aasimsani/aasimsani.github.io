@@ -5,7 +5,30 @@ Personal site — Astro 5 + Tailwind 4, deployed to GitHub Pages on push to `mas
 ```bash
 npm run dev       # local dev server
 npm run build     # production build into dist/
+npm run check     # type-check the Astro project
+npm test          # unit tests for the site scripts
 ```
+
+`.github/workflows/ci.yml` runs the type check and the tests, including the
+narration script's Python tests, on every pull request and on `master`.
+
+## The homepage
+
+`src/data/nav.ts` lists the homepage's sections in page order. The page, the
+sticky nav, the phone menu, the "Zone N" labels and the After hours game all
+read that one list, so reordering or renaming a section is one edit there. Each
+section's content is in its own file in `src/data/`.
+
+## What a build ships
+
+- **Fonts.** Geist, Geist Mono and Silkscreen come from the Fontsource packages
+  and are served from the site, so no page waits on a third-party font host.
+  `src/styles/fonts.css` declares them, along with resized system-font stand-ins
+  that hold the layout until each font arrives.
+- **Styles.** Each page's CSS is inlined into its HTML (`astro.config.mjs`).
+- **Feed and search.** `/rss.xml` lists the blog posts, `/sitemap-index.xml`
+  lists the pages, and `public/robots.txt` points crawlers at the sitemap. Each
+  page carries schema.org data built by `src/data/schema.ts`.
 
 ## PR previews
 
@@ -34,7 +57,7 @@ npm run new-post -- <slug> "Title" ["One-line description"]
 
 Scaffolds `src/pages/blog/<slug>.astro` from `scripts/templates/post.astro.tpl`
 and inserts a metadata entry into `src/data/posts.ts` (which drives the `/blog/`
-index, OG tags, and dates). The page uses `PostLayout` and the components in
+index, the RSS feed, OG tags, and dates). The page uses `PostLayout` and the components in
 `src/components/post/`, and shared post styles live in `src/styles/post.css`.
 Then: write the post, add an OG card at
 `public/images/blog/<slug>-og.png` (1200×630), and set `readingTime`.

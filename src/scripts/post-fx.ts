@@ -60,10 +60,20 @@ export function popup(w: number, h: number, scale: number, fxs: { fx: Fx; x: num
   });
 }
 
-/** Position a popup canvas so that canvas pixel (ox, oy) sits on the document point (x, y). */
+/**
+ * Position a popup canvas so that canvas pixel (ox, oy) sits on the document point (x, y). A canvas wider than
+ * the room around that point is cropped at the page's edges. Left whole, it would widen the page, and a phone
+ * could scroll sideways for as long as the effect played.
+ */
 const pin = (el: HTMLCanvasElement, scale: number, x: number, y: number, ox: number, oy: number) => {
-  el.style.left = `${Math.round(x - ox * scale)}px`;
+  const left = Math.round(x - ox * scale);
+  const from = Math.max(0, left), to = Math.min(document.documentElement.clientWidth, left + el.width * scale);
+  el.style.left = `${from}px`;
   el.style.top = `${Math.round(y - oy * scale)}px`;
+  // The box narrows to the part that fits, and the drawing keeps its scale and its place behind it.
+  el.style.width = `${Math.max(0, to - from)}px`;
+  el.style.objectFit = "cover";
+  el.style.objectPosition = `${left - from}px 0`;
 };
 const docRect = (node: Element) => {
   const r = node.getBoundingClientRect();

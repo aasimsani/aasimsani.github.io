@@ -13,19 +13,36 @@ import Research from "../components/Research.astro";
 import Footer from "../components/Footer.astro";
 import World from "../components/World.astro";
 import AdventureSwitch from "../components/AdventureSwitch.astro";
+import Writing from "../components/Writing.astro";
+import { homeSchema } from "../data/schema";
+import { nav } from "../data/nav";
+
+// Each section's component, by its id in nav.ts. The page renders them in that file's order.
+const sections: Record<string, any> = {
+  experience: Experience,
+  writing: Writing,
+  projects: Projects,
+  publicspeaking: Speaking,
+  news: News,
+  awards: Awards,
+  education: Education,
+  research: Research,
+};
+const missing = nav.find((s) => !sections[s.id]);
+if (missing) throw new Error(`No component for section "${missing.id}" in src/pages/index.astro`);
 ---
 
-<BaseLayout>
+<BaseLayout jsonLd={homeSchema()}>
   <ThemeToggle />
   <Hero />
   <SectionNav />
-  <Experience />
-  <Awards />
-  <Education />
-  <Speaking />
-  <Projects />
-  <News />
-  <Research />
+  {/* The section nav stays outside <main>, so it keeps sticking while the footer scrolls past. */}
+  <main id="main" tabindex="-1">
+    {nav.map((s) => {
+      const Section = sections[s.id];
+      return <Section />;
+    })}
+  </main>
   <Footer />
   <World />
   <AdventureSwitch />

@@ -1,19 +1,22 @@
 ---
 // Each section is a zone on the wanderer's road, so the heading carries the
-// same lantern the background world hangs at that section's crossing.
+// same lantern the background world hangs at that section's crossing. The
+// title and the zone number both come from the section's entry in nav.ts.
 import { nav } from "../data/nav";
 import { lantern } from "../data/lantern";
 
 interface Props {
-  title: string;
-  id?: string;
+  /** The section's id in src/data/nav.ts. */
+  section: string;
 }
 
-const { title, id } = Astro.props;
-const zone = nav.findIndex((n) => n.label.toLowerCase() === title.toLowerCase()) + 1;
+const { section } = Astro.props;
+const zone = nav.findIndex((n) => n.id === section) + 1;
+if (!zone) throw new Error(`No section "${section}" in src/data/nav.ts`);
+const title = nav[zone - 1].title;
 ---
 
-<div class="heading" id={id} data-heading data-title={title}>
+<div class="heading" data-heading data-title={title}>
   <svg class="lantern afterhours-only" viewBox="0 0 7 11" shape-rendering="crispEdges" aria-hidden="true">
     {lantern.map(([x, y, w, h, part]) => <rect x={x} y={y} width={w} height={h} class={part} />)}
   </svg>

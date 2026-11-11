@@ -5,12 +5,12 @@ import SectionHeader from "./SectionHeader.astro";
 
 <section class="education section-anchor" id="education">
   <div class="container">
-    <SectionHeader title="Education" />
+    <SectionHeader section="education" />
     <div class="entries">
       {education.map((s) => (
         <article class="entry">
           <a class="logo-mark" data-mat={s.mat} href={s.link} target="_blank" rel="noopener">
-            <img src={s.logo} alt={s.school} />
+            <img src={s.logo} alt={s.school} width="92" height="92" loading="lazy" decoding="async" />
           </a>
           <div class="body">
             <h3>{s.school}</h3>
@@ -46,7 +46,7 @@ import SectionHeader from "./SectionHeader.astro";
     .entry { grid-template-columns: 1fr; }
   }
   h3 {
-    font-size: 1.45rem;
+    font-size: var(--text-entry-title);
     font-weight: 500;
     margin: 0 0 0.75rem;
   }

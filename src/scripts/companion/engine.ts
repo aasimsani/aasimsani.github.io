@@ -13,6 +13,7 @@
 // world:defeat, world:zone, world:say, world:hurt, world:state), and hud.ts
 // turns those into page reactions.
 import { animate, createTimer } from "animejs";
+import { zoneIds } from "../../data/nav";
 import { buildJourney, campfireLayout, chaseSpeed, freeSwing, hitStop, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, swingDamage, tAtY, tapTarget, type Pt } from "./world";
 import { EMBER, GOLD, Layer, SLOP, TEAL, TICK, actorAlphaOf, actorOf, createFx, pocketPoof, type Fx } from "./effects";
 import * as hitSpark from "../pixelfx/fx/impacts/hit-spark.js";
@@ -418,7 +419,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     // Lanes are the gutters beside the content column. On narrow screens the
     // road runs behind the column instead, and denser panels keep text readable.
     // The column is the widest section container, so the road never runs under real text.
-    const containers = Array.from(document.querySelectorAll<HTMLElement>("body > section[id] .container"));
+    const containers = Array.from(document.querySelectorAll<HTMLElement>("main > section[id] .container"));
     const colW = Math.max(0, ...containers.map((c) => c.getBoundingClientRect().width)) || Math.min(innerWidth - 2 * 150, 1000);
     let colL = (innerWidth - colW) / 2 / S, colR = (innerWidth + colW) / 2 / S;
     let left: [number, number] = [MARGIN, Math.floor(colL) - 3];
@@ -438,8 +439,7 @@ export function mountWorld(root: HTMLElement, startHype = 1): World {
     column = [colL, colR];
     fxActor.resize(W * 2, H * 2);
     fxWorld.resize(W * 2, H * 2);
-    const ids = ["experience", "awards", "education", "publicspeaking", "projects", "news", "research", "footer"];
-    const blocks = ids.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+    const blocks = zoneIds.map((id) => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
     const top = (el: Element) => (el.getBoundingClientRect().top + scrollY) / S;
     // Crossings sit in each section's top padding. The footer's crossing sits mid-arena, where the final boss waits.
     const padTop = (el: Element) => parseFloat(getComputedStyle(el).paddingTop) || 80;
