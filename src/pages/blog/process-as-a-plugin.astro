@@ -1,0 +1,1190 @@
+---
+// Every number and example on this page comes from the four repos' READMEs or
+// from a saved eval run. The explorers read src/data/toolkits.ts, which
+// scripts/extract-toolkits.mjs writes from the two toolkit repos.
+import PostLayout from "../../layouts/PostLayout.astro";
+import PostSection from "../../components/post/PostSection.astro";
+import Reveal from "../../components/post/Reveal.astro";
+import CaseFile from "../../components/post/CaseFile.astro";
+import Checklist from "../../components/post/Checklist.astro";
+import Sources from "../../components/post/Sources.astro";
+import StageRail from "../../components/post/StageRail.astro";
+import Explorer from "../../components/post/Explorer.astro";
+import Stepper from "../../components/post/Stepper.astro";
+import { testingGroups, testingCards, fvGroups, fvCards, claimShapes } from "../../data/toolkits";
+
+type Badge = "toolkits" | "alone" | "none";
+
+const stages: { no: string; name: string; line: string; habit: string; plugin: string; example: string; badge: Badge; skippable?: boolean }[] = [
+  {
+    no: "01",
+    name: "Intent",
+    line: "One page on why the work is worth doing.",
+    habit: "None of mine. The stage follows Anthropic’s playbook, which puts an intent where a backlog entry used to be.",
+    plugin: "Runs EGM’s brainstorm with the person who has the idea, then distills it into intent.md: the problem, the outcome, success criteria and what’s out of scope.",
+    example: "The brainstorm has never run in an eval, because no eval has loaded EGM. One eval covers the gate instead: a request for a spec is refused while the intent is still a draft.",
+    badge: "none",
+  },
+  {
+    no: "02",
+    name: "Spec",
+    line: "What gets built, as requirements someone can test.",
+    habit: "Also from the playbook. I had no written habit of my own here.",
+    plugin: "Turns the approved intent into spec.md: requirements, acceptance criteria and risks. It says what, and leaves how to the RFC.",
+    example: "From a one-page intent for a CSV export, the spec lists nine requirements and ten acceptance criteria. The tenth: an export of 2,000 rows runs in under 5 seconds, timed in a test.",
+    badge: "alone",
+  },
+  {
+    no: "03",
+    name: "RFC",
+    line: "How it gets built, and the options that lost.",
+    habit: "I write RFCs as a reviewable page with a fixed spine: problem and goal, constraints, options, chosen solution, build plan, phases, tickets, blast radius. Diagrams come first.",
+    plugin: "Calls my rfc skill for the document. When the design makes a never or always claim, the fv-toolkit checks that claim in a model before any code exists.",
+    example: "A draft design claimed that a voucher is never captured above its face value. The model checker found seven steps that capture 6 on a voucher worth 5. Section 04 steps through them.",
+    badge: "toolkits",
+    skippable: true,
+  },
+  {
+    no: "04",
+    name: "Plan",
+    line: "Phases, files and every test, decided before code.",
+    habit: "Every plan I write has phases as a dependency graph, and a todo list for one phase at a time. I build test first, so the tests are chosen here.",
+    plugin: "Turns the RFC’s phases into plan.md. The testing toolkit picks a kind of test for each acceptance criterion, and says which stage writes it.",
+    example: "A test table with five rows. Build writes four of them. The fifth, a timing test on 2,000 invoices, is a load test, so the plan gives it to the Test stage.",
+    badge: "toolkits",
+  },
+  {
+    no: "05",
+    name: "Build",
+    line: "One phase at a time: failing test, code, refactor.",
+    habit: "Red, green, refactor, one cycle at a time. Never commit on the default branch. Commit messages record the decision and what was rejected. I run ponytail on my own work.",
+    plugin: "Writes each Build test before its code through the testing toolkit, codes in ponytail mode, then runs pr-review on the local branch after each phase.",
+    example: "The first test failed because --csv was an unknown option. It passed after the change. Then it failed again on a planted bug that dropped two fields from each row.",
+    badge: "toolkits",
+  },
+  {
+    no: "06",
+    name: "Test",
+    line: "Final tests, an audit, and checks by sessions that didn’t write the code.",
+    habit: "Run the tests before committing, and get a review before a push. The fresh sessions are the playbook’s idea.",
+    plugin: "Writes the final tests, audits the whole suite, and sends a verifier subagent to run the app. When the design was modelled, a second subagent models the code.",
+    example: "The audit removed two tests: one that ended in “; true” and could never fail, and one duplicate. For each, it named the stronger test that covers the same bug.",
+    badge: "toolkits",
+  },
+  {
+    no: "07",
+    name: "Ship",
+    line: "A pull request that a person approves and merges.",
+    habit: "My PR descriptions are a table of each change and what it does, with a decisions section. A person merges.",
+    plugin: "Runs pr-review on the PR, writes review.md, opens the PR with links to every artifact, and stops. It never approves or merges.",
+    example: "The reply after the PR opened: “The PR is open, but ship isn’t finished: Lee still has to approve and merge it.” Lee is the fixture’s tech lead.",
+    badge: "alone",
+  },
+  {
+    no: "08",
+    name: "ADR",
+    line: "The RFC, rewritten to what actually shipped.",
+    habit: "New. I asked for it while I built the plugin: after Ship, copy the RFC and update the copy to what was built.",
+    plugin: "Copies the RFC, compares it with the merged code, and records each place where the two differ, with the reason when one is on record.",
+    example: "The ADR lists five departures from the RFC. The first: the RFC chose a separate lib/csv.awk, and the shipped code quotes fields inline, because the function has one caller.",
+    badge: "alone",
+    skippable: true,
+  },
+  {
+    no: "09",
+    name: "Maintain",
+    line: "Measure the result, and turn the shortfall into the next intent.",
+    habit: "From the playbook. I had no written habit here either.",
+    plugin: "Compares live measurements with the intent’s success criteria, writes lessons.md, and opens a follow-up intent for anything that fell short.",
+    example: "Nine of eleven finance accounts stopped copying invoices by hand. The two largest didn’t, because an export over 5,000 invoices took more than 30 seconds. That became a new intent.",
+    badge: "alone",
+  },
+];
+
+const helpers = [
+  { name: "EGM", from: "Google", does: "Reviews a document with reviewers that never saw the conversation that produced it.", calls: [1, 2, 3, 4, 8, 9] },
+  { name: "rfc skill", from: "My skill", does: "Writes the RFC as a page with a fixed spine, diagrams first.", calls: [3] },
+  { name: "Testing toolkit", from: "My repo", does: "Decides the tests in Plan, writes the Build tests before the code, then writes the final tests, checks them all and audits the suite.", calls: [4, 5, 6] },
+  { name: "ponytail", from: "Dietrich Gebert", does: "Keeps the plan and the code to the smallest change that works.", calls: [4, 5, 6, 9] },
+  { name: "pr-review", from: "My repo", does: "Reviews code in a new session that has only the diff and the repo’s rules.", calls: [5, 6, 7] },
+  { name: "fv-toolkit", from: "My repo", does: "Checks a never or always claim in a model, once on the design and once on the code.", calls: [3, 4, 6, 9] },
+];
+
+const testingTiles = [
+  { title: "It picks the kind of test before it writes one", body: "For each component it asks where the bug would be, and names the kind of test from the answer. Then it lists the kinds it left out, with a reason each. In the plan from section 01: no property tests, because the quoting rule has two special characters and the spec’s two examples cover it." },
+  { title: "A test is kept only after it has been seen to fail", body: "A new test has to pass, give the same result five times, and then fail on a planted bug. A step that couldn’t run is named in the report. It never counts as a pass." },
+  { title: "Expected values come from the spec, so it finds product bugs", body: "The skill writes down the expected behaviour before it reads the code. When a test written that way fails, it keeps the assertion and reports the disagreement. In one eval, three tests failed after a change and the request called all three out of date. The toolkit updated two, kept the third, and named the regression the third had caught." },
+  { title: "Nothing is deleted without proof", body: "The audit removes a test only when it can name a stronger test for the same contract. Its ledger has one row per removal: what the test detects, what covers it, and the check that was run." },
+  { title: "18 skills that close a loop", body: "Six write tests. Four run campaigns such as fuzzing and load. Four analyse a suite. Three cover running systems. One router sends the work to the right one. An analysis finds a gap, and an authoring skill closes it with one new test." },
+];
+
+const fvTiles = [
+  { title: "It picks the check by the shape of the claim", body: "Seven shapes, and the cheapest check that can fail for each. Only two of the seven get a model. The other five get tests on the real code, or checks on the real data." },
+  { title: "It says no", body: "A factory and an adapter have no invariant of their own. One eval case passes only when no tool skill loads for them and the reply names an ordinary test." },
+  { title: "One router over 16 tool skills", body: "Three are core: TLA+ with TLC, Alloy and Hypothesis. The other thirteen install the first time the router names them, so nobody installs a Rust model checker to verify a Python service." },
+  { title: "A catalog from architecture pattern to check", body: "166 patterns in seven catalogs. Each row says what breaks, which tool fits, what to model, which properties to state and how to tie the model to the code. Before I built it I found at least 24 comparable skill repos and read 17 in depth. None of the 17 maps architecture patterns to tools." },
+  { title: "A pass counts only after the check has failed", body: "Every model ships with a config that must fail, witnesses that show the interesting states can be reached, and planted bugs it has to detect. A pass with none of those could come from a model in which nothing can go wrong." },
+  { title: "The answer is readable without the tool", body: "A counterexample comes back as numbered steps in the system’s own words: tills, holds, the sweeper. The stepper below is one, copied from the file the run wrote." },
+  { title: "Models stay true to the code", body: "fv-pin records a hash of each property a person confirmed, so a check can’t be made to pass by weakening the property. fv-drift reports when the code a model covers has changed since the model was written." },
+];
+
+const reviewTiles = [
+  { title: "The reviewer never saw the build session", body: "The script starts a new headless session with claude -p. That session has the diff and the repo’s rules, and none of the author’s reasoning." },
+  { title: "Who reviews is a markdown file", body: "The built-in panel is three senior engineers, then a tech lead who checks their findings against the wider codebase. A panel file replaces all four. A lens adds a reviewer or a rule on top." },
+  { title: "Reviews are comparable from run to run", body: "The severity scale, the references, the fingerprints and the output format never change, whichever panel ran. So two reviews of one branch can be compared line by line." },
+  { title: "A PR can’t rewrite its own rules", body: "The review rules are read from the base branch, never from the PR’s head. A PR that edits REVIEW.md is still reviewed under the old rules." },
+  { title: "Nothing is posted, and the review can be resumed", body: "Each review is saved as a markdown file with a Claude session I can resume to ask the reviewer a follow-up question. Nothing goes to GitHub." },
+];
+
+const gauntlet = [
+  { title: "Written from the spec.", body: "The acceptance criterion says the export prints a header and four rows. The expected text comes from that sentence, before any code exists.", values: { Result: "not run yet" } },
+  { title: "Fails first.", body: "The test runs against the unchanged script and fails, because --csv is an unknown option (exit 2).", values: { Result: "fails, exit 2" } },
+  { title: "Passes.", body: "The phase’s code is written, and the test passes.", values: { Result: "passes" } },
+  { title: "Fails on a planted bug.", body: "In a copy of the code, the amount and status fields are dropped from each row. The test fails, so it can catch that bug.", values: { Result: "fails on the plant" }, alert: "Result" },
+  { title: "Kept.", body: "The test goes in the report with its evidence: failed first, passed after the change, failed on the plant.", values: { Result: "kept, with evidence" } },
+];
+
+const trace = [
+  { title: "Start.", body: "The voucher is worth 5. Tills A and B are idle.", values: { Available: "5", "On hold": "0", Captured: "0" } },
+  { title: "Till A holds 3.", body: "Its sale begins.", values: { Available: "2", "On hold": "3", Captured: "0" } },
+  { title: "A’s hold expires.", body: "Ten minutes pass while the customer is still paying the rest by card." },
+  { title: "The sweeper releases the hold.", body: "The 3 goes back to the voucher.", values: { Available: "5", "On hold": "0", Captured: "0" } },
+  { title: "A’s sale completes.", body: "It captures its hold by id. Nothing checks that the hold is still live.", values: { Available: "5", "On hold": "0", Captured: "3" } },
+  { title: "Till B holds 3.", body: "The voucher still shows 5 available.", values: { Available: "2", "On hold": "3", Captured: "3" } },
+  { title: "B captures.", body: "Captured is now 6 on a voucher worth 5.", values: { Available: "2", "On hold": "0", Captured: "6" }, alert: "Captured" },
+];
+
+// The seven shapes, checks and reasons come from the toolkit. The example sentences are written for this post.
+const claimExamples = [
+  "A voucher is never captured above its face value, even when two tills use it at once.",
+  "Every project has exactly one owner, and a viewer can never delete it.",
+  "Each of the twelve plan and region pairs gets exactly one tax treatment.",
+  "No billing period overlaps the next one, whatever the start date.",
+  "The nightly batch and the live stream always report the same totals.",
+  "Splitting an invoice across its lines never loses a cent.",
+  "No two rate rows cover the same date for the same region.",
+];
+
+const tools = fvCards.filter((c) => c.group === "tools").map((c) => ({ name: c.title, core: c.fields[1].value.startsWith("Core") }));
+
+const installs = [
+  { key: "loop", tag: "sdlc-toolkit", title: "Install the loop.", body: "claude plugin marketplace add aasimsani/sdlc-toolkit, then claude plugin install sdlc@sdlc-toolkit" },
+  { key: "setup", tag: "sdlc-toolkit", title: "Set up one repo.", body: "Run /sdlc:setup in it. It installs the five plugins the stages call, and makes sure CLAUDE.md names one verify command." },
+  { key: "feature", tag: "sdlc-toolkit", title: "Take one small feature through it.", body: "Run /sdlc:sdlc with your idea. Approve each artifact yourself." },
+  { key: "testing", tag: "testing-toolkit", title: "Or take the testing toolkit alone.", body: "claude plugin marketplace add aasimsani/testing-toolkit, then claude plugin install testing-toolkit@testing-toolkit" },
+  { key: "fv", tag: "formal-verification-toolkit", title: "Or the fv-toolkit alone.", body: "claude plugin marketplace add aasimsani/formal-verification-toolkit, then claude plugin install fv-toolkit@formal-verification-toolkit" },
+  { key: "review", tag: "pr-review", title: "Or pr-review alone.", body: "claude plugin marketplace add aasimsani/pr-review, then claude plugin install pr-review@aasimsani-pr-review" },
+];
+
+const stopX = (i: number) => 44 + i * 74;
+---
+
+<PostLayout
+  slug="process-as-a-plugin"
+  kicker="Process · as a plugin"
+  headline="I turned my engineering process into a plugin"
+  dek="I wrote down how I build software and gave it to a coding agent as nine stages. Here is each stage, the specialist it calls, and what has and hasn’t been tested."
+  shareText="I turned my engineering process into a plugin: nine stages, six helpers, and a list of what isn't tested yet."
+>
+
+    <PostSection id="open">
+      <p class="lede">
+        Until this month, my engineering process lived in two places: a long
+        <code>CLAUDE.md</code> file and my own habits.
+      </p>
+      <p>
+        I&rsquo;ve now written it down as a plugin for a coding agent. It&rsquo;s
+        called <code>sdlc</code>.<sup><a href="#src-9">9</a></sup> It takes one
+        feature through nine stages, and each stage ends when a person approves
+        one written artifact. The order of the stages comes from
+        Anthropic&rsquo;s playbook for AI-native teams.<sup><a href="#src-1">1</a></sup>
+        Most of what happens inside a stage is how I already worked.
+      </p>
+
+      <aside class="status post-panel" aria-label="Status: built on 11 and 12 November 2026. Each stage is tested on small fixtures. No real feature has gone through the whole loop yet.">
+        <p class="status-label">Status &middot; 13 November 2026</p>
+        <ul>
+          <li><b>Built</b> on 11 and 12 November 2026.</li>
+          <li><b>Tested</b> one stage at a time, on small made-up repos.</li>
+          <li><b>Not yet used</b> on a real feature from start to finish.</li>
+        </ul>
+        <p>I&rsquo;ll update this post when a real feature has gone through it.</p>
+      </aside>
+
+      <figure class="fig post-panel" role="img" aria-label="The loop: intent, spec, RFC, plan, build, test, ship, ADR, maintain. Follow-ups and incidents return to intent. The approver may skip the RFC and the ADR.">
+        <figcaption class="chart-title">The whole loop</figcaption>
+        <svg viewBox="0 0 680 172" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
+          <defs>
+            <marker id="rail-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-muted)" stroke-width="1.6"/>
+            </marker>
+          </defs>
+          <line x1={stopX(0)} y1="46" x2={stopX(8)} y2="46" stroke="var(--color-line)" stroke-width="2"/>
+          {stages.map((s, i) => (
+            <g>
+              <circle cx={stopX(i)} cy="46" r="12" fill="var(--color-surface)" stroke="var(--color-accent)" stroke-width="1.6" stroke-dasharray={s.skippable ? "3 3" : undefined}/>
+              <text x={stopX(i)} y="50" text-anchor="middle" fill="var(--color-accent)" font-size="10">{i + 1}</text>
+              <text x={stopX(i)} y="80" text-anchor="middle" fill="var(--color-text)" font-size="12">{s.name}</text>
+            </g>
+          ))}
+          <path d={`M ${stopX(8)} 92 C ${stopX(8)} 150, ${stopX(0)} 150, ${stopX(0)} 92`} fill="none" stroke="var(--color-muted)" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#rail-arr)"/>
+          <text x="340" y="126" text-anchor="middle" fill="var(--color-muted)" font-size="11">follow-ups and incidents become new intents</text>
+          <text x="340" y="166" text-anchor="middle" fill="var(--color-muted)" font-size="10.5">dashed stop: the approver may skip it for a small change</text>
+        </svg>
+      </figure>
+
+      <p>
+        Read as far as you like. That picture is the whole loop. Section 01
+        opens each stop. Sections 03 to 05 go inside the three specialists I
+        built, down to every scenario they encode.
+      </p>
+    </PostSection>
+
+    <PostSection id="loop" no="01" label="The loop" title="One stop at a time">
+      <p class="lede">
+        Each stop opens to three things: the habit it came from, what the
+        plugin does there, and one example of the step being done.
+      </p>
+      <p>
+        Every example comes from an eval, which is a scripted run on a small
+        made-up repo with graders that check the result.<sup><a href="#src-6">6</a></sup>
+        The badge says how much was loaded in that run.
+      </p>
+      <ul class="badge-key">
+        <li><span class="rail-badge rail-badge-toolkits">Run with the toolkits</span> The loop, the testing toolkit and the fv-toolkit were all loaded.</li>
+        <li><span class="rail-badge rail-badge-alone">Run alone</span> Only the loop was loaded, and the prompt named the other tools as missing.</li>
+        <li><span class="rail-badge">Not run yet</span> The step calls a tool that no eval has loaded.</li>
+      </ul>
+
+      <StageRail id="stages" label="The nine stages. Each one opens to its habit, what the plugin does and one example." stages={stages} />
+
+      <p>
+        Three stops have no habit of mine behind them. Intent, Spec and
+        Maintain follow the playbook, which has six phases where my loop has
+        nine stages.<sup><a href="#src-1">1</a></sup>
+      </p>
+
+      <h3>A stage has three states</h3>
+      <figure class="fig post-panel" role="img" aria-label="A stage is a draft until a person approves it or skips it. Claude can write draft, and only a person's decision produces approved or skipped. A later stage that finds an approved artifact wrong sends it back to draft.">
+        <svg viewBox="0 -18 680 254" xmlns="http://www.w3.org/2000/svg" font-family="var(--font-ui)">
+          <defs>
+            <marker id="st-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-accent)" stroke-width="1.6"/>
+            </marker>
+            <marker id="st-arr-soft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="var(--color-muted)" stroke-width="1.6"/>
+            </marker>
+          </defs>
+          <rect x="30" y="98" width="180" height="62" rx="10" fill="var(--color-surface)" stroke="var(--color-line)" stroke-width="1.5"/>
+          <text x="120" y="124" text-anchor="middle" fill="var(--color-text)" font-size="14">draft</text>
+          <text x="120" y="144" text-anchor="middle" fill="var(--color-muted)" font-size="11">Claude can write this</text>
+
+          <rect x="430" y="50" width="230" height="62" rx="10" fill="var(--color-surface)" stroke="var(--color-teal)" stroke-width="1.5"/>
+          <text x="545" y="76" text-anchor="middle" fill="var(--color-teal)" font-size="14">approved</text>
+          <text x="545" y="96" text-anchor="middle" fill="var(--color-muted)" font-size="11">only a person</text>
+
+          <rect x="430" y="150" width="230" height="62" rx="10" fill="var(--color-surface)" stroke="var(--color-teal)" stroke-width="1.5"/>
+          <text x="545" y="176" text-anchor="middle" fill="var(--color-teal)" font-size="14">skipped</text>
+          <text x="545" y="196" text-anchor="middle" fill="var(--color-muted)" font-size="11">only a person, with a reason</text>
+
+          <line x1="210" y1="120" x2="424" y2="90" stroke="var(--color-accent)" stroke-width="2.6" marker-end="url(#st-arr)"/>
+          <text x="316" y="90" text-anchor="middle" fill="var(--color-accent)" font-size="11">a person approves</text>
+          <line x1="210" y1="140" x2="424" y2="172" stroke="var(--color-accent)" stroke-width="2.6" marker-end="url(#st-arr)"/>
+          <text x="316" y="180" text-anchor="middle" fill="var(--color-accent)" font-size="11">a person skips it</text>
+
+          <path d="M 500 46 C 430 4, 200 4, 130 92" fill="none" stroke="var(--color-muted)" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#st-arr-soft)"/>
+          <text x="316" y="-2" text-anchor="middle" fill="var(--color-muted)" font-size="11">a later stage finds it wrong</text>
+        </svg>
+      </figure>
+      <p>
+        The playbook&rsquo;s rule is that the agent that wrote the code has no
+        way to approve it.<sup><a href="#src-1">1</a></sup> I applied it to every
+        artifact. The approver may skip the RFC for a small change, and the ADR
+        is skipped with it. Build, Test and Ship are never skipped.
+      </p>
+    </PostSection>
+
+    <PostSection id="helpers" no="02" label="The helpers" title="Each stage calls a specialist">
+      <p class="lede">
+        The loop itself is small. It knows the order of the stages, where each
+        artifact goes and who approves it. The expertise sits in six helpers.
+      </p>
+
+      <div class="helpers" role="group" aria-label="The six helpers, what each one is expert at, and the stages that call it.">
+        {helpers.map((h) => (
+          <div class="helper post-panel">
+            <p class="helper-from">{h.from}</p>
+            <h4>{h.name}</h4>
+            <p>{h.does}</p>
+            <p class="dots" aria-hidden="true">
+              {stages.map((_, i) => <span class={h.calls.includes(i + 1) ? "on" : ""}></span>)}
+            </p>
+            <p class="helper-calls">{h.calls.map((n) => stages[n - 1].name).join(" · ")}</p>
+          </div>
+        ))}
+      </div>
+
+      <p>
+        Two are other people&rsquo;s work, used as they ship. EGM is
+        Google&rsquo;s. Its tagline is &ldquo;Design with an elephant. Review
+        with a goldfish.&rdquo;<sup><a href="#src-2">2</a></sup> The elephant
+        holds the project&rsquo;s context and drafts. Goldfish reviewers read
+        the draft without the earlier conversation. Ponytail is Dietrich
+        Gebert&rsquo;s, and it pushes for the smallest change that
+        works.<sup><a href="#src-4">4</a></sup>
+      </p>
+      <p>
+        The other four are mine. The next three sections cover the three
+        I&rsquo;d most want to show another engineer.
+      </p>
+      <p class="aside">
+        <b>The text loads in layers.</b> A session reads the router first, then
+        one stage&rsquo;s skill, then only the reference files that stage
+        names. The idea is from Anthropic&rsquo;s post on context
+        engineering.<sup><a href="#src-5">5</a></sup> My own note from the build
+        session: &ldquo;dont really cut I think we follow a way of organizing
+        info as progressive disclosure.&rdquo;
+      </p>
+    </PostSection>
+
+    <PostSection id="testing" no="03" label="Testing toolkit" title="Tests are decided before code">
+      <p class="lede">
+        I build test first, so the tests have to be chosen before any code
+        exists. The testing toolkit<sup><a href="#src-10">10</a></sup> makes
+        that choice in Plan, and then does a different job in each of the next
+        two stages.
+      </p>
+
+      <h3>In one picture</h3>
+      <figure class="post-panel" aria-label="One plan's five tests across three stages. Plan decides all five and names a kind for each. Build writes four of them before the code. Test writes the fifth, a load test, then checks all five and audits the suite.">
+        <figcaption class="chart-title">One plan&rsquo;s tests, across three stages</figcaption>
+        <div class="table-scroll">
+          <table class="tbl">
+            <thead>
+              <tr><th>Test</th><th>Kind</th><th>Plan</th><th>Build</th><th>Test</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Header and one row per invoice</td><td>Acceptance</td><td class="on">decided</td><td class="on">written first, phase 1</td><td class="on">checked</td></tr>
+              <tr><td>Status filter still applies</td><td>Acceptance</td><td class="on">decided</td><td class="on">written first, phase 1</td><td class="on">checked</td></tr>
+              <tr><td>Commas and quotes are quoted</td><td>Acceptance</td><td class="on">decided</td><td class="on">written first, phase 2</td><td class="on">checked</td></tr>
+              <tr><td>The old table prints the same bytes</td><td>Characterization</td><td class="on">decided</td><td class="on">written first, phase 1</td><td class="on">checked</td></tr>
+              <tr><td>2,000 invoices in under 5 seconds</td><td>Load</td><td class="on">decided</td><td class="off">not here</td><td class="hot">written, then checked</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fig-note">
+          From the plan one eval run wrote. A Build test drives one
+          phase&rsquo;s code. A final test needs the whole feature, so it waits.
+        </p>
+      </figure>
+      <p class="aside">
+        &ldquo;I do think tests should be decided in the plan stage since I
+        strictly build TDD.&rdquo; I typed that on the day of the build, after
+        my first version had the toolkit choose the tests during Build.
+      </p>
+
+      <h3>What sets it apart</h3>
+      <div class="tiles">
+        {testingTiles.map((t) => (
+          <details class="explorer-card" name="testing-tiles">
+            <summary><b>{t.title}</b></summary>
+            <p>{t.body}</p>
+          </details>
+        ))}
+      </div>
+
+      <h3>Watch it work</h3>
+      <Stepper
+        id="gauntlet"
+        title="One test’s trip through the gates"
+        label="A test is kept after four things have been seen: its expected value comes from the spec, it fails before the code exists, it passes after, and it fails on a planted bug."
+        steps={gauntlet}
+      />
+      <p class="note">
+        From the Build report of one eval run. In that run the five-repeat
+        stability check was left to the Test stage, and the report says so.
+      </p>
+
+      <p>
+        The same idea runs backwards in the audit. A test may go only when a
+        stronger test catches the same bug. I tried to trick it.
+      </p>
+      <Reveal summary="I planted a test called “export runs” with no visible assertion. Did the audit delete it?">
+        <p>
+          <b>No. It kept the test, and it was right.</b> The audit planted an
+          <code>exit 1</code> in a copy of the script. Every other test read the
+          output through a pipe and ignored the exit status. Mine was the only
+          one that failed.
+        </p>
+        <dl class="ledger-row">
+          <div><dt>Test</dt><dd><code>test_csv.sh</code> &ldquo;export runs&rdquo;</dd></div>
+          <div><dt>Detects</dt><dd><code>--csv</code> exits non-zero</dd></div>
+          <div><dt>Covered by</dt><dd>No other test</dd></div>
+          <div><dt>Verdict</dt><dd>Kept. &ldquo;Name is weak, assertion is not.&rdquo;</dd></div>
+        </dl>
+        <p>
+          I had meant to plant an empty test and planted a useful one. I changed
+          the fixture so the test ends in <code>; true</code> and truly
+          can&rsquo;t fail. The audit now removes it, and names the stronger test
+          that covers the same failure.
+        </p>
+      </Reveal>
+
+      <figure class="post-panel" aria-label="One request, two results. Before a fix to the skill, the agent wrote six browser tests and no unit test, and scored 0.43. After the fix it wrote unit tests for the rules and reported a boundary bug, and scored 0.89. Without the plugin the score was 0.36.">
+        <figcaption class="chart-title">The eval that changed the skill</figcaption>
+        <p class="fig-lead">
+          The request: cover the coupon rules of a booking page. The
+          repo&rsquo;s only tests are Playwright specs.
+        </p>
+        <div class="cols">
+          <div class="col">
+            <p class="col-score">0.43</p>
+            <h4>First run, with the plugin</h4>
+            <ul>
+              <li>Six browser tests</li>
+              <li>No unit test</li>
+              <li>Its own report said the remaining rules &ldquo;belong in a <code>src/coupon.test.js</code> unit suite&rdquo;</li>
+            </ul>
+          </div>
+          <div class="col col-after">
+            <p class="col-score">0.89</p>
+            <h4>After one change to the skill</h4>
+            <ul>
+              <li>Unit tests for the rules</li>
+              <li>The boundary bug reported</li>
+              <li>Still six browser tests, where the grader allows three</li>
+            </ul>
+          </div>
+        </div>
+        <p class="fig-note">
+          Sonnet, one run each. Without the plugin the same request scored
+          0.36. The skill now sorts the requested checks first, and sends
+          checks of rules to unit tests in the same
+          task.<sup><a href="#src-10">10</a></sup>
+        </p>
+      </figure>
+
+      <h3>Every scenario it encodes</h3>
+      <p>
+        The toolkit starts by matching the request to one of 19 scenarios. Open
+        any card to see the signal that picks it, the skills it calls in order,
+        and when it&rsquo;s done.
+      </p>
+      <Explorer
+        id="testing-explorer"
+        title="Testing toolkit: scenarios, skills and eval fixtures"
+        label="A browsable list of the testing toolkit's 19 scenarios in three groups, its 18 skills and its 16 eval fixtures. Each card opens to its details."
+        groups={testingGroups}
+        cards={testingCards}
+        searchHint="Search all 53 cards"
+      />
+
+      <h3>How it was measured</h3>
+      <dl class="numbers" aria-label="Testing toolkit eval results on Sonnet: 1.00 with the plugin and 0.79 without across ten kinds of test, 7 of 9 cases with no failure explanation without the plugin, and 0.97 against 0.79 on five harder cases.">
+        <div><dt>1.00 <small>vs 0.79</small></dt><dd>Sonnet across ten kinds of test, with the plugin and without</dd></div>
+        <div><dt>7 of 9</dt><dd>cases where Sonnet without the plugin never said what would make a test fail</dd></div>
+        <div><dt>0.97 <small>vs 0.79</small></dt><dd>Sonnet on the five harder cases</dd></div>
+      </dl>
+      <p class="note">
+        What these don&rsquo;t show: each cell is one run. The graders check
+        that the agent followed the rules the skills teach. No grader runs the
+        tests against planted bugs.<sup><a href="#src-10">10</a></sup>
+      </p>
+    </PostSection>
+
+    <PostSection id="formal" no="04" label="fv-toolkit" title="Some claims need more than tests">
+      <p class="lede">
+        A test tries the cases someone thought of. A claim that says
+        <em>never</em> or <em>always</em> is about the cases nobody thought of.
+      </p>
+      <p>
+        For those, a model checker such as TLC or the Alloy analyzer tries
+        every ordering, or every small structure, of a cut-down version of the
+        system.<sup><a href="#src-7">7</a></sup><sup><a href="#src-8">8</a></sup>
+        The fv-toolkit<sup><a href="#src-11">11</a></sup> decides when that is
+        worth it. Most features have no such claim, and its first job is to say
+        so in one paragraph.
+      </p>
+
+      <h3>In one picture</h3>
+      <figure class="post-panel" aria-label="Seven shapes of claim and the check each one gets. Orderings get a TLA+ model. Which configurations can exist together get an Alloy model. A finite decision function gets every input through the real entry point. A function over unbounded inputs gets properties on generated inputs. Two paths that must agree get a differential test. Arithmetic gets property tests on the real code. Data that acts as the program gets checks on the shipped data.">
+        <figcaption class="chart-title">Pick a claim. See the check it gets.</figcaption>
+        <div class="tiles">
+          {claimShapes.map((c, i) => (
+            <details class="explorer-card" name="claims" open={i === 0}>
+              <summary><b>&ldquo;{claimExamples[i]}&rdquo;</b><span>{c.shape}</span></summary>
+              <dl>
+                <div><dt>The check</dt><dd>{c.check}</dd></div>
+                <div><dt>Why a weaker check fails</dt><dd>{c.why}</dd></div>
+                <div><dt>Skill</dt><dd>{c.skill}</dd></div>
+              </dl>
+            </details>
+          ))}
+        </div>
+        <p class="fig-note">
+          The seven shapes, checks and reasons are the toolkit&rsquo;s. The
+          example sentences are mine.
+        </p>
+      </figure>
+
+      <h3>What sets it apart</h3>
+      <div class="tiles">
+        {fvTiles.map((t) => (
+          <details class="explorer-card" name="fv-tiles">
+            <summary><b>{t.title}</b></summary>
+            <p>{t.body}</p>
+          </details>
+        ))}
+      </div>
+      <figure class="post-panel" aria-label={`The tools behind the router. Core: ${tools.filter((t) => t.core).map((t) => t.name).join(", ")}. Installed on demand: ${tools.filter((t) => !t.core).map((t) => t.name).join(", ")}.`}>
+        <figcaption class="chart-title">The tool shelf</figcaption>
+        <ul class="shelf">
+          {tools.map((t) => <li class={t.core ? "core" : ""}>{t.name}</li>)}
+        </ul>
+        <p class="fig-note">
+          Three are core. The rest install the first time the router names
+          them. Apalache shares the TLA+ skill. Each tool&rsquo;s question is in
+          the explorer below, under Tools.
+        </p>
+      </figure>
+
+      <h3>Watch it work</h3>
+      <p>
+        An eval hands the RFC stage a draft design for holds on gift vouchers.
+        I wrote the draft with a flaw in it and didn&rsquo;t say where. The
+        spec&rsquo;s claim: the total captured against a voucher never exceeds
+        its face value.
+      </p>
+      <figure class="post-panel" aria-label="The draft design in three steps. Hold: in one transaction the till checks the available amount, subtracts it and inserts a live hold that expires in ten minutes. Capture: when the sale completes, the till sets its hold to captured by the hold's id and adds the amount to the voucher's captured total. Sweeper: every minute, each live hold that has expired is released and its amount returned.">
+        <figcaption class="chart-title">The draft design</figcaption>
+        <ol class="design">
+          <li><b>Hold.</b> In one transaction, the till reads what&rsquo;s available. If it covers the amount, the till subtracts it and inserts a <code>live</code> hold that expires in ten minutes.</li>
+          <li><b>Capture.</b> When the sale completes, the till sets its hold to <code>captured</code> by the hold&rsquo;s id, and adds the amount to the voucher&rsquo;s <code>captured</code> total.</li>
+          <li><b>Sweeper.</b> Every minute, each <code>live</code> hold that has expired is set to <code>released</code>, and its amount goes back to the voucher.</li>
+        </ol>
+      </figure>
+      <Reveal summary="Lock in your answer. Can this voucher be captured above its face value?">
+        <p>
+          <b>Yes, in seven steps.</b> TLC found them in a model of the draft,
+          with two tills, a voucher worth 5 and holds of 3. Step through it.
+        </p>
+        <Stepper
+          id="counterexample"
+          title="The order of steps the checker found"
+          label="Seven steps on a voucher worth 5. Till A holds 3. The hold expires while the sale is still running. The sweeper releases it. Till A's sale completes and captures the released hold, so captured is 3. Till B holds 3 and captures. Captured is 6 on a voucher worth 5."
+          steps={trace}
+        />
+        <p>
+          The fix is one condition. Capture changes a hold only where its state
+          is still <code>live</code>, and adds to the total only when a row
+          changed. The stage wrote that into the RFC and left the approval to a
+          person.
+        </p>
+      </Reveal>
+
+      <p>
+        A model that passes is easy to produce and hard to trust. So the fixed
+        design&rsquo;s pass came back with four receipts.
+      </p>
+      <figure class="post-panel" aria-label="A pass with its receipts. The chosen design holds. The first draft is kept as a config that must fail, and it does. Two witness configs show that a capture and a sweeper release can be reached. Two planted bugs were detected.">
+        <figcaption class="chart-title">A pass you can check</figcaption>
+        <div class="receipts">
+          <div><p class="receipt-k">Holds</p><p><code>CaptureLiveOnly.cfg</code></p><p>The chosen design keeps the property.</p></div>
+          <div><p class="receipt-k">Must fail, and does</p><p><code>CaptureByIdOnly.cfg</code></p><p>The first draft stays in the folder as a config that has to break the property.</p></div>
+          <div><p class="receipt-k">Reachable</p><p><code>WitnessCapture.cfg</code>, <code>WitnessRelease.cfg</code></p><p>A capture and a release can really happen in the model.</p></div>
+          <div><p class="receipt-k">2 planted bugs caught</p><p><code>fv-mutate</code></p><p>A third plant turned out harmless under the fix, so it was dropped.</p></div>
+        </div>
+        <p class="fig-note">
+          Bounds: two tills, one hold each, face value 5, amount 3. The run&rsquo;s
+          own file calls it &ldquo;a bounded pass, not a proof.&rdquo;
+        </p>
+      </figure>
+
+      <p>
+        A design can be right and the code can still depart from it. So the
+        Test stage sends a subagent to model the code. It gets the spec and the
+        confirmed properties as sentences. It&rsquo;s told not to read the RFC,
+        the plan or the first model.
+      </p>
+      <figure class="post-panel" aria-label="The same property checked twice. The design model, written at the RFC stage, holds. The code model, written in the Test stage by a subagent that never saw the design model, fails with two causes: capture never checks the hold's state, and place_hold reads the available amount and then writes it separately.">
+        <figcaption class="chart-title">Two models that share no assumptions</figcaption>
+        <div class="cols">
+          <div class="col">
+            <p class="col-score">holds</p>
+            <h4>The design, modelled at RFC</h4>
+            <ul>
+              <li>Written from <code>rfc.md</code>, before any code</li>
+              <li>Capture needs a <code>live</code> hold</li>
+            </ul>
+          </div>
+          <div class="col col-after">
+            <p class="col-score">fails</p>
+            <h4>The code, modelled at Test</h4>
+            <ul>
+              <li><code>capture()</code> never checks the hold&rsquo;s state. Called twice, it books 10,000 on a 5,000 voucher.</li>
+              <li><code>place_hold()</code> reads, then writes. Two tills each read 5,000 and hold 8,000 between them.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="fig-note">
+          I planted the first flaw in the fixture&rsquo;s code. I didn&rsquo;t
+          plant the second. Two of the three runs reported it, and one
+          reproduced it with two threads and a real SQLite file.
+        </p>
+      </figure>
+
+      <h3>Every pattern it encodes</h3>
+      <p>
+        The catalog runs from an architecture pattern to the check that fits
+        it. Search for something you run in production, such as
+        &ldquo;saga&rdquo;, &ldquo;cache&rdquo; or &ldquo;webhook&rdquo;.
+      </p>
+      <Explorer
+        id="fv-explorer"
+        title="fv-toolkit: tools, 166 patterns and eval scenarios"
+        label="A browsable list of the fv-toolkit's 17 tool rows, its 166 architecture patterns in seven catalogs and its 38 eval scenarios. Each pattern card opens to what breaks, the tool, the model, the properties and the link to code."
+        groups={fvGroups}
+        cards={fvCards}
+        searchHint="Search all 221 cards"
+      />
+
+      <h3>How it was measured</h3>
+      <dl class="numbers" aria-label="fv-toolkit eval results: 29 of 29 routing cases, 5 of 5 cases that run a real checker on a planted bug, and 4 of 4 cases where it stays out.">
+        <div><dt>29 of 29</dt><dd>routing cases went to the fitting tool and no other</dd></div>
+        <div><dt>5 of 5</dt><dd>cases ran a real checker on a planted bug and reported the counterexample</dd></div>
+        <div><dt>4 of 4</dt><dd>cases where it stayed out: a git question, a unit test, a type error, a flaky CI job</dd></div>
+      </dl>
+      <p class="note">
+        What these don&rsquo;t show: one sample per case, so no measure of
+        variance.<sup><a href="#src-11">11</a></sup> And a pass is bounded by
+        the sizes that were checked. It&rsquo;s never a proof.
+      </p>
+    </PostSection>
+
+    <PostSection id="review" no="05" label="pr-review" title="A reviewer with no context">
+      <p class="lede">
+        The session that wrote a change is the worst reader of it, because it
+        reads what it meant. My <a href="/blog/inattentional-blindness/">last
+        post</a> was about people doing the same thing.
+      </p>
+
+      <h3>In one picture</h3>
+      <figure class="post-panel" aria-label="An illustration. The session that wrote a change reads the diff with its own reasoning in mind. A fresh session has only the diff and the repo's rules, so it has to check what the first one assumes.">
+        <figcaption class="chart-title">Same diff, two readers</figcaption>
+        <div class="cols">
+          <div class="col">
+            <h4>The session that wrote it</h4>
+            <ul>
+              <li>&ldquo;I renamed it in all six places.&rdquo;</li>
+              <li>&ldquo;That guard was redundant.&rdquo;</li>
+              <li>&ldquo;The tests passed a minute ago.&rdquo;</li>
+            </ul>
+          </div>
+          <div class="col col-after">
+            <h4>A session that starts cold</h4>
+            <ul>
+              <li>What does this diff change?</li>
+              <li>What do the repo&rsquo;s review rules say?</li>
+              <li>What breaks if this line is wrong?</li>
+            </ul>
+          </div>
+        </div>
+        <p class="fig-note">An illustration, not a measurement.</p>
+      </figure>
+
+      <h3>What sets it apart</h3>
+      <div class="tiles">
+        {reviewTiles.map((t) => (
+          <details class="explorer-card" name="review-tiles">
+            <summary><b>{t.title}</b></summary>
+            <p>{t.body}</p>
+          </details>
+        ))}
+      </div>
+
+      <h3>Watch it work</h3>
+      <figure class="composer post-panel" aria-label="The panel says who reviews: by default three senior engineers and a tech lead, or two attackers and a defender with the security red-team panel. Each lens adds a reviewer or a rule on top: a migrations rule, an accessibility checklist, or an over-engineering reviewer. The severity scale, fingerprints and output format are the same in every combination.">
+        <figcaption class="chart-title">Compose a review</figcaption>
+        <div class="composer-controls">
+          <fieldset>
+            <legend>Panel</legend>
+            <label><input type="radio" name="panel" id="panel-default" checked /> Default</label>
+            <label><input type="radio" name="panel" id="panel-red" /> Security red team</label>
+          </fieldset>
+          <fieldset>
+            <legend>Lenses</legend>
+            <label><input type="checkbox" id="lens-migrations" /> Migrations</label>
+            <label><input type="checkbox" id="lens-a11y" /> Accessibility</label>
+            <label><input type="checkbox" id="lens-ponytail" /> Ponytail</label>
+          </fieldset>
+        </div>
+        <ul class="reviewers" aria-live="polite">
+          <li class="rev-default">Senior engineer</li>
+          <li class="rev-default">Senior engineer</li>
+          <li class="rev-default">Senior engineer</li>
+          <li class="rev-default">Tech lead <small>checks their findings against the wider codebase</small></li>
+          <li class="rev-red">Attacker</li>
+          <li class="rev-red">Attacker</li>
+          <li class="rev-red">Defender</li>
+          <li class="rev-lens rev-migrations">+ Rule <small>every migration is reversible</small></li>
+          <li class="rev-lens rev-a11y">+ Accessibility checklist</li>
+          <li class="rev-lens rev-ponytail">+ Over-engineering reviewer <small>its findings are never High or Critical</small></li>
+        </ul>
+        <p class="fig-note">
+          A panel and a lens are each one markdown file. The severity scale,
+          the fingerprints and the output format stay the same in every
+          combination.<sup><a href="#src-12">12</a></sup>
+        </p>
+      </figure>
+
+      <figure class="post-panel" aria-label="A finding keeps one fingerprint across runs. A fingerprint that appears is new, one in two runs in a row is open, and one that disappears is fixed.">
+        <figcaption class="chart-title">One finding across three runs</figcaption>
+        <p class="fingerprint"><code>PERF|bin/invoices|csv|one-awk-process-per-call</code></p>
+        <ol class="runs">
+          <li><span>Run 1</span><b>new</b></li>
+          <li><span>Run 2</span><b>open</b></li>
+          <li><span>Run 3</span><b class="fixed">fixed</b></li>
+        </ol>
+        <p class="fig-note">
+          An illustration of the rule the loop applies after each run. A stage
+          can&rsquo;t finish while a Critical or High finding is open. After two
+          runs in a row that close none, the loop stops and shows the approver
+          what&rsquo;s left. That stop rule is borrowed from
+          pstack.<sup><a href="#src-3">3</a></sup>
+        </p>
+      </figure>
+
+      <h3>How it was measured</h3>
+      <p>
+        It hasn&rsquo;t been. No eval has loaded pr-review. Its script has a
+        test that stubs <code>claude</code> and <code>gh</code>, which checks
+        the plumbing and says nothing about how good a review
+        is.<sup><a href="#src-12">12</a></sup>
+      </p>
+    </PostSection>
+
+    <PostSection id="guarantees" no="06" label="Guarantees" title="A step can’t be skipped quietly">
+      <p class="lede">
+        Loading text in layers has a cost. The agent can decide a layer
+        isn&rsquo;t worth loading. Mid-build I typed what I wanted instead:
+        &ldquo;basically have progressive disclosure but guarantees of
+        usage.&rdquo;
+      </p>
+      <p>
+        The guarantee is a ledger. Each stage has a list of tools it must
+        account for. In the feature&rsquo;s <code>sdlc.yaml</code>, each tool
+        maps to the file it produced or to a skip reason. A hook reads that
+        file before every commit. Tick the last box, then untick another.
+      </p>
+
+      <figure class="ledger post-panel" aria-label="The gate hook denies a commit that approves a stage while one of the stage's tools has neither a file nor a skip reason. The Test stage requires four tools: testing, test-audit, verifier and pr-review.">
+        <figcaption class="chart-title">Approve the Test stage</figcaption>
+        <div class="ledger-tools">
+          <label><input type="checkbox" id="tool-testing" checked /> <code>testing</code> <span>testing/test.md</span></label>
+          <label><input type="checkbox" id="tool-audit" checked /> <code>test-audit</code> <span>testing/audit.md</span></label>
+          <label><input type="checkbox" id="tool-verifier" checked /> <code>verifier</code> <span>verify.md</span></label>
+          <label><input type="checkbox" id="tool-review" /> <code>pr-review</code> <span>&ldquo;skipped: not installed&rdquo;</span></label>
+        </div>
+        <p class="ledger-out ledger-allow" aria-live="polite"><b>git commit: allowed.</b> Every tool is on record.</p>
+        <p class="ledger-out ledger-deny" aria-live="polite">
+          <b>git commit: denied.</b> &ldquo;The sdlc loop approves a stage only
+          when each tool it requires is on record.
+          <span class="miss miss-testing">test needs testing in docs/sdlc/csv-export/sdlc.yaml.</span>
+          <span class="miss miss-audit">test needs test-audit in docs/sdlc/csv-export/sdlc.yaml.</span>
+          <span class="miss miss-verifier">test needs verifier in docs/sdlc/csv-export/sdlc.yaml.</span>
+          <span class="miss miss-review">test needs pr-review in docs/sdlc/csv-export/sdlc.yaml.</span>
+          Under the stage&rsquo;s <code>tools:</code>, map each one to the file it
+          produced, or to &ldquo;skipped: &lt;reason&gt;&rdquo; when the approver
+          skipped it or it isn&rsquo;t installed. Then commit again.&rdquo;
+        </p>
+        <p class="fig-note">
+          The message is the hook&rsquo;s own. A feature whose design was
+          modelled owes a fifth tool here: <code>fv-verifier</code>.
+        </p>
+      </figure>
+
+      <p>
+        The hook has two other rules. It denies a commit on the default
+        branch, and it makes Claude Code ask me before a PR is approved or
+        merged.<sup><a href="#src-9">9</a></sup>
+      </p>
+
+      <h3>What the evals caught</h3>
+      <p>
+        After the first eval run I wrote: &ldquo;these cases seem kinda biased
+        and not really a representative set.&rdquo; So the suite got wider.
+        Later a second suite loaded the toolkits for real, and its first runs
+        found the first two files below.
+      </p>
+      <div class="case-grid">
+        <CaseFile
+          no="01"
+          name="Build wrote the tests by hand"
+          staring="the tests the plan had already named"
+          invisible="the planted-bug check and the report, which never happened"
+          seenBy="a grader that looks for the call to the toolkit"
+          catcher="One rule."
+          question="What changed?"
+        >
+          <p>
+            The plan named every test, so the Build stage wrote them itself
+            and never called the testing toolkit. The tests looked fine. But
+            nothing had planted a bug to watch them fail, and no report was
+            saved. The case scored 0.61.
+          </p>
+          <Fragment slot="verdict">When a step names a skill or a subagent, the
+stage invokes it. Work done by hand now counts as a skipped tool in the
+ledger, with that reason. The case scored 0.99 over the next three runs.</Fragment>
+        </CaseFile>
+
+        <CaseFile
+          no="02"
+          name="The stage ended while its subagent was still working"
+          staring="a subagent that had been dispatched"
+          invisible="a run with nobody at the keyboard ends when the turn ends"
+          seenBy="a report file that didn’t exist"
+          catcher="One sentence."
+          question="What changed?"
+        >
+          <p>
+            The Test stage sent the subagent to model the code, then ended its
+            turn. In a session with nobody at the keyboard, that ends the run,
+            and the subagent stops with it. The report never appeared. The
+            case scored 0.48.
+          </p>
+          <Fragment slot="verdict">The stage now waits until the report exists
+before it ends its turn. The case scored 0.98 over the next three runs.</Fragment>
+        </CaseFile>
+
+        <CaseFile
+          no="03"
+          name="The fixture could have taught the answer"
+          staring="one score"
+          invisible="the fixture and the skill’s own example shared a domain"
+          seenBy="reading the fixture beside the skill"
+          catcher="A new fixture."
+          question="What changed?"
+        >
+          <p>
+            One eval fixture was a checkout page with a cart. The example
+            inside the skill it tested is also a checkout with a cart. A run
+            on that fixture can&rsquo;t tell an agent that applied the rule
+            from one that copied the example.
+          </p>
+          <Fragment slot="verdict">The fixture became the booking page of a
+tennis club, and no word of it appears in the skill. The gap stayed, so it
+was real, and the skill changed. Every fixture now uses a domain that no
+skill example uses.</Fragment>
+        </CaseFile>
+      </div>
+
+      <h3>How the loop was measured</h3>
+      <dl class="numbers" aria-label="Loop eval results: 0.99 with the plugin and 0.83 without over 17 cases, and the toolkit's skill called in 15 of 15 runs with a mean of 0.99 over five cases with the toolkits loaded.">
+        <div><dt>0.99 <small>vs 0.83</small></dt><dd>17 cases with only the loop loaded, with the plugin and without, three runs each</dd></div>
+        <div><dt>15 of 15</dt><dd>runs in which a stage called the toolkit it was meant to call</dd></div>
+        <div><dt>0.99</dt><dd>mean of the five cases that load the toolkits, three runs each</dd></div>
+      </dl>
+      <p class="note">
+        Claude Sonnet 5.5 was the model under test and the
+        judge.<sup><a href="#src-9">9</a></sup> The five-case suite has no
+        run without the plugin to compare with.
+      </p>
+    </PostSection>
+
+    <PostSection id="credits" no="07" label="Credits" title="What I borrowed">
+      <p class="lede">
+        Very little of this is original. Here is what came from where.
+      </p>
+      <div class="table-scroll">
+        <table class="tbl">
+          <thead>
+            <tr><th>Idea</th><th>From</th><th>Where it lives</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>The order of the stages, a gate after each one, and an intent in place of a backlog entry</td>
+              <td><a href="https://claude.com/resources/articles/the-ai-native-sdlc-playbook" target="_blank" rel="noopener">The AI-native SDLC playbook</a>, Anthropic<sup><a href="#src-1">1</a></sup></td>
+              <td>The nine stages</td>
+            </tr>
+            <tr>
+              <td>The agent that wrote the code can&rsquo;t approve it, and a verifier with fresh context checks it</td>
+              <td>The same playbook<sup><a href="#src-1">1</a></sup></td>
+              <td>Every gate, and both subagents in Test</td>
+            </tr>
+            <tr>
+              <td>Reviewers with no memory of the conversation that produced a document</td>
+              <td><a href="https://github.com/google/elephant-goldfish-model" target="_blank" rel="noopener">Elephant-Goldfish Model</a>, Google<sup><a href="#src-2">2</a></sup></td>
+              <td>The review of every document</td>
+            </tr>
+            <tr>
+              <td>A stop rule for the review loop. A check before a new line in <code>CLAUDE.md</code>. Pause and pickup in Build. A verification skill per app. Blind eval fixtures. A stage&rsquo;s steps in the task list, with a reason on each skip.</td>
+              <td><a href="https://github.com/cursor/plugins/tree/main/pstack" target="_blank" rel="noopener">pstack</a>, by Lauren Tan (poteto)<sup><a href="#src-3">3</a></sup></td>
+              <td>The loop</td>
+            </tr>
+            <tr>
+              <td>The criteria of a good check, the pass that keeps models in step, and a recheck skill that lives in the project</td>
+              <td>pstack again<sup><a href="#src-3">3</a></sup></td>
+              <td>fv-toolkit</td>
+            </tr>
+            <tr>
+              <td>The smallest change that works</td>
+              <td><a href="https://github.com/DietrichGebert/ponytail" target="_blank" rel="noopener">ponytail</a>, by Dietrich Gebert<sup><a href="#src-4">4</a></sup></td>
+              <td>Plan&rsquo;s ladder, Build&rsquo;s mode, the review lens, Maintain&rsquo;s audit</td>
+            </tr>
+            <tr>
+              <td>Text that loads in layers</td>
+              <td>Anthropic&rsquo;s post on context engineering<sup><a href="#src-5">5</a></sup></td>
+              <td>How every plugin&rsquo;s files are organised</td>
+            </tr>
+            <tr>
+              <td>TLA+ and TLC, and Alloy</td>
+              <td>Lamport<sup><a href="#src-7">7</a></sup> and Jackson<sup><a href="#src-8">8</a></sup></td>
+              <td>Two of the fv-toolkit&rsquo;s three core tools</td>
+            </tr>
+            <tr>
+              <td>Adapted text from Specula and tlaplus/AgentSkills, and ideas from five other projects</td>
+              <td>Their authors, listed in the fv-toolkit&rsquo;s <code>NOTICE.md</code><sup><a href="#src-11">11</a></sup></td>
+              <td>fv-toolkit</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </PostSection>
+
+    <PostSection id="limits" no="08" label="Limits" title="What isn’t proven yet">
+      <ul>
+        <li>
+          <b>No real feature has gone through the loop.</b> Every example on
+          this page is a scripted run on a made-up repo of a few files.
+        </li>
+        <li>
+          <b>Four helpers have never been loaded in an eval.</b> EGM,
+          pr-review, ponytail and my rfc skill. Nothing here measures a
+          Goldfish review, a code review or a written
+          RFC.<sup><a href="#src-9">9</a></sup>
+        </li>
+        <li>
+          <b>The samples are small.</b> Three runs per case for the loop, and
+          one run per case for the two toolkits.
+        </li>
+        <li>
+          <b>Three graders failed in one run each</b> in the last full run with
+          the toolkits. In one Build run, the tests and the code landed in one
+          commit. In one Plan run, the judge voted two to one that a row had no
+          kind. In one run, the stage skipped a check of the pinned properties.
+        </li>
+        <li>
+          <b>The hook has a known hole.</b> It reads the working tree before a
+          command runs. One command that edits <code>sdlc.yaml</code> and
+          commits isn&rsquo;t checked.
+        </li>
+        <li>
+          <b>The reviews are heavy on purpose.</b> A Goldfish review starts
+          several subagents, and each code review is a full session. I
+          don&rsquo;t yet know what a real feature costs end to end.
+        </li>
+      </ul>
+      <p>
+        Next I use it on real work. When I have, each stop in section 01 gets
+        an &ldquo;In real use&rdquo; note, and this section gets shorter or
+        longer.
+      </p>
+    </PostSection>
+
+    <PostSection id="close" no="09" label="Try it" title="Take the whole loop, or one piece">
+      <p>
+        The four repos are public and MIT licensed. Each toolkit works without
+        the loop.
+      </p>
+      <Checklist
+        storageKey="process-as-a-plugin-checklist.v1"
+        markdownTitle="Try the loop, or one piece of it"
+        items={installs}
+      />
+      <p class="cta">
+        If you run a stage and it does something daft, I want to hear about
+        it. That&rsquo;s the part I can&rsquo;t test alone.
+      </p>
+    </PostSection>
+
+    <Sources slot="sources">
+        <li id="src-1">Claxton, L. (2026, August 21). <a href="https://claude.com/resources/articles/the-ai-native-sdlc-playbook" target="_blank" rel="noopener">The AI-native SDLC playbook</a>. <i>Anthropic</i>.</li>
+        <li id="src-2">Google. (2026). <a href="https://github.com/google/elephant-goldfish-model" target="_blank" rel="noopener">Elephant-Goldfish Model</a> [Computer software]. <i>GitHub</i>. See also <a href="https://egm.dev" target="_blank" rel="noopener">egm.dev</a>.</li>
+        <li id="src-3">Tan, L. (2026). <a href="https://github.com/cursor/plugins/tree/main/pstack" target="_blank" rel="noopener">pstack</a> [Computer software]. In <i>cursor/plugins</i>. GitHub.</li>
+        <li id="src-4">Gebert, D. (2026). <a href="https://github.com/DietrichGebert/ponytail" target="_blank" rel="noopener">ponytail</a> [Computer software]. <i>GitHub</i>.</li>
+        <li id="src-5">Shihipar, T. (2026, July 24). <a href="https://claude.dev/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models/" target="_blank" rel="noopener">The new rules of context engineering for Claude 5 generation models</a>. <i>claude.dev Blog</i>.</li>
+        <li id="src-6">Anthropic. (2026). <a href="https://code.claude.com/docs/en/plugin-evals" target="_blank" rel="noopener">Plugin evals</a>. <i>Claude Code documentation</i>.</li>
+        <li id="src-7">Lamport, L. (2002). <a href="https://lamport.azurewebsites.net/tla/book.html" target="_blank" rel="noopener"><i>Specifying Systems: The TLA+ Language and Tools for Hardware and Software Engineers</i></a>. Addison-Wesley.</li>
+        <li id="src-8">Jackson, D. (2012). <a href="https://alloytools.org/book.html" target="_blank" rel="noopener"><i>Software Abstractions: Logic, Language, and Analysis</i></a> (Rev. ed.). MIT Press.</li>
+        <li id="src-9">Sani, A. (2026). <a href="https://github.com/aasimsani/sdlc-toolkit" target="_blank" rel="noopener">sdlc-toolkit</a> [Computer software]. <i>GitHub</i>. The README holds the eval scores and their limits.</li>
+        <li id="src-10">Sani, A. (2026). <a href="https://github.com/aasimsani/testing-toolkit" target="_blank" rel="noopener">testing-toolkit</a> [Computer software]. <i>GitHub</i>. The README holds the eval scores and their limits.</li>
+        <li id="src-11">Sani, A. (2026). <a href="https://github.com/aasimsani/formal-verification-toolkit" target="_blank" rel="noopener">formal-verification-toolkit</a> [Computer software]. <i>GitHub</i>. The README holds the eval results, and <code>NOTICE.md</code> lists its sources.</li>
+        <li id="src-12">Sani, A. (2026). <a href="https://github.com/aasimsani/pr-review" target="_blank" rel="noopener">pr-review</a> [Computer software]. <i>GitHub</i>.</li>
+    </Sources>
+</PostLayout>
+
+<style>
+  /* ---------- status box ---------- */
+  .status, .helper { padding: 1.1rem 1.2rem; }
+  .status { margin: 2rem 0; border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-line)); }
+  .status-label, .helper-from, .receipt-k, .col h4, .helper-calls {
+    font-family: var(--font-ui);
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: var(--color-muted);
+    margin: 0 0 0.5rem;
+  }
+  .status-label { color: var(--color-accent); }
+  .status ul { margin: 0 0 0.8rem; }
+  .status li { margin-bottom: 0.3rem; }
+  .status p:last-child { margin: 0; color: var(--color-text-soft); font-size: 0.95rem; }
+
+  /* ---------- diagrams ---------- */
+  .fig { overflow-x: auto; }
+  .fig svg { width: 100%; height: auto; display: block; min-width: 560px; }
+  .fig-note { font-size: 0.85rem; color: var(--color-muted); margin: 1rem 0 0; }
+  .fig-lead { font-size: 0.95rem; color: var(--color-text-soft); margin: 0 0 1rem; }
+
+  .badge-key { list-style: none; padding: 0; font-size: 0.92rem; color: var(--color-text-soft); }
+  .badge-key .rail-badge { margin: 0 0.5rem 0 0; font-family: var(--font-ui); font-size: 0.7rem; }
+
+  /* ---------- helper cards ---------- */
+  .helpers { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.8rem; margin: 2rem 0; }
+  .helper h4 { margin: 0 0 0.4rem; font-size: 1.1rem; color: var(--color-text); }
+  .helper p { margin: 0 0 0.8rem; font-size: 0.92rem; color: var(--color-text-soft); }
+  .helper .dots { display: flex; gap: 0.3rem; margin-bottom: 0.4rem; }
+  .dots span { width: 0.7rem; height: 0.7rem; border-radius: 999px; border: 1px solid var(--color-line); }
+  .dots span.on { background: var(--color-accent); border-color: var(--color-accent); }
+  .helper .helper-calls { margin: 0; color: var(--color-accent); }
+
+  /* ---------- tiles: details that open to their evidence ---------- */
+  .tiles { display: flex; flex-direction: column; gap: 0.4rem; margin: 1rem 0 2rem; }
+  .tiles .explorer-card > p { margin: 0; padding: 0 0.9rem 0.9rem; font-size: 0.92rem; color: var(--color-text-soft); }
+  figure .tiles { margin: 0; }
+
+  /* ---------- tables ---------- */
+  .table-scroll { overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 34rem; }
+  .tbl th {
+    text-align: left;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .tbl td { padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--color-line); color: var(--color-text-soft); vertical-align: top; }
+  .tbl td:first-child { color: var(--color-text); }
+  .tbl td.on { color: var(--color-teal-strong); }
+  .tbl td.off { color: var(--color-muted); }
+  .tbl td.hot { color: var(--color-accent-strong); font-weight: 700; }
+
+  /* ---------- two columns ---------- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.8rem; }
+  .col { padding: 1rem; border: 1px solid var(--color-line); border-radius: 0.5rem; background: var(--color-bg); }
+  .col-after { border-color: color-mix(in srgb, var(--color-teal) 55%, var(--color-line)); }
+  .col ul { margin: 0; font-size: 0.92rem; color: var(--color-text-soft); }
+  .col li:last-child { margin-bottom: 0; }
+  .col-score { margin: 0 0 0.3rem; font-family: var(--font-mono); font-size: 1.6rem; color: var(--color-text); }
+  .col-after .col-score { color: var(--color-teal-strong); }
+
+  /* ---------- numbers strip ---------- */
+  .numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 0.8rem; margin: 1.5rem 0; }
+  .numbers > div { padding: 1rem; border: 1px solid var(--color-line); border-radius: 0.5rem; background: var(--color-surface); }
+  .numbers dt { font-family: var(--font-mono); font-size: 1.7rem; color: var(--color-accent); }
+  .numbers dt small { font-size: 0.95rem; color: var(--color-muted); }
+  .numbers dd { margin: 0.3rem 0 0; font-size: 0.88rem; color: var(--color-text-soft); }
+
+  /* ---------- audit ledger row ---------- */
+  .ledger-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.6rem; margin: 1rem 0; }
+  .ledger-row > div { padding: 0.7rem 0.9rem; border: 1px solid var(--color-line); border-radius: 0.5rem; background: var(--color-bg); }
+  .ledger-row dt { font-family: var(--font-ui); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+  .ledger-row dd { margin: 0.3rem 0 0; font-size: 0.9rem; }
+
+  /* ---------- tool shelf, design and receipts ---------- */
+  .shelf { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .shelf li {
+    margin: 0;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--color-text-soft);
+  }
+  .shelf li.core { border-color: var(--color-accent); color: var(--color-accent-strong); }
+  .design { margin: 0; font-size: 0.95rem; }
+  .design li:last-child { margin-bottom: 0; }
+  .receipts { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.6rem; }
+  .receipts > div { padding: 0.8rem 0.9rem; border: 1px solid var(--color-line); border-radius: 0.5rem; background: var(--color-bg); }
+  .receipts p { margin: 0 0 0.4rem; font-size: 0.88rem; color: var(--color-text-soft); }
+  .receipts .receipt-k { color: var(--color-teal-strong); }
+  .receipts p:last-child { margin: 0; }
+  .receipts code { font-size: 0.8rem; overflow-wrap: anywhere; }
+
+  /* ---------- review composer: the checked inputs decide which reviewers show ---------- */
+  .composer-controls { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1rem; }
+  .composer fieldset { border: 1px solid var(--color-line); border-radius: 0.5rem; padding: 0.6rem 0.9rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; }
+  .composer legend {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    padding: 0 0.4rem;
+    text-transform: uppercase;
+  }
+  .ledger-tools span { font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-muted); }
+  .composer label, .ledger-tools label { cursor: pointer; font-size: 0.92rem; color: var(--color-text-soft); }
+  .composer input, .ledger input { accent-color: var(--color-accent); }
+  .reviewers { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .reviewers li {
+    margin: 0;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    background: var(--color-bg);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    max-width: 14rem;
+  }
+  .reviewers small { font-size: 0.78rem; color: var(--color-muted); }
+  .reviewers .rev-red { border-color: var(--color-accent); }
+  .reviewers .rev-lens { border-color: var(--color-teal); border-style: dashed; }
+  .reviewers .rev-red, .reviewers .rev-lens { display: none; }
+  .composer:has(#panel-red:checked) .rev-default { display: none; }
+  .composer:has(#panel-red:checked) .rev-red { display: flex; }
+  .composer:has(#lens-migrations:checked) .rev-migrations { display: flex; }
+  .composer:has(#lens-a11y:checked) .rev-a11y { display: flex; }
+  .composer:has(#lens-ponytail:checked) .rev-ponytail { display: flex; }
+
+  /* ---------- fingerprint runs ---------- */
+  .fingerprint { margin: 0 0 0.8rem; font-size: 0.85rem; overflow-wrap: anywhere; }
+  .runs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .runs li { margin: 0; padding: 0.7rem 0.9rem; border: 1px solid var(--color-line); border-radius: 0.5rem; background: var(--color-bg); display: flex; flex-direction: column; }
+  .runs span { font-family: var(--font-ui); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+  .runs b { font-family: var(--font-mono); font-size: 1.2rem; color: var(--color-accent-strong); }
+  .runs b.fixed { color: var(--color-teal-strong); }
+
+  /* ---------- tool ledger: an unticked box turns the commit from allowed to denied ---------- */
+  .ledger-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.5rem; margin-bottom: 1rem; }
+  .ledger-tools label { padding: 0.6rem 0.8rem; border: 1px solid var(--color-line); border-radius: 0.5rem; background: var(--color-bg); }
+  .ledger-tools span { display: block; margin: 0.2rem 0 0 1.5rem; }
+  .ledger-tools label:has(input:not(:checked)) span { text-decoration: line-through; }
+  .ledger-out { margin: 0; padding: 0.8rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; }
+  .ledger-allow { border: 1px solid var(--color-teal); color: var(--color-text); }
+  .ledger-allow b { color: var(--color-teal-strong); }
+  .ledger-deny { border: 1px solid var(--color-accent); color: var(--color-text-soft); display: none; }
+  .ledger-deny b { color: var(--color-accent-strong); }
+  .miss { display: none; }
+  .ledger:has(.ledger-tools input:not(:checked)) .ledger-allow { display: none; }
+  .ledger:has(.ledger-tools input:not(:checked)) .ledger-deny { display: block; }
+  .ledger:has(#tool-testing:not(:checked)) .miss-testing,
+  .ledger:has(#tool-audit:not(:checked)) .miss-audit,
+  .ledger:has(#tool-verifier:not(:checked)) .miss-verifier,
+  .ledger:has(#tool-review:not(:checked)) .miss-review { display: inline; }
+</style>
