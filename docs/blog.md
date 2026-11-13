@@ -60,6 +60,9 @@ in `src/styles/post.css`.
 | `Reveal` | A question the reader answers before opening the explanation. `summary` is the question. |
 | `CaseFile` | One incident. Wrap a run of them in `<div class="case-grid">`. The props `staring`, `invisible` and `seenBy` fill the facts list, `catcher` opens the verdict in bold, and the `verdict` slot finishes it. |
 | `Checklist` | Practices the reader can tick and copy as Markdown. Give each post its own `storageKey`, versioned like `<slug>-checklist.v1`, and bump the version when the items change. |
+| `StageRail` | A list of stops that each open to three columns and a badge. Pass `id`, `label` and `stages`. A stop's optional `realUse` adds an "In real use" row. Stops share a `name`, so one is open at a time. |
+| `Explorer` | A set of cards the reader filters by group or searches by word. Pass `id`, `title`, `label`, `groups` and `cards`, with the types in `src/data/toolkits.ts`. `scripts/extract-toolkits.mjs` writes that file from the two toolkit repos. |
+| `Stepper` | A numbered trace the reader steps through. A step's `values` update the readout above the list, and `alert` flags one of them. Without JavaScript every step shows. |
 | `Sources` | The numbered source list. Each `<li>` gets `id="src-N"`. Practitioner links go in the `further` slot. |
 | `ShareRow`, `AuthorNote`, `BlogNav`, `BlogAdventureSwitch`, `ListenBar` | `PostLayout` and the blog index place these, so a post never uses them directly. `AuthorNote` sits under the share row and says who wrote the post, in the line from `bio.author` in `src/data/bio.ts`. |
 

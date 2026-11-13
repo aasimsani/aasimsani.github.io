@@ -1,0 +1,83 @@
+---
+// A numbered trace the reader steps through. Each step can set the values in
+// the readout above the list, and can flag one of them. Without JavaScript the
+// readout hides and every step shows.
+interface Step {
+  title: string;
+  body: string;
+  values?: Record<string, string>;
+  /** The key of a value this step pushes past its limit. */
+  alert?: string;
+}
+
+interface Props {
+  id: string;
+  title: string;
+  label: string;
+  steps: Step[];
+}
+
+const { id, title, label, steps } = Astro.props;
+const keys = Object.keys(steps.find((s) => s.values)?.values ?? {});
+---
+
+<figure class="stepper post-panel" id={id} aria-label={label}>
+  <figcaption class="chart-title">{title}</figcaption>
+  {keys.length > 0 && (
+    <dl class="stepper-values">
+      {keys.map((k) => (
+        <div>
+          <dt>{k}</dt>
+          <dd data-value={k}></dd>
+        </div>
+      ))}
+    </dl>
+  )}
+  <ol class="stepper-steps">
+    {steps.map((s) => (
+      <li data-values={JSON.stringify(s.values ?? {})} data-alert={s.alert ?? ""}>
+        <b>{s.title}</b> {s.body}
+      </li>
+    ))}
+  </ol>
+  <div class="stepper-controls">
+    <button type="button" class="post-btn" data-step="-1">Back</button>
+    <span class="stepper-pos" aria-live="polite"></span>
+    <button type="button" class="post-btn" data-step="1">Next step</button>
+  </div>
+</figure>
+
+<script>
+  import { stepTo } from "../../scripts/stepper";
+
+  document.querySelectorAll<HTMLElement>(".stepper").forEach((root) => {
+    const steps = [...root.querySelectorAll<HTMLLIElement>(".stepper-steps > li")];
+    const pos = root.querySelector<HTMLElement>(".stepper-pos");
+    const values = [...root.querySelectorAll<HTMLElement>("[data-value]")];
+    let current = 0;
+
+    const render = () => {
+      steps.forEach((li, i) => {
+        li.classList.toggle("is-current", i === current);
+        li.classList.toggle("is-ahead", i > current);
+      });
+      // A step that sets no values keeps the ones the step before it set.
+      let shown: Record<string, string> = {};
+      for (const li of steps.slice(0, current + 1)) shown = { ...shown, ...JSON.parse(li.dataset.values ?? "{}") };
+      for (const dd of values) {
+        dd.textContent = shown[dd.dataset.value ?? ""] ?? "";
+        dd.classList.toggle("is-alert", steps[current].dataset.alert === dd.dataset.value);
+      }
+      if (pos) pos.textContent = `Step ${current + 1} of ${steps.length}`;
+    };
+
+    root.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((b) =>
+      b.addEventListener("click", () => {
+        current = stepTo(current, Number(b.dataset.step), steps.length);
+        render();
+      })
+    );
+    root.classList.add("is-live");
+    render();
+  });
+</script>
