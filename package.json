@@ -11,7 +11,7 @@
     "preview": "astro preview",
     "publish": "node scripts/publish-page.mjs",
     "new-post": "node scripts/new-post.mjs",
-    "test": "node --test src/scripts/companion/world.test.ts src/scripts/companion/sprites.test.ts src/scripts/portrait.test.ts"
+    "test": "node --test src/scripts/companion/world.test.ts src/scripts/companion/sprites.test.ts src/scripts/portrait.test.ts src/scripts/explorer.test.ts src/scripts/stepper.test.ts scripts/extract-toolkits.test.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",

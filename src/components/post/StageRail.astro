@@ -1,0 +1,60 @@
+---
+// The loop as a list of stops. Each stop shows its name and one line. Opening
+// a stop shows the habit it came from, what the plugin does there, and one
+// example with a badge that says how far the example has been exercised. The
+// stops share a name, so the browser keeps one open at a time.
+interface Stage {
+  no: string;
+  name: string;
+  line: string;
+  habit: string;
+  plugin: string;
+  example: string;
+  badge: "toolkits" | "alone" | "none";
+  /** Filled in once the stage has run on a real feature. */
+  realUse?: string;
+}
+
+interface Props {
+  id: string;
+  label: string;
+  stages: Stage[];
+}
+
+const { id, label, stages } = Astro.props;
+const badges = { toolkits: "Run with the toolkits", alone: "Run alone", none: "Not run yet" };
+---
+
+<div class="rail" id={id} role="group" aria-label={label}>
+  {stages.map((s) => (
+    <details class="rail-stop post-panel" name={`rail-${id}`}>
+      <summary>
+        <span class="rail-no">{s.no}</span>
+        <span class="rail-name">{s.name}</span>
+        <span class="rail-line">{s.line}</span>
+      </summary>
+      <div class="rail-body">
+        <div>
+          <h4>The habit it came from</h4>
+          <p>{s.habit}</p>
+        </div>
+        <div>
+          <h4>What the plugin does</h4>
+          <p>{s.plugin}</p>
+        </div>
+        <div>
+          <h4>
+            One example <span class={`rail-badge rail-badge-${s.badge}`}>{badges[s.badge]}</span>
+          </h4>
+          <p>{s.example}</p>
+        </div>
+        {s.realUse && (
+          <div class="rail-real">
+            <h4>In real use</h4>
+            <p>{s.realUse}</p>
+          </div>
+        )}
+      </div>
+    </details>
+  ))}
+</div>

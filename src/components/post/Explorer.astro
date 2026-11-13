@@ -1,0 +1,89 @@
+---
+// A set of cards the reader browses by group or searches by word. Each card
+// opens to its fields. Without JavaScript every card shows, in page order.
+import type { ExplorerCard, ExplorerGroup } from "../../data/toolkits";
+
+interface Props {
+  id: string;
+  title: string;
+  label: string;
+  groups: ExplorerGroup[];
+  cards: ExplorerCard[];
+  searchHint?: string;
+}
+
+const { id, title, label, groups, cards, searchHint = "Search every group" } = Astro.props;
+const size = (key: string) => cards.filter((c) => c.group === key).length;
+---
+
+<figure class="explorer post-panel" id={id} aria-label={label}>
+  <figcaption class="chart-title">{title}</figcaption>
+  <div class="explorer-groups">
+    {groups.map((g, i) => (
+      <button type="button" class="post-btn" data-group={g.key} aria-pressed={i === 0 ? "true" : "false"}>
+        {g.label} <span class="explorer-n">{size(g.key)}</span>
+      </button>
+    ))}
+  </div>
+  <label class="explorer-search">
+    <span>{searchHint}</span>
+    <input type="search" autocomplete="off" />
+  </label>
+  <p class="explorer-count" aria-live="polite"></p>
+  <div class="explorer-cards">
+    {cards.map((c) => (
+      <details class="explorer-card" data-group={c.group}>
+        <summary>
+          <b>{c.title}</b>
+          <span>{c.summary}</span>
+        </summary>
+        <dl>
+          {c.fields.map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
+    ))}
+  </div>
+</figure>
+
+<script>
+  import { matches } from "../../scripts/explorer";
+
+  document.querySelectorAll<HTMLElement>(".explorer").forEach((root) => {
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-group].post-btn")];
+    const input = root.querySelector<HTMLInputElement>("input[type=search]");
+    const count = root.querySelector<HTMLElement>(".explorer-count");
+    const cards = [...root.querySelectorAll<HTMLDetailsElement>(".explorer-card")].map((el) => ({
+      el,
+      group: el.dataset.group ?? "",
+      text: (el.textContent ?? "").toLowerCase(),
+    }));
+    let group = buttons[0]?.dataset.group ?? "";
+
+    const apply = () => {
+      const query = input?.value ?? "";
+      let shown = 0;
+      for (const card of cards) {
+        const show = matches(card, group, query);
+        card.el.hidden = !show;
+        if (show) shown += 1;
+      }
+      if (count) count.textContent = query.trim() ? `${shown} of ${cards.length} match, across every group` : `${shown} of ${cards.length} shown`;
+      for (const b of buttons) b.setAttribute("aria-pressed", String(!query.trim() && b.dataset.group === group));
+    };
+
+    for (const b of buttons) {
+      b.addEventListener("click", () => {
+        group = b.dataset.group ?? "";
+        if (input) input.value = "";
+        apply();
+      });
+    }
+    input?.addEventListener("input", apply);
+    apply();
+  });
+</script>
