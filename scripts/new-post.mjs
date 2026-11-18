@@ -1,6 +1,6 @@
 // Blog post scaffolder — creates a listed post from the template.
 //
-// Usage:  npm run new-post -- <slug> "Title" ["One-line description"]
+// Usage:  bun run new-post <slug> "Title" ["One-line description"]
 // Does:   1. creates src/pages/blog/<slug>.astro from scripts/templates/post.astro.tpl
 //         2. inserts a metadata entry into src/data/posts.ts (drives /blog/ listing + OG tags)
 // Then:   write the post, add an OG card at public/images/blog/<slug>-og.png (1200x630),
@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const [, , slug, title, description = "One-line description. It shows on the blog index and social cards."] = process.argv;
 if (!slug || !title) {
-  console.error('usage: npm run new-post -- <slug> "Title" ["Description"]');
+  console.error('usage: bun run new-post <slug> "Title" ["Description"]');
   process.exit(1);
 }
 if (!/^[a-z0-9-]+$/.test(slug)) {
@@ -63,5 +63,5 @@ writeFileSync(postsPath, posts.replace(MARKER, `${MARKER}\n${entry.trimEnd()}`))
 console.log(`created  src/pages/blog/${slug}.astro`);
 console.log(`updated  src/data/posts.ts (published: ${published})`);
 console.log(`next:    add OG card at public/images/blog/${slug}-og.png (1200x630),`);
-console.log(`         write the post, set readingTime, then npm run build to verify.`);
+console.log(`         write the post, set readingTime, then bun run build to verify.`);
 console.log(`guide:   docs/blog.md`);

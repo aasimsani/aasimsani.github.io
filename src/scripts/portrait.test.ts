@@ -1,4 +1,4 @@
-// Run with: npm run test
+// Run with: bun run test
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { batteredLevel, pixelSprite, sampleFace, toGrid } from "./portrait.ts";

@@ -31,9 +31,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run build
       - name: Keep search engines off the preview
         run: |
           printf '/*\n  X-Robots-Tag: noindex, nofollow\n' > dist/_headers

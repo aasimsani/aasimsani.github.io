@@ -3,10 +3,10 @@
 Personal site — Astro 5 + Tailwind 4, deployed to GitHub Pages on push to `master`.
 
 ```bash
-npm run dev       # local dev server
-npm run build     # production build into dist/
-npm run check     # type-check the Astro project
-npm test          # unit tests for the site scripts
+bun run dev       # local dev server
+bun run build     # production build into dist/
+bun run check     # type-check the Astro project
+bun run test          # unit tests for the site scripts
 ```
 
 `.github/workflows/ci.yml` runs the type check and the tests, including the
@@ -52,7 +52,7 @@ Two ways to put a document on the site:
 ### Listed blog post
 
 ```bash
-npm run new-post -- <slug> "Title" ["One-line description"]
+bun run new-post <slug> "Title" ["One-line description"]
 ```
 
 Scaffolds `src/pages/blog/<slug>.astro` from `scripts/templates/post.astro.tpl`
@@ -68,7 +68,7 @@ content collections.
 ### Public standalone page (unlisted by default)
 
 ```bash
-npm run publish -- <input.html> <slug> [--indexable]
+bun run publish <input.html> <slug> [--indexable]
 ```
 
 Wraps an HTML fragment into a full page at `public/p/<slug>.html` →

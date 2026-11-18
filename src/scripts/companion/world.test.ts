@@ -1,4 +1,4 @@
-// Run with: npm run test
+// Run with: bun run test
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildJourney, buildRoad, campfireLayout, chaseSpeed, freeSwing, hitStop, leashed, pointAt, roundCorners, scrollSpeed, spawnPlan, stopForValue, swingDamage, tAtY, tapTarget } from "./world.ts";

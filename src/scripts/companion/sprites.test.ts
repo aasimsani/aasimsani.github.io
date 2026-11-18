@@ -1,4 +1,4 @@
-// Run with: npm run test
+// Run with: bun run test
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { BAT, GULL, LEGS, LOOKS, MINI_BOSSES, SLIME, SLIME_DAY, SLOP_PAL, SLOP_PR, dayPalette, type Frame } from "./sprites.ts";
