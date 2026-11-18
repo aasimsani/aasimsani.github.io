@@ -1,6 +1,6 @@
 // Public standalone page publisher.
 //
-// Usage:   npm run publish -- <input.html> <slug> [--indexable]
+// Usage:   bun run publish <input.html> <slug> [--indexable]
 // Output:  public/p/<slug>.html  →  https://aasimsani.net/p/<slug>.html after deploy
 //
 // Default is UNLISTED: the page is public to anyone with the link, but carries
@@ -18,7 +18,7 @@ const args = process.argv.slice(2);
 const indexable = args.includes("--indexable");
 const [inPath, slug] = args.filter((a) => a !== "--indexable");
 if (!inPath || !slug) {
-  console.error("usage: npm run publish -- <input.html> <slug> [--indexable]");
+  console.error("usage: bun run publish <input.html> <slug> [--indexable]");
   process.exit(1);
 }
 if (!/^[a-z0-9-]+$/.test(slug)) {

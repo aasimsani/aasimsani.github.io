@@ -6,13 +6,13 @@ for every rule here.
 
 ## Shipping a post
 
-1. Run `npm run new-post -- <slug> "Title" "Description"`. The script creates
+1. Run `bun run new-post <slug> "Title" "Description"`. The script creates
    `src/pages/blog/<slug>.astro` from `scripts/templates/post.astro.tpl` and
    adds an entry to `src/data/posts.ts`.
 2. Write the post, using the components below.
 3. Make the social card (see [Social card](#social-card)).
 4. Set `readingTime` in `src/data/posts.ts` once the draft settles.
-5. Run `npm run build`, then check the page in Serious and After hours, light
+5. Run `bun run build`, then check the page in Serious and After hours, light
    and dark, and at phone width.
 
 ## Page anatomy
@@ -261,7 +261,7 @@ old image until the URL changes.
 
 The homepage has its own card, `public/images/og-card.jpg`, which carries the
 portrait. Its source is `scripts/templates/og-home.html`. That file loads the
-fonts and the portrait from this repository, so run `npm install` first. Render
+fonts and the portrait from this repository, so run `bun install` first. Render
 it with the same Chrome command to a PNG, convert the PNG to a JPEG (on macOS,
 `sips -s format jpeg card.png --out public/images/og-card.jpg`), and bump the
 `?v=N` on `ogImage` in `src/data/site.ts`.

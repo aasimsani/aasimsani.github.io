@@ -24,11 +24,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-      - run: npm ci
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
       - name: Type-check the Astro project
-        run: npm run check
+        run: bun run check
       - name: Test the site scripts
-        run: npm test
+        run: bun run test
       - name: Test the narration script
         run: python3 -m unittest discover -s scripts -p 'test_*.py'
